@@ -214,35 +214,93 @@
       position:relative; z-index:10;
       display:none;
       flex-direction:column; align-items:center;
-      padding:44px 48px 36px;
-      background:#fff; border:1px solid #edd8d4; border-radius:28px;
-      box-shadow:0 12px 48px rgba(167,139,137,.18);
-      max-width:360px; width:90vw; text-align:center;
-      animation:card-in .4s cubic-bezier(.34,1.2,.64,1) both;
+      text-align:center;
     }
     .no-access.visible { display:flex; }
 
-    .na-bear { width:60px; height:60px; object-fit:contain; margin-bottom:16px; opacity:.55; filter:grayscale(.3); }
+    /* Bear + bubble wrapper */
+    .na-bear-wrap { position:relative; margin-bottom:22px; }
+    .na-bear-img {
+      width:96px; height:96px; object-fit:contain;
+      filter:drop-shadow(0 6px 20px rgba(209,125,110,.28));
+      animation:
+        na-shake 1.1s cubic-bezier(.36,.07,.19,.97) both,
+        bear-float 3.4s 1.1s ease-in-out infinite;
+    }
+    @keyframes na-shake {
+      0%,100% { transform:rotate(0) translateY(0); }
+      12%     { transform:rotate(-10deg) translateY(-5px); }
+      25%     { transform:rotate(10deg)  translateY(-5px); }
+      37%     { transform:rotate(-8deg)  translateY(-3px); }
+      50%     { transform:rotate(8deg)   translateY(-3px); }
+      62%     { transform:rotate(-5deg)  translateY(-1px); }
+      75%     { transform:rotate(5deg)   translateY(-1px); }
+      87%     { transform:rotate(-2deg); }
+    }
+
+    /* Floating speech bubble */
+    .na-bubble {
+      position:absolute;
+      top:-6px; right:-108px;
+      background:#fff;
+      border:1.5px solid #e8d8d4;
+      border-radius:12px 12px 12px 3px;
+      padding:6px 14px;
+      font-size:13px;
+      white-space:nowrap;
+      color:#af6e6a;
+      font-family:'Chihaya','Hiragino Sans',sans-serif;
+      box-shadow:0 2px 12px rgba(167,139,137,.16);
+      animation:
+        speech-reveal 1.5s ease both,
+        speech-float  3.2s ease-in-out 1.5s infinite;
+    }
+    .na-bubble-tail {
+      position:absolute;
+      left:-12px; top:50%; transform:translateY(-50%);
+      width:0; height:0;
+      border-top:7px solid transparent;
+      border-bottom:7px solid transparent;
+      border-right:12px solid #e8d8d4;
+    }
+    .na-bubble-tail::after {
+      content:'';
+      position:absolute;
+      left:4px; top:-5px;
+      width:0; height:0;
+      border-top:5px solid transparent;
+      border-bottom:5px solid transparent;
+      border-right:8px solid #fff;
+    }
 
     .na-badge {
       display:inline-flex; align-items:center; gap:6px;
-      background:#fdf0ef; border:1px solid #e8d8d4; border-radius:20px;
-      padding:4px 12px; font-size:10px; font-weight:700; letter-spacing:.08em;
-      color:#af6e6a; text-transform:uppercase; margin-bottom:18px;
+      background:rgba(255,255,255,.72); border:1px solid #e8d8d4; border-radius:20px;
+      padding:4px 13px; font-size:10px; font-weight:700; letter-spacing:.09em;
+      color:#af6e6a; text-transform:uppercase; margin-bottom:12px;
+      animation:fade-up .4s .6s ease both; opacity:0; animation-fill-mode:forwards;
     }
     .na-badge svg { flex-shrink:0; }
 
-    .na-title { font-family:'Chihaya','Noto Serif JP',serif; font-size:22px; color:#3d2c28; margin-bottom:8px; }
-    .na-msg   { font-size:13px; color:#9c7b76; line-height:1.65; margin-bottom:10px; }
-    .na-hint  { font-size:11px; color:#c4a9a5; line-height:1.6; margin-bottom:24px; }
-
-    .na-back {
-      padding:10px 28px; background:#d17d6e; color:#fff;
-      border:none; border-radius:10px; font-size:13px; font-weight:600;
-      cursor:pointer; font-family:inherit; letter-spacing:.02em;
-      transition:background .14s;
+    .na-title {
+      font-family:'Chihaya','Noto Serif JP',serif;
+      font-size:30px; color:#e0675c; margin-bottom:8px;
+      animation:fade-up .4s .72s ease both; opacity:0; animation-fill-mode:forwards;
     }
-    .na-back:hover { background:#b96a5c; }
+    .na-msg {
+      font-size:13px; color:#9c7b76; line-height:1.7; margin-bottom:26px;
+      animation:fade-up .4s .84s ease both; opacity:0; animation-fill-mode:forwards;
+    }
+    .na-back {
+      padding:9px 26px;
+      background:none; color:#af6e6a;
+      border:1.5px solid #ddc8c4; border-radius:10px;
+      font-size:12px; font-weight:600;
+      cursor:pointer; font-family:inherit; letter-spacing:.02em;
+      transition:background .14s, border-color .14s;
+      animation:fade-up .4s .96s ease both; opacity:0; animation-fill-mode:forwards;
+    }
+    .na-back:hover { background:rgba(255,255,255,.65); border-color:#c4a9a5; }
   </style>
 </head>
 <body>
@@ -287,16 +345,18 @@
     <div class="login-footer">© 2025 Kumaki · All rights reserved</div>
   </div>
 
-  <!-- ── No-access card ── -->
+  <!-- ── No-access screen ── -->
   <div class="no-access" id="no-access-card">
-    <img class="na-bear" src="images/logo.png" alt="">
+    <div class="na-bear-wrap">
+      <img class="na-bear-img" src="images/logo.png" alt="Kumaki">
+      <div class="na-bubble">ごめんね！<span class="na-bubble-tail"></span></div>
+    </div>
     <div class="na-badge">
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Private Beta
     </div>
-    <div class="na-title">Access not available</div>
-    <div class="na-msg">Your Google account isn't on the beta invite list for Kumaki.</div>
-    <div class="na-hint">Already have an invite? Check your email for a Kumaki invitation link and use that to sign up first.</div>
+    <div class="na-title">アクセスなし</div>
+    <div class="na-msg">This space is invite-only for now.<br>Ask for access to join the beta.</div>
     <button class="na-back" onclick="showLogin()">← Back to sign in</button>
   </div>
 
