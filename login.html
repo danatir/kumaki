@@ -238,40 +238,6 @@
       87%     { transform:rotate(-2deg); }
     }
 
-    /* Floating speech bubble */
-    .na-bubble {
-      position:absolute;
-      top:-6px; right:-108px;
-      background:#fff;
-      border:1.5px solid #e8d8d4;
-      border-radius:12px 12px 12px 3px;
-      padding:6px 14px;
-      font-size:13px;
-      white-space:nowrap;
-      color:#af6e6a;
-      font-family:'Chihaya','Hiragino Sans',sans-serif;
-      box-shadow:0 2px 12px rgba(167,139,137,.16);
-      animation:
-        speech-reveal 1.5s ease both,
-        speech-float  3.2s ease-in-out 1.5s infinite;
-    }
-    .na-bubble-tail {
-      position:absolute;
-      left:-12px; top:50%; transform:translateY(-50%);
-      width:0; height:0;
-      border-top:7px solid transparent;
-      border-bottom:7px solid transparent;
-      border-right:12px solid #e8d8d4;
-    }
-    .na-bubble-tail::after {
-      content:'';
-      position:absolute;
-      left:4px; top:-5px;
-      width:0; height:0;
-      border-top:5px solid transparent;
-      border-bottom:5px solid transparent;
-      border-right:8px solid #fff;
-    }
 
     .na-badge {
       display:inline-flex; align-items:center; gap:6px;
@@ -349,7 +315,7 @@
   <div class="no-access" id="no-access-card">
     <div class="na-bear-wrap">
       <img class="na-bear-img" src="images/logo.png" alt="Kumaki">
-      <div class="na-bubble">ごめんね！<span class="na-bubble-tail"></span></div>
+      <div class="bear-speech">ごめんね！</div>
     </div>
     <div class="na-badge">
       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
