@@ -3055,15 +3055,13 @@ function bearClick(e){
 // ── BEAR BUBBLE ──────────────────────────────────────
 function initBearBubble(){
   const bubble = document.getElementById('bear-bubble');
-  const floater = bubble ? bubble.closest('.bear-bubble-floater') : null;
-  if(!bubble || !floater) return;
+  if(!bubble) return;
 
   let timer = null;
 
   function show(){
     clearTimeout(timer);
     bubble.classList.remove('bb-out','bb-visible','bb-in');
-    floater.classList.add('bw-float');
     void bubble.offsetWidth;
     bubble.classList.add('bb-in');
     // switch to bb-visible after pop-in finishes (350ms)
