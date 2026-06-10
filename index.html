@@ -92,9 +92,11 @@
   <div id="home-screen" class="home-screen">
     <canvas id="home-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.18;"></canvas>
     <div class="home-inner">
-      <div class="home-logo-wrap">
-        <img id="home-logo" src="images/logo.png" class="home-logo-img" onclick="bearClick(event)" style="cursor:pointer;">
-        <div class="bear-bubble-wrap"><div class="bear-bubble-floater"><div class="bear-bubble" id="bear-bubble">click me!<span class="bear-bubble-tail"></span></div></div></div>
+      <div class="home-logo-scene">
+        <div class="home-logo-wrap">
+          <img id="home-logo" src="images/logo.png" class="home-logo-img" onclick="bearClick(event)" style="cursor:pointer;">
+        </div>
+        <div class="bear-bubble" id="bear-bubble">click me!</div>
       </div>
       <div class="home-title-wrap">
         <h1 class="home-title notranslate" id="home-title-text" translate="no"></h1>
