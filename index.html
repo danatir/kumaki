@@ -198,9 +198,13 @@
   }
 
   function renderPanel(user) {
-    var name   = (user.user_metadata && user.user_metadata.full_name)  || '';
+    var name   = (user.user_metadata && user.user_metadata.full_name)
+                 || (user.identities && user.identities[0] && user.identities[0].identity_data && user.identities[0].identity_data.full_name)
+                 || '';
     var email  = user.email || '';
-    var avatar = (user.user_metadata && user.user_metadata.avatar_url) || '';
+    var avatar = (user.user_metadata && user.user_metadata.avatar_url)
+                 || (user.identities && user.identities[0] && user.identities[0].identity_data && user.identities[0].identity_data.avatar_url)
+                 || '';
     var panel  = getPanel();
     var avatarHtml = avatar
       ? '<img class="pp-avatar-lg" src="' + avatar + '" alt="">'
@@ -261,7 +265,9 @@
     var nameEl  = document.getElementById('sidebar-account-name');
     if (!info) return;
     if (user) {
-      var fullName = (user.user_metadata && user.user_metadata.full_name) || user.email || '';
+      var fullName = (user.user_metadata && user.user_metadata.full_name)
+                     || (user.identities && user.identities[0] && user.identities[0].identity_data && user.identities[0].identity_data.full_name)
+                     || user.email || '';
       if (imgEl) { imgEl.style.display = 'none'; }
       if (fbEl)  { fbEl.style.display = 'none'; }
       if (nameEl) nameEl.textContent = fullName;
