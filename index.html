@@ -197,14 +197,19 @@
     return _ppEl;
   }
 
+  function _avatarFromUser(u) {
+    return (u.user_metadata && (u.user_metadata.avatar_url || u.user_metadata.picture))
+      || (u.identities && u.identities[0] && u.identities[0].identity_data &&
+          (u.identities[0].identity_data.avatar_url || u.identities[0].identity_data.picture))
+      || '';
+  }
+
   function renderPanel(user) {
     var name   = (user.user_metadata && user.user_metadata.full_name)
                  || (user.identities && user.identities[0] && user.identities[0].identity_data && user.identities[0].identity_data.full_name)
                  || '';
     var email  = user.email || '';
-    var avatar = (user.user_metadata && user.user_metadata.avatar_url)
-                 || (user.identities && user.identities[0] && user.identities[0].identity_data && user.identities[0].identity_data.avatar_url)
-                 || '';
+    var avatar = _avatarFromUser(user);
     var panel  = getPanel();
     var avatarHtml = avatar
       ? '<img class="pp-avatar-lg" src="' + avatar + '" alt="">'
@@ -229,6 +234,21 @@
     panel.querySelector('#pp-logout-btn').addEventListener('click', function(){
       netlifyIdentity.logout();
     });
+
+    // If avatar wasn't in cached user, fetch fresh data from identity API
+    if (!avatar && typeof user.jwt === 'function') {
+      user.jwt().then(function(token) {
+        return fetch('/.netlify/identity/user', {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+      }).then(function(r) { return r.json(); }).then(function(full) {
+        var url = _avatarFromUser(full);
+        if (url) {
+          var wrap = panel.querySelector('.pp-avatar-wrap');
+          if (wrap) wrap.innerHTML = '<img class="pp-avatar-lg" src="' + url + '" alt="">';
+        }
+      }).catch(function(){});
+    }
   }
 
   function openPanel(user) {
