@@ -9,8 +9,8 @@
 <link rel="stylesheet" href="style.css">
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script>
-  netlifyIdentity.init({APIUrl: 'https://kumaki.netlify.app/.netlify/identity'});
   // Auth gate: hide page until login is confirmed; redirect to login if not
+  // IMPORTANT: register listener BEFORE calling init, so we don't miss the synchronous event
   (function(){
     document.documentElement.style.visibility = 'hidden';
     var fallback = setTimeout(function(){
@@ -24,6 +24,7 @@
         document.location.replace('/login.html');
       }
     });
+    netlifyIdentity.init({APIUrl: 'https://kumaki.netlify.app/.netlify/identity'});
   })();
 </script>
 </head>

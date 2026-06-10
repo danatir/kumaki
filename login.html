@@ -302,9 +302,6 @@
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script>
-    // ── Point Identity widget at this site's API ──
-    netlifyIdentity.init({APIUrl: 'https://kumaki.netlify.app/.netlify/identity'});
-
     // ── Floating kana ──
     (function(){
       var chars = 'あいうえおかきくけこさしすせそたちつてとはひふへほまみむやゆよらりるれろんアイウエオカキクケコ日本語学習熊鍵';
@@ -346,6 +343,7 @@
     })();
 
     // ── Netlify Identity events ──
+    // Register listeners BEFORE calling init so we don't miss the synchronous event
     netlifyIdentity.on('init', function(user) {
       if (user) { document.location.href = '/'; }
     });
@@ -356,6 +354,7 @@
       console.warn('Identity error:', err);
       showNoAccess();
     });
+    netlifyIdentity.init({APIUrl: 'https://kumaki.netlify.app/.netlify/identity'});
 
     // ── Direct OAuth — no widget popup ──
     function loginWithGoogle() {
