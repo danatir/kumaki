@@ -1,0 +1,5 @@
+# Serve login page normally
+/login.html  /login.html  200
+
+# Everything else → index.html (SPA routing)
+/*  /index.html  200
