@@ -300,7 +300,7 @@
     <button class="na-back" onclick="showLogin()">← Back to sign in</button>
   </div>
 
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
   <script>
     // ── Floating kana ──
     (function(){
@@ -354,8 +354,6 @@
       console.warn('Identity error:', err);
       showNoAccess();
     });
-    netlifyIdentity.init({APIUrl: 'https://kumaki.netlify.app/.netlify/identity'});
-
     // ── Direct OAuth — no widget popup ──
     function loginWithGoogle() {
       window.location.href =
