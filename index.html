@@ -18,13 +18,25 @@
     netlifyIdentity.on('init', function(user){
       clearTimeout(fallback);
       if(user){
-        var roles = (user.app_metadata && user.app_metadata.roles) || [];
-        if(roles.indexOf('beta') !== -1){
-          document.documentElement.style.visibility = '';
-        } else {
+        // Force-refresh token so roles reflect latest Netlify dashboard state
+        user.jwt(true).then(function(token){
+          try {
+            var payload = JSON.parse(atob(token.split('.')[1]));
+            var roles = (payload.app_metadata && payload.app_metadata.roles) || [];
+            if(roles.indexOf('beta') !== -1){
+              document.documentElement.style.visibility = '';
+            } else {
+              netlifyIdentity.logout();
+              document.location.replace('/login.html');
+            }
+          } catch(e) {
+            netlifyIdentity.logout();
+            document.location.replace('/login.html');
+          }
+        }).catch(function(){
           netlifyIdentity.logout();
           document.location.replace('/login.html');
-        }
+        });
       } else {
         document.location.replace('/login.html');
       }
@@ -367,9 +379,15 @@
   function checkSession() {
     var user = window.netlifyIdentity && netlifyIdentity.currentUser();
     if (user && typeof user.jwt === 'function') {
-      user.jwt(true).then(function() {
-        var roles = (user.app_metadata && user.app_metadata.roles) || [];
-        if(roles.indexOf('beta') === -1){
+      user.jwt(true).then(function(token) {
+        // Decode fresh JWT payload to get up-to-date roles (not stale in-memory user object)
+        try {
+          var payload = JSON.parse(atob(token.split('.')[1]));
+          var roles = (payload.app_metadata && payload.app_metadata.roles) || [];
+          if (roles.indexOf('beta') === -1) {
+            netlifyIdentity.logout();
+          }
+        } catch(e) {
           netlifyIdentity.logout();
         }
       }).catch(function() {
