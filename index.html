@@ -233,19 +233,34 @@
       netlifyIdentity.logout();
     });
 
-    // If avatar wasn't in cached user, fetch fresh data from identity API
-    if (!avatar && typeof user.jwt === 'function') {
-      user.jwt().then(function(token) {
+    // Always fetch fresh user data from the API — user_metadata is often empty for OAuth users
+    // Use netlifyIdentity.currentUser() (not the passed-in user) to ensure we have the jwt() method
+    var liveUser = window.netlifyIdentity && netlifyIdentity.currentUser();
+    if (liveUser && typeof liveUser.jwt === 'function') {
+      liveUser.jwt().then(function(token) {
         return fetch('/.netlify/identity/user', {
           headers: { Authorization: 'Bearer ' + token }
         });
-      }).then(function(r) { return r.json(); }).then(function(full) {
+      }).then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function(full) {
         var url = _avatarFromUser(full);
-        if (url) {
-          var wrap = panel.querySelector('.pp-avatar-wrap');
-          if (wrap) wrap.innerHTML = '<img class="pp-avatar-lg" src="' + url + '" alt="">';
+        var freshName = (full.user_metadata && full.user_metadata.full_name)
+          || (full.identities && full.identities[0] && full.identities[0].identity_data && full.identities[0].identity_data.full_name)
+          || '';
+        var wrap = panel.querySelector('.pp-avatar-wrap');
+        if (wrap && url) {
+          wrap.innerHTML = '<img class="pp-avatar-lg" src="' + url + '" alt="">';
         }
-      }).catch(function(){});
+        if (freshName && !name) {
+          var nameEl = panel.querySelector('.pp-name-lg');
+          if (!nameEl) {
+            var info = panel.querySelector('.pp-user-info');
+            if (info) info.insertAdjacentHTML('afterbegin', '<div class="pp-name-lg">' + freshName + '</div>');
+          }
+        }
+      }).catch(function(e) { console.warn('Avatar fetch error:', e); });
     }
   }
 
