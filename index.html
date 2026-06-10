@@ -18,7 +18,13 @@
     netlifyIdentity.on('init', function(user){
       clearTimeout(fallback);
       if(user){
-        document.documentElement.style.visibility = '';
+        var roles = (user.app_metadata && user.app_metadata.roles) || [];
+        if(roles.indexOf('beta') !== -1){
+          document.documentElement.style.visibility = '';
+        } else {
+          netlifyIdentity.logout();
+          document.location.replace('/login.html');
+        }
       } else {
         document.location.replace('/login.html');
       }
@@ -330,11 +336,16 @@
     updateSidebarAccount(user);
   }
 
-  // Revoke detection: if token refresh fails, the session is invalid → log out
+  // Revoke detection: refresh token every 3 min; kick out if token invalid OR role removed
   function checkSession() {
     var user = window.netlifyIdentity && netlifyIdentity.currentUser();
     if (user && typeof user.jwt === 'function') {
-      user.jwt(true).catch(function() {
+      user.jwt(true).then(function() {
+        var roles = (user.app_metadata && user.app_metadata.roles) || [];
+        if(roles.indexOf('beta') === -1){
+          netlifyIdentity.logout();
+        }
+      }).catch(function() {
         netlifyIdentity.logout();
       });
     }

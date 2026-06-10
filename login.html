@@ -344,11 +344,19 @@
 
     // ── Netlify Identity events ──
     // Register listeners BEFORE calling init so we don't miss the synchronous event
+    function hasAccess(user) {
+      var roles = (user.app_metadata && user.app_metadata.roles) || [];
+      return roles.indexOf('beta') !== -1;
+    }
     netlifyIdentity.on('init', function(user) {
-      if (user) { document.location.href = '/'; }
+      if (user) {
+        if (hasAccess(user)) { document.location.href = '/'; }
+        else { netlifyIdentity.logout(); showNoAccess(); }
+      }
     });
-    netlifyIdentity.on('login', function() {
-      document.location.href = '/?_home';
+    netlifyIdentity.on('login', function(user) {
+      if (hasAccess(user)) { document.location.href = '/?_home'; }
+      else { netlifyIdentity.logout(); showNoAccess(); }
     });
     netlifyIdentity.on('error', function(err) {
       console.warn('Identity error:', err);
