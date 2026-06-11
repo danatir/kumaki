@@ -688,11 +688,11 @@ vocabData['S1'] = {
     {word:'どのぐらい',reading:'どのぐらい / どのくらい',def:'How long / How much',pos:'Expr',exprKey:'どのぐらい かかりますか'},
     {word:'なにで',reading:'なにで',def:'By what means / transportation',pos:'Expr',exprKey:'なにで 行きますか'},
     {word:'何時',reading:'なんじ',def:'What time',pos:'Expr',exprKey:'なんじに おきますか'},
-    {word:'なんようび',reading:'なんようび',def:'What day of the week',pos:'Expr',exprKey:'なんようび ですか'},
-    {word:'なんがつ',reading:'なんがつ',def:'What month',pos:'Expr',exprKey:'なんがつ ですか'},
-    {word:'なんにち',reading:'なんにち',def:'What day of the month',pos:'Expr',exprKey:'なんにち ですか'},
-    {word:'なんじかん',reading:'なんじかん',def:'How many hours',pos:'Expr',exprKey:'なんじかん かかりますか'},
-    {word:'なんにちかん',reading:'なんにちかん',def:'How many days',pos:'Expr',exprKey:'なんにちかん かかりますか'},
+    {word:'何曜日',reading:'なんようび',def:'What day of the week',pos:'Expr',exprKey:'なんようび ですか'},
+    {word:'何月',reading:'なんがつ',def:'What month',pos:'Expr',exprKey:'なんがつ ですか'},
+    {word:'何日',reading:'なんにち',def:'What day of the month',pos:'Expr',exprKey:'なんにち ですか'},
+    {word:'何時間',reading:'なんじかん',def:'How many hours',pos:'Expr',exprKey:'なんじかん かかりますか'},
+    {word:'何日間',reading:'なんにちかん',def:'How many days',pos:'Expr',exprKey:'なんにちかん かかりますか'},
     {word:'何人',reading:'なんにん',def:'How many people',pos:'Expr',exprKey:'なんにん ですか'},
     {word:'どうしましたか',reading:'どうしましたか',def:'What happened?',pos:'Expr',exprKey:'どうしましたか'},
     {word:'てもいいですか',reading:'〜てもいいですか',def:'Asking for permission',pos:'Expr',exprKey:'写真を とってもいいですか'},
@@ -1440,13 +1440,13 @@ const questionsData = [
   {jp:'どうやって',reading:'どうやって',eng:'How, By what route',cat:'Method',example:'どうやって 行きますか。'},
   {jp:'どのぐらい / どのくらい',reading:'どのぐらい / どのくらい',eng:'How long, How much (duration)',cat:'Number',example:'どのぐらい かかりますか。'},
   {jp:'なにで',reading:'なにで',eng:'By what means, transportation',cat:'Method',example:'なにで 行きますか。'},
-  {jp:'なんじ',reading:'なんじ',eng:'What time',cat:'Time',example:'なんじに おきますか。'},
-  {jp:'なんようび',reading:'なんようび',eng:'What day of the week',cat:'Time',example:'なんようび ですか。'},
-  {jp:'なんがつ',reading:'なんがつ',eng:'What month',cat:'Time',example:'なんがつ ですか。'},
-  {jp:'なんにち',reading:'なんにち',eng:'What day of the month',cat:'Time',example:'なんにち ですか。'},
-  {jp:'なんじかん',reading:'なんじかん',eng:'How many hours',cat:'Number',example:'なんじかん かかりますか。'},
-  {jp:'なんにちかん',reading:'なんにちかん',eng:'How many days',cat:'Number',example:'なんにちかん かかりますか。'},
-  {jp:'なんにん',reading:'なんにん',eng:'How many people',cat:'Number',example:'なんにん ですか。'},
+  {jp:'何時',reading:'なんじ',eng:'What time',cat:'Time',example:'なんじに おきますか。'},
+  {jp:'何曜日',reading:'なんようび',eng:'What day of the week',cat:'Time',example:'なんようび ですか。'},
+  {jp:'何月',reading:'なんがつ',eng:'What month',cat:'Time',example:'なんがつ ですか。'},
+  {jp:'何日',reading:'なんにち',eng:'What day of the month',cat:'Time',example:'なんにち ですか。'},
+  {jp:'何時間',reading:'なんじかん',eng:'How many hours',cat:'Number',example:'なんじかん かかりますか。'},
+  {jp:'何日間',reading:'なんにちかん',eng:'How many days',cat:'Number',example:'なんにちかん かかりますか。'},
+  {jp:'何人',reading:'なんにん',eng:'How many people',cat:'Number',example:'なんにん ですか。'},
   {jp:'どうしましたか',reading:'どうしましたか',eng:'What happened?',cat:'Conversational',example:'どうしましたか。'},
   {jp:'〜てもいいですか',reading:'〜てもいいですか',eng:'Asking for permission (May I ~?)',cat:'Permission',example:'写真を とってもいいですか。'},
   {jp:'〜ましょうか',reading:'〜ましょうか',eng:'Offering to do, Shall I?',cat:'Invitation',example:'かばんを 持ちましょうか。'},
@@ -1484,10 +1484,103 @@ const sem = 'S1';
 let currentTab = 'vocab';
 const scrollPositions = {vocab:0,kanji:0,grammar:0,sheets:0};
 let currentSearch = '';
+let preSearchScrollPos = null; // scroll position saved before renderAll() takes over
 let activeFilter = null;
 let activeSubFilter = null;
 let kanjiShowRead = true;
 let kanjiShowWrite = true;
+
+// Per-tab state memory
+const tabState = {
+  vocab:   {search:'', filter:null, subFilter:null},
+  kanji:   {search:'', filter:null, subFilter:null, showRead:true, showWrite:true},
+  grammar: {search:'', filter:null, subFilter:null},
+  sheets:  {search:'', sheetType:'verbs', sheetLvls:new Set(), kanjiModes:new Set(['read','write'])}
+};
+// Per-sheet-sub-tab state: remembers level filters and kanji modes independently per sheet tab
+const sheetTabStates = {
+  verbs:  {lvls: new Set()},
+  adj:    {lvls: new Set()},
+  nouns:  {lvls: new Set()},
+  kanji:  {lvls: new Set(), modes: new Set(['read','write'])},
+  expr:   {lvls: new Set()},
+};
+function saveTabState(tab){
+  if(!tabState[tab]) return;
+  tabState[tab].search    = currentSearch;
+  tabState[tab].filter    = activeFilter;
+  tabState[tab].subFilter = activeSubFilter;
+  if(tab === 'kanji'){
+    tabState[tab].showRead  = kanjiShowRead;
+    tabState[tab].showWrite = kanjiShowWrite;
+  }
+  if(tab === 'sheets'){
+    tabState[tab].sheetType  = currentSheetType;
+    // Save active tab's live state into sheetTabStates before persisting
+    if(sheetTabStates[currentSheetType]){
+      sheetTabStates[currentSheetType].lvls = new Set(activeSheetLvls);
+      if(currentSheetType === 'kanji') sheetTabStates['kanji'].modes = new Set(activeKanjiModes);
+    }
+    // Snapshot all sheet tab states
+    tabState[tab].sheetTabStates = {};
+    for(const k of Object.keys(sheetTabStates)){
+      tabState[tab].sheetTabStates[k] = {lvls: new Set(sheetTabStates[k].lvls)};
+      if(k === 'kanji') tabState[tab].sheetTabStates[k].modes = new Set(sheetTabStates['kanji'].modes);
+    }
+  }
+}
+function restoreTabState(tab){
+  if(!tabState[tab]) return;
+  currentSearch   = tabState[tab].search    || '';
+  activeFilter    = tabState[tab].filter    || null;
+  activeSubFilter = tabState[tab].subFilter || null;
+  if(tab === 'kanji'){
+    kanjiShowRead  = tabState[tab].showRead  !== false;
+    kanjiShowWrite = tabState[tab].showWrite !== false;
+  }
+  if(tab === 'sheets'){
+    currentSheetType = tabState[tab].sheetType  || 'verbs';
+    // Restore all sheet tab states if saved
+    if(tabState[tab].sheetTabStates){
+      for(const k of Object.keys(sheetTabStates)){
+        if(tabState[tab].sheetTabStates[k]){
+          sheetTabStates[k].lvls = new Set(tabState[tab].sheetTabStates[k].lvls);
+          if(k === 'kanji' && tabState[tab].sheetTabStates[k].modes)
+            sheetTabStates['kanji'].modes = new Set(tabState[tab].sheetTabStates[k].modes);
+        }
+      }
+    }
+    // Restore the active sheet tab's state into live variables
+    activeSheetLvls  = new Set((sheetTabStates[currentSheetType]||{}).lvls);
+    activeKanjiModes = new Set((sheetTabStates['kanji']||{modes:new Set(['read','write'])}).modes);
+  }
+  const searchEl = document.getElementById('main-search');
+  const clearEl  = document.getElementById('search-clear');
+  if(searchEl) searchEl.value = currentSearch;
+  if(clearEl)  clearEl.classList.toggle('visible', currentSearch.length > 0);
+}
+function applyFilterVisuals(){
+  // clear all non-kanji filter buttons and sub-panels
+  document.querySelectorAll('.float-btn').forEach(b=>{ if(!b.id.startsWith('kflt')) b.classList.remove('active'); });
+  document.querySelectorAll('.float-sub').forEach(s=>s.classList.remove('visible'));
+  // restore pos filter button
+  if(activeFilter){
+    const fb = document.getElementById('flt-'+activeFilter);
+    if(fb) fb.classList.add('active');
+    if(activeFilter==='Verb'){ const sp=document.getElementById('sub-Verb'); if(sp) sp.classList.add('visible'); }
+    if(activeFilter==='Adj') { const sp=document.getElementById('sub-Adj');  if(sp) sp.classList.add('visible'); }
+  }
+  // restore sub-filter button
+  if(activeSubFilter){
+    const sb = document.getElementById('flt-'+activeSubFilter);
+    if(sb) sb.classList.add('active');
+  }
+  // restore kanji read/write buttons
+  const kr = document.getElementById('kflt-read');
+  const kw = document.getElementById('kflt-write');
+  if(kr) kr.classList.toggle('active', kanjiShowRead);
+  if(kw) kw.classList.toggle('active', kanjiShowWrite);
+}
 
 // Adj type lookup (い vs な)
 const adjType = {};
@@ -1570,13 +1663,19 @@ function setTab(tab, btn){
   const stickySearch = document.querySelector('.sticky-search');
   const prevTab = currentTab;
 
+  // save state of tab we're leaving
+  if(prevTab !== 'home') saveTabState(prevTab);
+
   currentTab = tab;
-  currentSearch = '';
-  activeFilter = null; activeSubFilter = null;
+
+  // restore state of tab we're entering (or clear if home)
+  if(tab !== 'home'){
+    restoreTabState(tab);
+  } else {
+    currentSearch = ''; activeFilter = null; activeSubFilter = null;
+  }
   const _stb = document.getElementById('scroll-top-btn');
   if(_stb && tab === 'sheets') _stb.classList.remove('visible');
-  document.getElementById('main-search').value = '';
-  document.getElementById('search-clear').classList.remove('visible');
 
   function applyTab(){
     if(tab === 'home'){
@@ -1616,12 +1715,7 @@ function setTab(tab, btn){
     if(stickySearch) setTimeout(()=>stickySearch.classList.remove('ss-hidden'), 60);
     setTimeout(()=>{ document.getElementById('vocab-floats').classList.toggle('ff-visible', tab==='vocab'); }, 80);
     setTimeout(()=>{ document.getElementById('kanji-floats').classList.toggle('ff-visible', tab==='kanji'); }, 80);
-    document.querySelectorAll('.float-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.float-sub').forEach(s=>s.classList.remove('visible'));
-    if(tab==='kanji'){
-      document.getElementById('kflt-read').classList.add('active');
-      document.getElementById('kflt-write').classList.add('active');
-    }
+    applyFilterVisuals();
     render();
     requestAnimationFrame(()=>{
       document.getElementById('main').scrollTop = scrollPositions[tab]||0;
@@ -1638,12 +1732,15 @@ function setTab(tab, btn){
     setTimeout(applyTab, 160);
   } else if(prevTab !== 'home' && tab === 'home'){
     // section → home: slide content out, show home
-    scrollPositions[prevTab] = document.getElementById('main').scrollTop;
+    // If leaving during a search, save the pre-search scroll (not the renderAll scroll)
+    scrollPositions[prevTab] = preSearchScrollPos !== null ? preSearchScrollPos : document.getElementById('main').scrollTop;
+    preSearchScrollPos = null;
     content.classList.add('page-exiting');
     setTimeout(applyTab, 120);
   } else if(prevTab !== 'home' && tab !== 'home'){
     // section → section: quick slide
-    scrollPositions[prevTab] = document.getElementById('main').scrollTop;
+    scrollPositions[prevTab] = preSearchScrollPos !== null ? preSearchScrollPos : document.getElementById('main').scrollTop;
+    preSearchScrollPos = null;
     content.classList.add('page-exiting');
     setTimeout(applyTab, 120);
   } else {
@@ -1777,15 +1874,31 @@ function clearSearch(){
   document.getElementById('main-search').value='';
   document.getElementById('search-clear').classList.remove('visible');
   document.getElementById('search-suggestions').classList.remove('visible');
+  // Use preSearchScrollPos — scrollPositions[currentTab] may have been clobbered to 0
+  // by the scroll listener when renderAll() reset the DOM and scrollTop
+  const restorePos = preSearchScrollPos !== null ? preSearchScrollPos : scrollPositions[currentTab]||0;
   doSearch('');
+  const mainEl = document.getElementById('main');
+  if(mainEl) requestAnimationFrame(()=>{ mainEl.scrollTop = restorePos; });
 }
 function doSearch(val){
+  const wasEmpty = !currentSearch;
   currentSearch = val.trim().toLowerCase();
   const clr = document.getElementById('search-clear');
   if(clr) clr.classList.toggle('visible', currentSearch.length>0);
   updateSuggestions(val.trim());
-  if(currentSearch) renderAll();
-  else render();
+  if(currentSearch){
+    // On first keystroke, snapshot scroll so it survives renderAll() and tab switches
+    if(wasEmpty){
+      const mainEl = document.getElementById('main');
+      if(mainEl) preSearchScrollPos = mainEl.scrollTop;
+      scrollPositions[currentTab] = preSearchScrollPos;
+    }
+    renderAll();
+  } else {
+    preSearchScrollPos = null;
+    render();
+  }
 }
 
 // ── AUTOCOMPLETE ──
@@ -1819,7 +1932,7 @@ function buildSuggIndex(){
   const kd = kanjiData[sem]||{};
   for(const lvl of Object.keys(kd)){
     for(const k of kd[lvl]){
-      _suggIndex.push({type:'vocab', jp:k.kanji, read:k.reading||'', en:k.meaning, badge:'Kanji', pos:'', exprKey:'', searchForms:[k.kanji, k.reading||'', k.meaning||'']});
+      _suggIndex.push({type:'vocab', jp:k.kanji, read:k.reading||'', en:k.meaning, badge:'Kanji', pos:'Kanji', exprKey:'', searchForms:[k.kanji, k.reading||'', k.meaning||'']});
     }
   }
 
@@ -1921,6 +2034,9 @@ function suggPick(el){
   document.getElementById('search-suggestions').classList.remove('visible');
   document.getElementById('main-search').value='';
   document.getElementById('search-clear').classList.remove('visible');
+  // Clear search state so the page restores to its pre-search state
+  currentSearch = '';
+  if(tabState[currentTab]) tabState[currentTab].search = '';
 
   if(type==='grammar'){
     const gramBtn = document.querySelector(".s-btn[onclick*=\"'grammar'\"]");
@@ -1980,12 +2096,18 @@ function suggPick(el){
       });
       setTimeout(doGramNav, 30);
     } else {
+      // search already cleared above; calling setTab will saveTabState(prevTab) with empty search
       if(gramBtn) setTab('grammar', gramBtn);
       // applyTab runs at ~120ms (page-exiting delay), then render() is synchronous.
       // Wait 200ms to guarantee renderGrammar() has populated the DOM before navigating.
       setTimeout(doGramNav, 200);
     }
   } else {
+    // Re-render the current page (restores tabs/filters after renderAll replaced content)
+    const restorePos = preSearchScrollPos !== null ? preSearchScrollPos : scrollPositions[currentTab]||0;
+    render();
+    const mainEl = document.getElementById('main');
+    if(mainEl) requestAnimationFrame(()=>{ mainEl.scrollTop = restorePos; });
     openConjPopup(el.dataset.jp, el.dataset.read, el.dataset.en, el.dataset.pos, el.dataset.ek);
   }
 }
@@ -2087,7 +2209,7 @@ function renderKanji(){
     html += `<div class="kanji-grid">`;
     for(const k of entries){
       const mc = k.mode==='write'?'kanji-write':'kanji-read';
-      html += `<div class="kanji-card ${mc}" onclick="openConjPopup('${k.kanji.replace(/'/g,"\\'")}','${(k.reading||'').replace(/'/g,"\\'")}','${(k.meaning||'').replace(/'/g,"\\'")}')">
+      html += `<div class="kanji-card ${mc}" onclick="openConjPopup('${k.kanji.replace(/'/g,"\\'")}','${(k.reading||'').replace(/'/g,"\\'")}','${(k.meaning||'').replace(/'/g,"\\'")}','Kanji')">
         <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"")}</div>
         <div class="vc-sep"></div>
         <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
@@ -2343,18 +2465,20 @@ const grammarSections=[
 ];
 function renderSheets(){
   const el = document.getElementById('content');
-  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-questions" onclick="switchSheet(\'questions\',this)">Questions</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
-  switchSheet('verbs', document.getElementById('stab-verbs'));
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="switchSheet(\'expr\',this)">Expr</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
+  // Migrate legacy 'questions' type to 'expr'
+  if(currentSheetType === 'questions') currentSheetType = 'expr';
+  switchSheet(currentSheetType, document.getElementById('stab-'+currentSheetType) || document.getElementById('stab-verbs'), true);
 }
 
 let currentSheetType = 'verbs';
 let activeSheetLvls = new Set();
-const activeKanjiModes = new Set(['read','write']);
+let activeKanjiModes = new Set(['read','write']);
 
 function renderLvlFilters(type){
   const el = document.getElementById('sheet-lvl-filters');
   if(!el) return;
-  if(type === 'questions'){ el.innerHTML=''; return; }
+  if(type === 'expr'){ el.innerHTML=''; return; }
   if(type === 'kanji'){
     const kls=['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8'];
     const pill=(active,label,click)=>'<button onclick="'+click+'" style="height:28px;padding:0 '+(label.length>2?'10':'0')+'px;'+(label.length<=2?'width:28px;':'')+'border-radius:'+(label.length<=2?'50%':'14px')+';border:1.5px solid '+(active?'var(--red)':'var(--dot)')+';background:'+(active?'var(--red)':'var(--white)')+';color:'+(active?'var(--white)':'var(--mid)')+';font-size:'+(label.length<=2?'9':'10')+'px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;'+( label.length<=2?'padding:0;':'')+'">' +label+'</button>';
@@ -2392,17 +2516,28 @@ function filterSheetLvl(lvl, btn){
   renderSheetTable(currentSheetType);
 }
 
-function switchSheet(type, btn){
+function switchSheet(type, btn, preserveState){
   document.querySelectorAll('.sheets-tabs .sheet-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  currentSheetType = type; activeSheetLvls = new Set();
-  if(type==='kanji'){activeKanjiModes.clear();activeKanjiModes.add('read');activeKanjiModes.add('write');}
+  // Save current tab's state before switching
+  if(sheetTabStates[currentSheetType]){
+    sheetTabStates[currentSheetType].lvls = new Set(activeSheetLvls);
+    if(currentSheetType === 'kanji') sheetTabStates['kanji'].modes = new Set(activeKanjiModes);
+  }
+  currentSheetType = type;
+  // Restore new tab's state
+  if(sheetTabStates[type]){
+    activeSheetLvls = new Set(sheetTabStates[type].lvls);
+    if(type === 'kanji') activeKanjiModes = new Set(sheetTabStates['kanji'].modes);
+  } else if(!preserveState){
+    activeSheetLvls = new Set();
+  }
   renderLvlFilters(type); renderSheetTable(type);
 }
 
 function renderSheetTable(type){
   const el = document.getElementById('sheet-content');
-  let src = type==='questions' ? questionsData : (sheetData[type]||[]);
+  let src = type==='expr' ? questionsData : (sheetData[type]||[]);
   if(activeSheetLvls.size>0) src = type==='kanji' ? src.filter(r=>activeSheetLvls.has(r.kl)) : src.filter(r=>activeSheetLvls.has(parseInt(r.lvl)));
   let headers, rows;
   if(type==='verbs'){
@@ -2424,8 +2559,8 @@ function renderSheetTable(type){
     headers=['Kanji','Reading','Meaning','Practice','Level'];
     rows=src.map(r=>'<tr><td class="jp notranslate" translate="no">'+r.kanji+'</td><td class="sm notranslate" translate="no">'+r.reading+'</td><td>/ '+r.meaning+'</td><td><span class="sheet-lvl" style="background:'+(r.mode==='write'?'var(--rose)':'rgba(0,0,0,.05)')+'">'+r.mode+'</span></td><td><span class="sheet-lvl">'+r.kl+'</span></td></tr>');
   } else {
-    headers=['Question','English'];
-    rows=src.map(r=>'<tr><td class="jp notranslate" translate="no">'+r.jp+'</td><td>'+r.eng+'</td></tr>');
+    headers=['Expression','English','Category'];
+    rows=src.map(r=>'<tr><td class="jp notranslate" translate="no">'+(r.reading||r.jp)+'</td><td>'+r.eng+'</td><td style="color:var(--sub);font-size:11px;">'+(r.cat||'')+'</td></tr>');
   }
   el.innerHTML='<div class="sheet-wrap"><table class="sheet-table" id="main-sheet-table"><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
 }
@@ -2449,7 +2584,7 @@ function copySheet(){
     let src=sheetData.kanji; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(r.kl)); if(activeKanjiModes.size>0&&activeKanjiModes.size<2) src=src.filter(r=>activeKanjiModes.has(r.mode));
     rows=src.map(r=>[r.kanji, r.reading, '/ '+r.meaning]);
   } else {
-    rows=questionsData.map(r=>[r.jp, r.eng]);
+    rows=questionsData.map(r=>[(r.reading||r.jp), r.eng, r.cat||'']);
   }
   const tsv=rows.map(r=>r.join('\t')).join('\n');
   const restore=()=>{btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy';btn.style.opacity='1';};
@@ -2526,7 +2661,7 @@ function renderAll(){
     const ks=(kData[lvl]||[]).filter(k=>matchesSearch(q,k.kanji,k.reading,k.meaning));
     for(const k of ks){
       const mc=k.mode==='write'?'kanji-write':'kanji-read';
-      kHtml+=`<div class="kanji-card ${mc}" onclick="openConjPopup('${k.kanji.replace(/'/g,"\\'")}','${(k.reading||'').replace(/'/g,"\\'")}','${(k.meaning||'').replace(/'/g,"\\'")}')">
+      kHtml+=`<div class="kanji-card ${mc}" onclick="openConjPopup('${k.kanji.replace(/'/g,"\\'")}','${(k.reading||'').replace(/'/g,"\\'")}','${(k.meaning||'').replace(/'/g,"\\'")}','Kanji')">
         <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"")}</div>
         <div class="vc-sep"></div><div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
         <div class="vc-indicators"><span class="vc-lvl-tag">${lvl}</span></div>
@@ -2785,48 +2920,48 @@ const exprData = {
     ]
   },
   'なんようび ですか':{
-    keyword:'なんようび (What day of the week)',
-    structure:'[Topic は] + なんようび + ですか',
+    keyword:'<ruby>何曜日<rt>なんようび</rt></ruby> (What day of the week)',
+    structure:'[Topic は] + 何曜日 + ですか',
     meaning:'Asks which day of the week it is. Days: 月火水木金土日 = Mon–Sun.',
     examples:[
-      {jp:'きょうは なんようび ですか。',en:'What day of the week is it today?'},
-      {jp:'パーティは なんようび ですか。',en:'What day is the party?'},
+      {jp:'きょうは <ruby>何曜日<rt>なんようび</rt></ruby> ですか。',en:'What day of the week is it today?'},
+      {jp:'パーティは <ruby>何曜日<rt>なんようび</rt></ruby> ですか。',en:'What day is the party?'},
     ]
   },
   'なんがつ ですか':{
-    keyword:'なんがつ (What month)',
-    structure:'[Topic は] + なんがつ + ですか',
+    keyword:'<ruby>何月<rt>なんがつ</rt></ruby> (What month)',
+    structure:'[Topic は] + 何月 + ですか',
     meaning:'Asks which month it is. Months are numbered: いちがつ (January) through じゅうにがつ (December).',
     examples:[
-      {jp:'たんじょうびは なんがつ ですか。',en:'What month is your birthday?'},
-      {jp:'いまは なんがつ ですか。',en:'What month is it now?'},
+      {jp:'たんじょうびは <ruby>何月<rt>なんがつ</rt></ruby> ですか。',en:'What month is your birthday?'},
+      {jp:'いまは <ruby>何月<rt>なんがつ</rt></ruby> ですか。',en:'What month is it now?'},
     ]
   },
   'なんにち ですか':{
-    keyword:'なんにち (What day of the month)',
-    structure:'[Topic は] + なんにち + ですか',
+    keyword:'<ruby>何日<rt>なんにち</rt></ruby> (What day of the month)',
+    structure:'[Topic は] + 何日 + ですか',
     meaning:'Asks the date (day of the month). Note the irregular readings: ついたち (1st), ふつか (2nd) etc.',
     examples:[
-      {jp:'きょうは なんにち ですか。',en:'What date is it today?'},
-      {jp:'しけんは なんにち ですか。',en:'What date is the exam?'},
+      {jp:'きょうは <ruby>何日<rt>なんにち</rt></ruby> ですか。',en:'What date is it today?'},
+      {jp:'しけんは <ruby>何日<rt>なんにち</rt></ruby> ですか。',en:'What date is the exam?'},
     ]
   },
   'なんじかん かかりますか':{
-    keyword:'なんじかん (How many hours)',
-    structure:'なんじかん + かかりますか',
+    keyword:'<ruby>何時間<rt>なんじかん</rt></ruby> (How many hours)',
+    structure:'何時間 + かかりますか',
     meaning:'Asks how many hours something takes. かかります = it takes (time/money).',
     examples:[
-      {jp:'とうきょうまで なんじかん かかりますか。',en:'How many hours does it take to Tokyo?'},
-      {jp:'しごとは なんじかん ですか。',en:'How many hours is work?'},
+      {jp:'とうきょうまで <ruby>何時間<rt>なんじかん</rt></ruby> かかりますか。',en:'How many hours does it take to Tokyo?'},
+      {jp:'しごとは <ruby>何時間<rt>なんじかん</rt></ruby> ですか。',en:'How many hours is work?'},
     ]
   },
   'なんにちかん かかりますか':{
-    keyword:'なんにちかん (How many days)',
-    structure:'なんにちかん + かかりますか',
+    keyword:'<ruby>何日間<rt>なんにちかん</rt></ruby> (How many days)',
+    structure:'何日間 + かかりますか',
     meaning:'Asks how many days something takes or lasts.',
     examples:[
-      {jp:'りょこうは なんにちかん ですか。',en:'How many days is the trip?'},
-      {jp:'なんにちかん かかりますか。',en:'How many days does it take?'},
+      {jp:'りょこうは <ruby>何日間<rt>なんにちかん</rt></ruby> ですか。',en:'How many days is the trip?'},
+      {jp:'<ruby>何日間<rt>なんにちかん</rt></ruby> かかりますか。',en:'How many days does it take?'},
     ]
   },
   'なんにん ですか':{
@@ -2850,75 +2985,121 @@ const exprData = {
 };
 
 // POPUP
+let _dmakInstance = null;
 function openConjPopup(word,reading,def,pos,exprKey){
-  // Check counter first
   const counterKey=extraCounterMap[word]||extraCounterMap[reading]||(counTypeMap[word]?.key);
-  if(counterKey||pos==='Coun'){
+  if(pos==='Coun'||(counterKey&&pos!=='Kanji')){
     let mk=counterKey||null;
     if(!mk)for(const[k,cat]of Object.entries(countersData)){if(cat.items.some(i=>i.jp===word||i.reading===reading)){mk=k;break;}}
     openAllCountersPopup(mk||undefined);return;
   }
-  document.getElementById('popup-word').textContent = word;
-  document.getElementById('popup-reading').textContent = reading;
-  document.getElementById('popup-def').textContent = def;
+  if(_dmakInstance){try{_dmakInstance.pause();}catch(e){}_dmakInstance=null;}
+  const box=document.getElementById('popup-box');
+  const show=(function(){var _p=document.getElementById('conj-popup');_p.classList.remove('hidden');requestAnimationFrame(function(){_p.classList.add('visible');});});
 
-  const row = document.getElementById('popup-conj-row');
-  const titleEl = document.querySelector('.popup-title');
-  const exprBlock = document.getElementById('popup-expr-block');
+  if(pos==='Kanji'){
+    const ctrHtml=counterKey?`<button class="popup-ctr-btn" onclick="closePopupDirect();openAllCountersPopup('${counterKey}')">See Counters</button>`:'';
+    box.innerHTML=
+      `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
+      `<span class="popup-type-badge">Kanji</span>`+
+      `<div class="popup-hero-ruby popup-hero-ruby--lg notranslate" translate="no">${rubyHTML(word,reading)}</div>`+
+      `<div class="popup-hero-def">${def}</div>`+
+      `<div id="popup-dmak-container"></div>`+
+      `<div class="popup-actions">${ctrHtml}<button class="popup-replay-btn" onclick="replayDmak()">↺ replay animation</button></div>`;
+    initDmak(word);show();return;
+  }
 
-  // Expr (question expression) popup
   if(pos==='Expr'){
-    const e = exprData[exprKey||word];
-    row.style.display='none'; titleEl.style.display='none';
-    if(e){
-      document.getElementById('popup-expr-keyword').textContent = e.keyword;
-      document.getElementById('popup-expr-structure').textContent = e.structure;
-      document.getElementById('popup-expr-meaning').textContent = e.meaning;
-      document.getElementById('popup-expr-examples').innerHTML = e.examples.map(ex=>
-        `<div style="background:var(--bg);border-radius:8px;padding:8px 12px;">
-          <div style="font-family:'Chihaya','Noto Serif JP',serif;font-size:15px;color:var(--ink);margin-bottom:2px;">${ex.jp}</div>
-          <div style="font-size:11px;color:var(--sub);font-family:Arial,sans-serif;">${ex.en}</div>
-        </div>`
-      ).join('');
-      exprBlock.style.display='block';
-    } else {
-      exprBlock.style.display='none';
-    }
-    (function(){var _p=document.getElementById('conj-popup');_p.classList.remove('hidden');requestAnimationFrame(function(){_p.classList.add('visible');});})();
-    return;
+    const e=exprData[exprKey||word];
+    const inner=e?
+      `<div class="popup-expr-kw">${e.keyword}</div>`+
+      `<div class="popup-expr-str">${e.structure}</div>`+
+      `<div class="popup-expr-meaning">${e.meaning}</div>`+
+      `<div class="popup-expr-label">Examples</div>`+
+      `<div class="popup-expr-examples">${e.examples.map(ex=>`<div class="popup-expr-ex"><div class="popup-expr-ex-jp">${ex.jp}</div><div class="popup-expr-ex-en">${ex.en}</div></div>`).join('')}</div>`
+      :'';
+    box.innerHTML=
+      `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
+      `<span class="popup-type-badge">Expression</span>`+
+      `<div class="popup-hero-ruby notranslate" translate="no">${rubyHTML(word,reading)}</div>`+
+      `<div class="popup-hero-def">${def}</div>`+
+      inner;
+    show();return;
   }
 
-  exprBlock.style.display='none';
-  // Look up by word, then by reading (for kanji cards whose reading is the masu form)
-  const forms = conjLookup[word] || conjLookup[reading] || null;
-  if(forms && forms.length){
-    row.innerHTML = forms.map(f=>`<div class="conj-cell"><span class="conj-cell-label">${f.label}</span><span class="conj-cell-jp notranslate" translate="no">${f.jp}</span></div>`).join('');
-    titleEl.style.display='block';
-    row.style.display='flex';
-  } else {
-    titleEl.style.display='none';
-    row.style.display='none';
-  }
-  (function(){var _p=document.getElementById('conj-popup');_p.classList.remove('hidden');requestAnimationFrame(function(){_p.classList.add('visible');});})();
+  // Standard vocab / grammar
+  const wHasK=hasKanji(word);
+  const forms=conjLookup[word]||conjLookup[reading]||null;
+  const badge=pos||'Vocab';
+  const dmakHtml=wHasK?
+    `<div id="popup-dmak-container"></div>`+
+    `<div class="popup-actions"><button class="popup-replay-btn" onclick="replayDmak()">↺ replay animation</button></div>`:'';
+  const conjHtml=forms&&forms.length?
+    `<div class="popup-divider"></div>`+
+    `<div class="popup-section-label">Conjugation</div>`+
+    `<div class="conj-sheet notranslate" translate="no">${forms.map(f=>`<div class="conj-cell"><span class="conj-cell-label">${f.label}</span><span class="conj-cell-jp notranslate" translate="no">${f.jp}</span></div>`).join('')}</div>`:'';
+  box.innerHTML=
+    `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
+    `<span class="popup-type-badge">${badge}</span>`+
+    `<div class="popup-hero-ruby notranslate" translate="no">${rubyHTML(word,reading)}</div>`+
+    `<div class="popup-hero-def">${def}</div>`+
+    dmakHtml+conjHtml;
+  if(wHasK)initDmak(word);
+  show();
 }
 
 function closePopup(e){ if(e.target.id==='conj-popup') closePopupDirect(); }
 function closePopupDirect(){
   const el=document.getElementById('conj-popup');
   el.classList.remove('visible');
+  if(_dmakInstance){try{_dmakInstance.pause();}catch(e){}_dmakInstance=null;}
   setTimeout(()=>el.classList.add('hidden'),220);
+}
+function initDmak(word){
+  const container=document.getElementById('popup-dmak-container');
+  if(!container)return;
+  container.innerHTML='';
+  if(typeof Dmak==='undefined'){container.innerHTML='<div style="font-size:11px;color:var(--sub);font-family:Arial,sans-serif;padding:12px;">Animation library not loaded.</div>';return;}
+  // Only pass CJK unified ideograph characters (KanjiVG has these)
+  const kanjiOnly=[...word].filter(ch=>/[一-龯㐀-䶿]/.test(ch)).join('');
+  if(!kanjiOnly)return;
+  const drawDiv=document.createElement('div');
+  drawDiv.id='dmak-draw-target';
+  drawDiv.style.cssText='display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px;';
+  container.appendChild(drawDiv);
+  try{
+    _dmakInstance=new Dmak(kanjiOnly,{
+      element:'dmak-draw-target',
+      uri:'kanji/',
+      width:165,height:165,step:0.03,
+      stroke:{attr:{stroke:'#444','stroke-width':4,'stroke-linecap':'round','stroke-linejoin':'round',active:'#e0675c'},order:{visible:false}},
+      grid:{show:true,attr:{stroke:'#ddd','stroke-width':0.5}}
+    });
+  }catch(e){console.warn('DMAK error:',e);}
+}
+function replayDmak(){
+  if(_dmakInstance){
+    try{_dmakInstance.erase();}catch(e){}
+    try{_dmakInstance.render();}catch(e){}
+  }
 }
 
 function renderCounterTab(key){
   const cat=countersData[key];if(!cat)return;
   document.querySelectorAll('.ctr-tab').forEach(b=>b.classList.toggle('active',b.dataset.key===key));
-  const descHtml = cat.desc ? '<div style="font-size:11px;color:var(--sub);font-family:Arial,sans-serif;margin-bottom:10px;padding:6px 10px;background:var(--bg);border-radius:8px;border-left:3px solid var(--rose);">'+cat.desc+'</div>' : '';
-  document.getElementById('ctr-popup-grid').innerHTML=descHtml+'<div class="ctr-grid">'+cat.items.map(item=>`<div class="ctr-card"><div class="vc-left notranslate" translate="no">${rubyHTML(item.jp,item.reading||'',"font-size:22px;")}</div><div class="vc-sep" style="height:32px;"></div><div class="vc-right"><span class="vc-def">${item.def}</span></div></div>`).join('')+'</div>';
+  const descHtml=cat.desc?`<div class="ctr-desc">${cat.desc}</div>`:'';
+  const rowsHtml=cat.items.map(item=>
+    `<div class="ctr-row">`+
+    `<div class="ctr-row-left notranslate" translate="no">${rubyHTML(item.jp,item.reading||'')}</div>`+
+    `<div class="ctr-row-sep"></div>`+
+    `<div class="ctr-row-def">${item.def}</div>`+
+    `</div>`
+  ).join('');
+  document.getElementById('ctr-popup-grid').innerHTML=descHtml+'<div class="ctr-list">'+rowsHtml+'</div>';
 }
 function openAllCountersPopup(startKey){
   const tabRow=document.getElementById('ctr-tab-row');
-  tabRow.innerHTML=Object.entries(countersData).map(([key,cat])=>`<button class="ctr-tab" data-key="${key}" onclick="renderCounterTab('${key}')">${cat.icon} ${cat.label}</button>`).join('');
-  if(!document.getElementById('ctr-tab-style')){const st=document.createElement('style');st.id='ctr-tab-style';st.textContent='.ctr-tab{padding:4px 12px;border-radius:16px;border:1.5px solid var(--dot);background:var(--white);color:var(--mid);font-size:11px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;transition:all .12s;}.ctr-tab.active{background:var(--red);color:var(--white);border-color:var(--red);}';document.head.appendChild(st);}
+  tabRow.innerHTML=Object.entries(countersData).map(([key,cat])=>`<button class="ctr-tab" data-key="${key}" onclick="renderCounterTab('${key}')">${cat.label}</button>`).join('');
   renderCounterTab(startKey||Object.keys(countersData)[0]);
   (function(){var _p=document.getElementById('ctr-popup');_p.classList.remove('hidden');requestAnimationFrame(function(){_p.classList.add('visible');});})();
 }

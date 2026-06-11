@@ -164,33 +164,21 @@
 
 <!-- Conjugation popup -->
 <div class="popup-overlay hidden" id="conj-popup" onclick="closePopup(event)">
-  <div class="popup-box">
-    <button class="popup-close" onclick="closePopupDirect()">✕</button>
-    <div class="popup-word notranslate" id="popup-word" class="notranslate" translate="no" translate="no"></div>
-    <div class="popup-reading notranslate" id="popup-reading" class="notranslate" translate="no" translate="no"></div>
-    <div class="popup-def" id="popup-def"></div>
-    <div class="popup-title">Conjugation</div>
-    <div class="conj-row notranslate" id="popup-conj-row" class="notranslate" translate="no"></div>
-    <div id="popup-expr-block" style="display:none;">
-      <div id="popup-expr-keyword" translate="no" style="font-size:11px;font-weight:700;color:var(--red);font-family:Arial,sans-serif;margin-bottom:6px;letter-spacing:.04em;"></div>
-      <div id="popup-expr-structure" style="font-size:11px;font-family:Arial,sans-serif;background:var(--bg);border-radius:8px;padding:8px 12px;margin-bottom:10px;color:var(--mid);font-weight:700;letter-spacing:.03em;border-left:3px solid var(--rose);"></div>
-      <div id="popup-expr-meaning" style="font-size:12px;font-family:Arial,sans-serif;color:var(--sub);line-height:1.6;margin-bottom:12px;"></div>
-      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);margin-bottom:8px;font-family:Arial,sans-serif;">Examples</div>
-      <div id="popup-expr-examples" translate="no" style="display:flex;flex-direction:column;gap:6px;"></div>
-    </div>
-  </div>
+  <div class="popup-box" id="popup-box"></div>
 </div>
 
 <!-- Counter popup -->
 <div class="popup-overlay hidden" id="ctr-popup" onclick="closeCounterPopup(event)">
-  <div class="popup-box" style="width:820px;max-width:95vw;height:70vh;overflow:hidden;display:flex;flex-direction:column;">
+  <div class="popup-box popup-box--wide">
     <button class="popup-close" onclick="(function(){var _p=document.getElementById('ctr-popup');_p.classList.remove('visible');setTimeout(function(){_p.classList.add('hidden');},220);})()">✕</button>
-    <div class="popup-word" style="margin-bottom:12px;">Counters</div>
-    <div id="ctr-tab-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
-    <div id="ctr-popup-grid" translate="no" style="overflow-y:auto;flex:1;min-height:0;"></div>
+    <div class="ctr-popup-header">Counters</div>
+    <div id="ctr-tab-row"></div>
+    <div id="ctr-popup-grid" translate="no" class="ctr-popup-scroll"></div>
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
+<script src="dmak-master/dist/dmak.js"></script>
 <script src="js/main.js"></script>
 
 
