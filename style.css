@@ -512,3 +512,356 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
   transition:background .12s;
 }
 .pp-logout:hover{background:#c94f44;}
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE-ONLY COMPONENTS  (hidden by default on desktop)
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Mobile bottom navigation bar ───────────────────────── */
+#mobile-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--white);
+  border-top:1.5px solid var(--rose);
+  z-index:400;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.mnav-inner{display:flex;height:56px;}
+.mnav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;border:none;background:none;cursor:pointer;
+  color:var(--dim);padding:0;
+  font-family:Arial,sans-serif;
+  -webkit-tap-highlight-color:transparent;
+  transition:color .15s;
+}
+.mnav-btn.active{color:var(--red);}
+.mnav-btn svg{stroke:currentColor;flex-shrink:0;}
+.mnav-label{font-size:9.5px;font-weight:600;letter-spacing:.01em;line-height:1;}
+
+/* ── Mobile profile button (top-right, inside search row) ── */
+#mobile-profile-btn{
+  display:none;
+  width:34px;height:34px;border-radius:50%;
+  border:1.5px solid var(--rose);
+  background:var(--white);color:var(--dim);
+  cursor:pointer;flex-shrink:0;
+  align-items:center;justify-content:center;
+  overflow:hidden;padding:0;
+  box-shadow:0 1px 5px rgba(0,0,0,.08);
+  -webkit-tap-highlight-color:transparent;
+  transition:border-color .15s;
+}
+#mobile-profile-btn:hover{border-color:var(--mid);}
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE LAYOUT  (max-width: 640px)
+   ══════════════════════════════════════════════════════════ */
+@media(max-width:640px){
+
+  /* ── Root layout ───────────────────────────────── */
+  html{overflow-x:hidden;max-width:100vw;}
+  body{
+    display:block!important;
+    overflow:hidden;
+    max-width:100vw;
+    overflow-x:hidden!important;
+  }
+  aside{display:none!important;}
+  main{
+    position:fixed!important;
+    top:0;left:0;right:0;
+    bottom:calc(56px + env(safe-area-inset-bottom))!important;
+    width:100%!important;
+    max-width:100vw!important;
+    height:auto!important;
+    overflow-y:auto;
+    overflow-x:hidden;
+  }
+
+  /* ── Search bar: full width + profile btn ──────── */
+  .sticky-search{
+    left:0!important;right:0!important;
+    top:10px;
+    display:flex!important;
+    align-items:center;
+    justify-content:flex-start!important;
+    padding:0 10px;
+    gap:8px;
+  }
+  .sticky-search .search-wrap{flex:1;min-width:0;}
+  .sticky-search input{width:100%;min-width:0;}
+  .scroll-top-btn{display:none!important;}
+  #mobile-profile-btn{display:flex;}
+
+  /* ── Content padding ───────────────────────────── */
+  .content{padding:62px 12px 28px;max-width:100%;box-sizing:border-box;overflow-x:hidden;}
+  .vocab-grid,.kanji-grid{max-width:100%;}
+
+  /* ── Home screen ───────────────────────────────── */
+  .home-inner{padding:18px 14px 28px;max-width:100%;}
+  .home-logo-img{width:64px;height:64px;}
+  .home-title{font-size:28px;}
+  .home-sub{font-size:11.5px;margin-bottom:16px;}
+  .home-cards{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .home-card{padding:10px;}
+  .home-install-card{margin-top:12px;}
+  .home-copyright{bottom:8px;font-size:9px;}
+
+  /* ── Grids: both 1 column on mobile ────────────── */
+  .vocab-grid{grid-template-columns:1fr!important;}
+  .kanji-grid{grid-template-columns:1fr!important;}
+
+  /* ── Vocab card: tighter on narrow screen ──────── */
+  .vocab-card{padding:11px 52px 11px 13px;}
+  .vc-word{font-size:30px;}
+
+  /* ── Level/section tags ─────────────────────────── */
+  .level-tag{margin:16px 0 10px;}
+
+  /* ── Grammar ───────────────────────────────────── */
+  .gram-sections-grid{grid-template-columns:1fr!important;}
+  /* hide "close all" X button */
+  button[title="Close all"]{display:none!important;}
+  /* expand rules fully — no internal scroll */
+  .gram-section-body.open{max-height:none!important;overflow-y:visible!important;}
+
+  /* ── Sheets: hide table only, keep filters + copy + quizlet ── */
+  #sheet-content{display:none!important;}
+  /* tabs: flat tab-bar style, scrollable row */
+  .sheets-tabs{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch;
+    gap:0!important;
+    width:100%!important;
+    margin-bottom:0!important;
+    padding-bottom:0!important;
+    border-bottom:1.5px solid var(--rose)!important;
+  }
+  .sheets-tabs::-webkit-scrollbar{display:none;}
+  .sheet-tab{
+    height:44px!important;
+    padding:0 16px!important;
+    font-size:13px!important;
+    border-radius:0!important;
+    border:none!important;
+    background:transparent!important;
+    color:var(--mid)!important;
+    font-weight:600!important;
+    border-bottom:2.5px solid transparent!important;
+    flex-shrink:0;
+    white-space:nowrap;
+    margin-bottom:-1.5px!important;
+  }
+  .sheet-tab.active{
+    color:var(--red)!important;
+    background:transparent!important;
+    border-color:transparent!important;
+    border-bottom-color:var(--red)!important;
+  }
+  /* level filter pills: give them breathing room */
+  #sheet-lvl-filters{
+    padding:10px 0 4px!important;
+    width:100%!important;
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:6px!important;
+  }
+  /* copy button: fixed above nav */
+  #copy-btn{
+    position:fixed!important;
+    bottom:calc(56px + env(safe-area-inset-bottom) + 10px)!important;
+    left:12px!important;
+    right:12px!important;
+    width:auto!important;
+    height:44px!important;
+    font-size:14px!important;
+    border-radius:22px!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+    padding:0 20px!important;
+    z-index:200;
+  }
+  /* pad content so quizlet notice isn't hidden behind fixed copy btn */
+  body:has(#copy-btn) .content{
+    padding-bottom:70px!important;
+  }
+
+  /* ── Floating filters: bottom bar above nav ──── */
+  .float-filters{
+    top:auto!important;
+    bottom:calc(56px + env(safe-area-inset-bottom))!important;
+    left:0!important;
+    right:0!important;
+    flex-direction:column-reverse!important;
+    align-items:stretch;
+    gap:0;
+    padding:0 4px!important;
+    background:var(--white);
+    border-top:1.5px solid var(--rose);
+    box-shadow:0 -2px 10px rgba(0,0,0,.07);
+  }
+  /* tab-bar style: flat buttons, red underline for active */
+  .float-row{
+    max-width:100%!important;
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch;
+    justify-content:flex-start!important;
+    gap:0!important;
+    align-items:stretch!important;
+  }
+  .float-row::-webkit-scrollbar{display:none;}
+  .float-sub{
+    max-width:100%!important;
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    -webkit-overflow-scrolling:touch;
+    justify-content:flex-start!important;
+    margin-top:0!important;
+    margin-bottom:0!important;
+    gap:0!important;
+    align-items:stretch!important;
+    border-bottom:1px solid var(--rose);
+  }
+  .float-sub::-webkit-scrollbar{display:none;}
+  /* flat tab-bar buttons */
+  .float-btn{
+    height:44px!important;
+    padding:0 14px!important;
+    min-width:unset!important;
+    border:none!important;
+    border-radius:0!important;
+    border-bottom:2.5px solid transparent!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    color:var(--mid)!important;
+    font-size:13px!important;
+    font-weight:600!important;
+    white-space:nowrap;
+    transition:color .15s,border-bottom-color .15s!important;
+  }
+  .float-btn.active{
+    color:var(--red)!important;
+    background:transparent!important;
+    border-bottom-color:var(--red)!important;
+  }
+  /* keep read/write icon buttons circular */
+  .float-btn-circle,.float-btn#kflt-read,.float-btn#kflt-write{
+    width:30px!important;height:30px!important;min-width:30px!important;
+    border-radius:50%!important;
+    border:1.5px solid var(--dot)!important;
+    background:var(--white)!important;
+    padding:0!important;
+    margin:auto 4px!important;
+  }
+  .float-btn-circle.active,.float-btn#kflt-read.active,.float-btn#kflt-write.active{
+    background:var(--red)!important;
+    border-color:var(--red)!important;
+    color:var(--white)!important;
+  }
+  /* Kanji mode buttons: same bottom bar */
+  .kanji-float{
+    top:auto!important;
+    bottom:calc(56px + env(safe-area-inset-bottom))!important;
+    left:0!important;
+    right:0!important;
+    flex-direction:row!important;
+    align-items:center;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:6px 10px 8px;
+    background:var(--white);
+    border-top:1.5px solid var(--rose);
+    box-shadow:0 -2px 10px rgba(0,0,0,.07);
+    gap:6px!important;
+  }
+  .kanji-float::-webkit-scrollbar{display:none;}
+  /* Pad content bottom so last items aren't hidden behind filter bar */
+  body:has(.float-filters.ff-visible) .content,
+  body:has(.kanji-float.ff-visible) .content{
+    padding-bottom:80px!important;
+  }
+
+  /* ── Popups: bottom-sheet slide-up ─────────────── */
+  .popup-overlay{
+    align-items:flex-end!important;
+    padding:0!important;
+  }
+  .popup-box{
+    border-radius:22px 22px 0 0!important;
+    max-width:100%!important;
+    width:100%!important;
+    max-height:88vh!important;
+    overflow-y:auto!important;
+    /* slide-up instead of scale-in */
+    transform:scale(1) translateY(48px)!important;
+    padding:38px 14px 36px!important;
+  }
+  .popup-overlay.visible .popup-box{
+    transform:scale(1) translateY(0)!important;
+  }
+  /* counter popup: near-fullscreen sheet */
+  .popup-box--wide{
+    height:88vh!important;
+    border-radius:22px 22px 0 0!important;
+    padding:16px 14px 0!important;
+  }
+
+  /* ── Popup text: scale down for narrow screen ─── */
+  /* reading/def row above DMAK */
+  .popup-kanji-reading,.popup-kanji-def{font-size:14px!important;}
+  /* word text in non-kanji popups */
+  .popup-word-text{font-size:30px!important;}
+  .popup-word-block--lg .popup-word-text{font-size:34px!important;}
+  /* kana-only large display */
+  .popup-word-display-text{font-size:44px!important;}
+  /* definition text */
+  .popup-hero-def{font-size:13px!important;}
+
+  /* ── DMAK animation: scale down kanji boxes ───── */
+  /* Each kanji box: 95px→68px. Worst case 5-char word:
+     2×68 + 3×50 + 4×4 gap = 302px — fits in ~362px inner */
+  #popup-dmak-container [id^="dmak-box-"]{
+    width:68px!important;height:68px!important;
+  }
+  #popup-dmak-container .dmak-svg{
+    width:68px!important;height:68px!important;
+  }
+  /* kana chars in the DMAK row */
+  .popup-dmak-kana{
+    font-size:50px!important;
+    height:68px!important;
+  }
+  /* tighten gaps between characters */
+  .popup-dmak-row{gap:3px!important;}
+
+  /* conjugation table: tighten cells on narrow screen */
+  .conj-cell{padding:8px 4px;}
+  .conj-cell-label{font-size:7px;}
+  .conj-cell-jp{font-size:12px;}
+
+  /* ── Takoboto: hidden on mobile ─────────────────── */
+  .translator-toggle{display:none!important;}
+  .translator-panel{display:none!important;}
+
+  /* ── Profile panel ──────────────────────────────── */
+  .profile-panel{
+    position:fixed!important;
+    left:12px!important;right:12px!important;
+    bottom:calc(72px + env(safe-area-inset-bottom))!important;
+    top:auto!important;
+    width:auto!important;
+    min-width:unset!important;
+    max-height:60vh!important;
+  }
+
+  /* ── Show bottom nav ─────────────────────────────── */
+  #mobile-nav{display:block;}
+
+  /* ── Hide desktop-only clutter ──────────────────── */
+  .gtranslate_wrapper{display:none!important;}
+}

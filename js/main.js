@@ -1647,6 +1647,8 @@ function toggleSidebar(){ document.body.classList.toggle('open'); }
 
 function setTab(tab, btn){
   document.querySelectorAll('.s-btn').forEach(b=>b.classList.remove('active'));
+  // Sync mobile bottom nav active state
+  document.querySelectorAll('.mnav-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   if(btn){
     btn.classList.add('active');
     // inject fresh ripple every click
@@ -3481,6 +3483,7 @@ function restoreState(){
       if(btn){
         document.querySelectorAll('.s-btn').forEach(b=>b.classList.remove('active'));
         btn.classList.add('active');
+        document.querySelectorAll('.mnav-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
         currentTab=tab;
         const hs=document.getElementById('home-screen');
         const ct=document.getElementById('content');
