@@ -2925,7 +2925,7 @@ function openCounterPopup(key,label,e){if(e&&e.stopPropagation)e.stopPropagation
 function closeCounterPopup(e){if(e.target.id==='ctr-popup')(function(){var _p=document.getElementById('ctr-popup');_p.classList.remove('visible');setTimeout(function(){_p.classList.add('hidden');},220);})();}
 
 // PERSIST STATE across Elfsight language change reloads
-function saveState(){try{sessionStorage.setItem('kd_tab',currentTab);sessionStorage.setItem('kd_scroll',document.getElementById('main').scrollTop);sessionStorage.setItem('kd_sidebar',document.body.classList.contains('open')?'1':'0');}catch(e){}}
+function saveState(){try{sessionStorage.setItem('kd_scroll',document.getElementById('main').scrollTop);sessionStorage.setItem('kd_sidebar',document.body.classList.contains('open')?'1':'0');}catch(e){}}
 window.addEventListener('beforeunload', saveState);
 function restoreState(){
   try{
@@ -3056,35 +3056,26 @@ function bearClick(e){
 function initBearBubble(){
   const bubble = document.getElementById('bear-bubble');
   if(!bubble) return;
-
   let timer = null;
-
   function show(){
     clearTimeout(timer);
-    bubble.classList.remove('bb-out','bb-visible','bb-in');
+    bubble.classList.remove('bb-hide','bb-show');
     void bubble.offsetWidth;
-    bubble.classList.add('bb-in');
-    // switch to bb-visible after pop-in finishes (350ms)
-    timer = setTimeout(()=>{
-      bubble.classList.remove('bb-in');
-      bubble.classList.add('bb-visible');
-    }, 380);
+    bubble.classList.add('bb-show');
+    timer = setTimeout(hide, 5000);
   }
-
   function hide(){
     clearTimeout(timer);
-    bubble.classList.remove('bb-in','bb-visible');
+    bubble.classList.remove('bb-show');
     void bubble.offsetWidth;
-    bubble.classList.add('bb-out');
+    bubble.classList.add('bb-hide');
     timer = setTimeout(show, 4000);
   }
-
   function restart(){
     clearTimeout(timer);
-    bubble.classList.remove('bb-in','bb-visible','bb-out');
-    timer = setTimeout(show, 1500);
+    bubble.classList.remove('bb-show','bb-hide');
+    timer = setTimeout(show, 1200);
   }
-
   timer = setTimeout(show, 1500);
   window._hideBubble = hide;
   window._restartBubble = restart;
