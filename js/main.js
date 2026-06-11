@@ -3001,6 +3001,8 @@ const exprData = {
 let _dmakInstances = [];
 let _dmakIndex = 0;
 let _dmakAutoTimer = null;
+let _dmakReplayTimer = null;
+let _dmakPlaying = false;
 
 function popupWordBlock(word,reading,large){
   const cls='popup-word-block'+(large?' popup-word-block--lg':'');
@@ -3079,6 +3081,8 @@ function openConjPopup(word,reading,def,pos,exprKey,mode){
 function closePopup(e){ if(e.target.id==='conj-popup') closePopupDirect(); }
 function closePopupDirect(){
   if(_dmakAutoTimer){clearTimeout(_dmakAutoTimer);_dmakAutoTimer=null;}
+  if(_dmakReplayTimer){clearTimeout(_dmakReplayTimer);_dmakReplayTimer=null;}
+  _dmakPlaying=false;
   const el=document.getElementById('conj-popup');
   el.classList.remove('visible');
   _dmakInstances.forEach(inst=>{if(inst){try{inst.pause();}catch(e){}}}); _dmakInstances=[]; _dmakIndex=0;
@@ -3138,7 +3142,7 @@ async function initDmak(word){
         uri:'kanji/',
         width:size,height:size,step:0.03,
         autoplay:false,
-        stroke:{attr:{stroke:'#444','stroke-width':6,'stroke-linecap':'round','stroke-linejoin':'round',active:'#e0675c'},order:{visible:false}},
+        stroke:{attr:{stroke:'#444','stroke-width':7,'stroke-linecap':'round','stroke-linejoin':'round',active:'#e0675c'},order:{visible:false}},
         grid:{show:true,attr:{stroke:'#ddd','stroke-width':0.5}}
       });
       _dmakInstances.push(inst);
@@ -3157,11 +3161,14 @@ async function initDmak(word){
     _dmakAutoTimer=null;
     const inst=_dmakInstances[0];
     if(inst){try{inst.erase();}catch(e){}try{inst.render();}catch(e){}}
+    _dmakPlaying=true;
+    _dmakUpdateNav();
   },1500);
 }
 
 function _dmakPlayAt(idx){
   if(idx<0||idx>=_dmakInstances.length)return;
+  if(_dmakReplayTimer){clearTimeout(_dmakReplayTimer);_dmakReplayTimer=null;}
   _dmakIndex=idx;
   // Dim others, highlight current
   _dmakInstances.forEach((_,i)=>{
@@ -3170,6 +3177,7 @@ function _dmakPlayAt(idx){
   });
   const inst=_dmakInstances[idx];
   if(inst){try{inst.erase();}catch(e){}try{inst.render();}catch(e){}}
+  _dmakPlaying=true;
   _dmakUpdateNav();
 }
 
@@ -3178,8 +3186,12 @@ function _dmakUpdateNav(){
   if(!nav)return;
   const total=_dmakInstances.length;
   const i=_dmakIndex;
+  const _playSvg=`<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>`;
+  const _pauseSvg=`<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>`;
+  const _replaySvg=`<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
+  const ctrlRow=`<div class="popup-dmak-ctrl-row"><button class="popup-dmak-ctrl-btn" onclick="replayDmak()" title="Replay">${_replaySvg}</button><button class="popup-dmak-ctrl-btn" onclick="_dmakPausePlay()" title="${_dmakPlaying?'Pause':'Play'}">${_dmakPlaying?_pauseSvg:_playSvg}</button></div>`;
   if(total<=1){
-    nav.innerHTML=`<button class="popup-replay-btn" onclick="replayDmak()">↺ replay</button>`;
+    nav.innerHTML=ctrlRow;
   } else {
     const dots=[...Array(total)].map((_,d)=>`<span class="popup-dmak-dot${d===i?' active':''}"></span>`).join('');
     nav.innerHTML=
@@ -3188,7 +3200,7 @@ function _dmakUpdateNav(){
       `<div class="popup-dmak-dots">${dots}</div>`+
       `<button class="popup-dmak-nav-btn" onclick="_dmakNext()"${i===total-1?' disabled':''}>&rsaquo;</button>`+
       `</div>`+
-      `<button class="popup-replay-btn" onclick="replayDmak()">↺ replay</button>`;
+      ctrlRow;
   }
 }
 
@@ -3206,7 +3218,35 @@ function _dmakPrev(){
     _dmakPlayAt(_dmakIndex-1);
   }
 }
-function replayDmak(){ _dmakPlayAt(_dmakIndex); }
+function replayDmak(){
+  if(_dmakReplayTimer){clearTimeout(_dmakReplayTimer);_dmakReplayTimer=null;}
+  const inst=_dmakInstances[_dmakIndex];
+  if(!inst)return;
+  try{inst.pause();}catch(e){}
+  try{inst.erase();}catch(e){}
+  _dmakPlaying=false;
+  _dmakUpdateNav();
+  // Wait for erase animation to finish, then render
+  _dmakReplayTimer=setTimeout(()=>{
+    _dmakReplayTimer=null;
+    const i2=_dmakInstances[_dmakIndex];
+    if(i2){try{i2.render();}catch(e){}}
+    _dmakPlaying=true;
+    _dmakUpdateNav();
+  },1000);
+}
+function _dmakPausePlay(){
+  const inst=_dmakInstances[_dmakIndex];
+  if(!inst)return;
+  if(_dmakPlaying){
+    try{inst.pause();}catch(e){}
+    _dmakPlaying=false;
+  } else {
+    try{inst.erase();}catch(e){}try{inst.render();}catch(e){}
+    _dmakPlaying=true;
+  }
+  _dmakUpdateNav();
+}
 
 let _ctrLeftW = 'max-content';
 let _ctrDescMinH = 0;
