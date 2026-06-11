@@ -1289,7 +1289,8 @@ const countersData = {
     {jp:'五千',reading:'ごせん',def:'5,000'},{jp:'六千',reading:'ろくせん',def:'6,000'},
     {jp:'七千',reading:'ななせん',def:'7,000'},
     {jp:'八千',reading:'はっせん',def:'8,000 ⚠'},{jp:'九千',reading:'きゅうせん',def:'9,000'},
-    {jp:'万',reading:'いちまん',def:'10,000'},
+    {jp:'一万',reading:'いちまん',def:'10,000'},
+    {jp:'百万',reading:'ひゃくまん',def:'1,000,000'},
   ]},
   'native':{label:'Native counting',icon:'🗾',desc:'Traditional Japanese counting (ひとつ、ふたつ…) for general items up to 10.',items:[
     {jp:'一つ',reading:'ひとつ',def:'1'},{jp:'二つ',reading:'ふたつ',def:'2'},{jp:'三つ',reading:'みっつ',def:'3'},
@@ -1453,7 +1454,7 @@ const questionsData = [
 ];
 const extraCounterMap = {
   '一':'numbers','二':'numbers','三':'numbers','四':'numbers','五':'numbers','六':'numbers',
-  '七':'numbers','八':'numbers','九':'numbers','十':'numbers','百':'numbers','千':'numbers','万':'numbers',
+  '七':'numbers','八':'numbers','九':'numbers','十':'numbers','百':'numbers','千':'numbers','万':'numbers','一万':'numbers','百万':'numbers',
   '一つ':'native','二つ':'native','三つ':'native','四つ':'native','五つ':'native',
   '六つ':'native','七つ':'native','八つ':'native','九つ':'native',
   '一月':'months','二月':'months','三月':'months','四月':'months','五月':'months','六月':'months',
@@ -3028,7 +3029,7 @@ function popupWordBlock(word,reading,large){
 
 function openConjPopup(word,reading,def,pos,exprKey,mode,grp='',adjT=''){
   const counterKey=extraCounterMap[word]||extraCounterMap[reading]||(counTypeMap[word]?.key);
-  if(pos==='Coun'||(counterKey&&pos!=='Kanji')){
+  if(pos==='Coun'||(counterKey&&pos!=='Kanji'&&pos!=='Expr')){
     let mk=counterKey||null;
     if(!mk)for(const[k,cat]of Object.entries(countersData)){if(cat.items.some(i=>i.jp===word||i.reading===reading)){mk=k;break;}}
     openAllCountersPopup(mk||undefined);return;
@@ -3123,7 +3124,7 @@ function openConjPopup(word,reading,def,pos,exprKey,mode,grp='',adjT=''){
       `<span class="popup-kanji-def">${def}</span>`+
     `</div>`+
     `<div class="popup-word-display">`+
-      `<span class="popup-dmak-type-icon">${badge}</span>`+
+      `<span class="popup-dmak-type-icon pos-${badge}">${badge}</span>`+
       (grp?`<span class="popup-dmak-grp-icon grp-${grp}">${grp}</span>`:adjT?`<span class="popup-dmak-adj-icon adj-${adjT}">${adjT==='i'?'い':'な'}</span>`:'')+
       `<span class="popup-word-display-text" style="font-size:${Math.min(72,Math.floor(500/[...word].length))}px">${word}</span>`+
     `</div>`+
@@ -3339,13 +3340,14 @@ function renderCounterTab(key){
   const descHtml=_ctrDescMinH>0
     ?`<div class="ctr-desc" style="min-height:${_ctrDescMinH}px">${cat.desc||''}</div>`
     :(cat.desc?`<div class="ctr-desc">${cat.desc}</div>`:'');
-  const rowsHtml=cat.items.map(item=>
-    `<div class="ctr-row">`+
+  const rowsHtml=cat.items.map(item=>{
+    const _w=item.jp.replace(/'/g,"\\'"); const _r=(item.reading||'').replace(/'/g,"\\'"); const _d=item.def.replace(/'/g,"\\'");
+    return `<div class="ctr-row ctr-row-btn" onclick="openCtrItemPopup('${_w}','${_r}','${_d}')">`+
     `<div class="ctr-row-left notranslate" translate="no">${rubyHTML(item.jp,item.reading||'')}</div>`+
     `<div class="ctr-row-sep"></div>`+
     `<div class="ctr-row-def">${item.def}</div>`+
-    `</div>`
-  ).join('');
+    `</div>`;
+  }).join('');
   document.getElementById('ctr-popup-grid').innerHTML=
     descHtml+`<div class="ctr-list" style="grid-template-columns:${_ctrLeftW} 1px 1fr">`+rowsHtml+'</div>';
 }
@@ -3379,6 +3381,37 @@ function closeCounterPopupDirect(){
       initDmak(a.word,a.mode,'Kanji');
     }
   },220);
+}
+function openCtrItemPopup(word,reading,def){
+  _dmakInstances.forEach(inst=>{if(inst){try{inst.pause();}catch(e){}}}); _dmakInstances=[]; _dmakIndex=0;
+  const box=document.getElementById('popup-box');
+  const wHasK=hasKanji(word);
+  const rdText=(wHasK&&reading)?reading:'';
+  if(wHasK){
+    box.innerHTML=
+      `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
+      `<div class="popup-kanji-above-row">`+
+        `<span class="popup-kanji-reading">${rdText}</span>`+
+        `<span class="popup-kanji-def">${def}</span>`+
+      `</div>`+
+      `<div id="popup-dmak-container"></div>`+
+      `<div id="popup-dmak-nav"></div>`;
+    initDmak(word,null,'Coun');
+  } else {
+    box.innerHTML=
+      `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
+      `<div class="popup-kanji-above-row">`+
+        `<span class="popup-kanji-reading">${rdText}</span>`+
+        `<span class="popup-kanji-def">${def}</span>`+
+      `</div>`+
+      `<div class="popup-word-display">`+
+        `<span class="popup-dmak-type-icon pos-Coun">Coun</span>`+
+        `<span class="popup-word-display-text" style="font-size:${Math.min(72,Math.floor(500/[...word].length))}px">${word}</span>`+
+      `</div>`;
+  }
+  const conj=document.getElementById('conj-popup');
+  conj.classList.remove('hidden');
+  requestAnimationFrame(()=>conj.classList.add('visible'));
 }
 function openAllCountersPopup(startKey){
   const tabRow=document.getElementById('ctr-tab-row');

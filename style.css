@@ -288,11 +288,14 @@ main{overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;positi
 .ctr-popup-scroll{overflow-y:auto;flex:1;min-height:0;padding-bottom:16px;}
 .ctr-desc{font-size:11px;color:var(--sub);font-family:Arial,sans-serif;padding:6px 10px;background:var(--bg);border-radius:8px;border-left:3px solid var(--rose);margin-bottom:4px;}
 .ctr-list{display:grid;grid-template-columns:max-content 1px 1fr;width:100%;}
+#conj-popup{z-index:202;}
 .ctr-row{display:contents;}
-.ctr-row-left{padding:10px 14px 10px 0;display:flex;align-items:center;border-bottom:1px solid var(--rose);}
+.ctr-row-btn .ctr-row-left,.ctr-row-btn .ctr-row-def,.ctr-row-btn .ctr-row-sep{cursor:pointer;transition:background .1s;}
+.ctr-row-btn:hover .ctr-row-left,.ctr-row-btn:hover .ctr-row-def,.ctr-row-btn:hover .ctr-row-sep{background:var(--bg);}
+.ctr-row-left{padding:10px 14px 10px 12px;display:flex;align-items:center;border-bottom:1px solid var(--rose);}
 .ctr-row-left .card-ruby{font-size:18px;}
 .ctr-row:last-child .ctr-row-left,.ctr-row:last-child .ctr-row-def{border-bottom:none;}
-.ctr-row-sep{background:var(--rose);margin:6px 0;}
+.ctr-row-sep{background:var(--rose);}
 .ctr-row-def{padding:10px 0 10px 14px;font-size:13px;color:var(--sub);font-family:Arial,sans-serif;display:flex;align-items:center;border-bottom:1px solid var(--rose);}
 
 /* FLOATING FILTERS */
