@@ -79,6 +79,7 @@
     /* ── Bear ── */
     .bear-wrap {
       position:relative;
+      display:inline-block;
       margin-bottom:18px;
     }
     .bear-img {
@@ -92,11 +93,11 @@
       50%      { transform:translateY(-7px) rotate(.5deg); }
     }
 
-    /* Speech bubble — lower and more to the right, also floats */
+    /* Speech bubble — overlaps logo corner, same as home page */
     .bear-speech {
       position:absolute;
-      top:-4px;        /* lower than before */
-      right:-90px;     /* further to the right */
+      top:-4px;
+      left:calc(100% - 30px);
       background:#fff;
       border:1.5px solid #e8d8d4;
       border-radius:12px 12px 12px 3px;
@@ -218,8 +219,14 @@
     }
     .no-access.visible { display:flex; }
 
+    /* login bubble position */
+    .bear-wrap .bear-speech { left:calc(100% - 17px); }
+
+
+    .na-bear-wrap .bear-speech { left:calc(100% - 24px); }
+
     /* Bear + bubble wrapper */
-    .na-bear-wrap { position:relative; margin-bottom:22px; }
+    .na-bear-wrap { position:relative; display:inline-block; margin-bottom:22px; }
     .na-bear-img {
       width:96px; height:96px; object-fit:contain;
       filter:drop-shadow(0 6px 20px rgba(209,125,110,.28));
@@ -267,6 +274,7 @@
       animation:fade-up .4s .96s ease both; opacity:0; animation-fill-mode:forwards;
     }
     .na-back:hover { background:rgba(255,255,255,.65); border-color:#c4a9a5; }
+
   </style>
 </head>
 <body>
@@ -325,6 +333,7 @@
     <div class="na-msg">This space is invite-only for now.<br>Ask for access to join the beta.</div>
     <button class="na-back" onclick="showLogin()">← Back to sign in</button>
   </div>
+
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
   <script>
@@ -402,7 +411,6 @@
         '/.netlify/identity/authorize?provider=github&redirect_to=' +
         encodeURIComponent(window.location.origin + '/login.html');
     }
-
   </script>
 </body>
 </html>

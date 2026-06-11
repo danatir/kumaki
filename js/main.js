@@ -3079,11 +3079,11 @@ function initBearBubble(){
     bubble.classList.remove('bb-float');
     bubble.style.transition = '';
     bubble.style.opacity = '0';
-    scheduleShow(4000);
+    scheduleShow(2000);
   };
   window._hideBubble = function(){
     clearTimeout(timer);
-    if(parseFloat(bubble.style.opacity||'0') < 0.5){ scheduleShow(4000); return; }
+    if(parseFloat(bubble.style.opacity||'0') < 0.5){ scheduleShow(2000); return; }
     bubble.classList.remove('bb-float');
     bubble.style.transformOrigin = '0% 100%';
     bubble.style.animation = 'bubble-disappear .25s ease both';
@@ -3091,7 +3091,7 @@ function initBearBubble(){
       bubble.style.animation = '';
       bubble.style.transformOrigin = '';
       bubble.style.opacity = '0';
-      scheduleShow(4000);
+      scheduleShow(2000);
     }, 280);
   };
   window._leaveBubble = function(){
@@ -3100,7 +3100,7 @@ function initBearBubble(){
     bubble.style.transition = '';
     bubble.style.opacity = '0';
   };
-  scheduleShow(4000);
+  scheduleShow(2000);
 }
 
 function initHomeCanvas(){
