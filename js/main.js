@@ -3226,7 +3226,7 @@ function replayDmak(){
   try{inst.erase();}catch(e){}
   _dmakPlaying=false;
   _dmakUpdateNav();
-  // Wait for erase to finish (~800ms), then 0.3s pause before replaying
+  // Wait for erase to finish (~1800ms), then 0.3s pause before replaying
   _dmakReplayTimer=setTimeout(()=>{
     _dmakReplayTimer=setTimeout(()=>{
       _dmakReplayTimer=null;
@@ -3235,7 +3235,7 @@ function replayDmak(){
       _dmakPlaying=true;
       _dmakUpdateNav();
     },300);
-  },800);
+  },1800);
 }
 function _dmakPausePlay(){
   const inst=_dmakInstances[_dmakIndex];
