@@ -3191,7 +3191,7 @@ async function initDmak(word,mode=null,posLabel=null,grp='',adjT=''){
 
   // Create DMAK instances — SVGs now in cache, renders without waiting
   _dmakIsKanjiPage = (posLabel==='Kanji');
-  const _step   = _dmakIsKanjiPage ? 0.03 : 0.4;
+  const _step   = _dmakIsKanjiPage ? 0.03 : 0.01;
   const _stroke = _dmakIsKanjiPage
     ? {attr:{stroke:'#C03030','stroke-width':7.5,'stroke-linecap':'round','stroke-linejoin':'round',active:'#FF3333'},order:{visible:false}}
     : {attr:{stroke:'#333333','stroke-width':7,  'stroke-linecap':'round','stroke-linejoin':'round',active:'#e03020'},order:{visible:false}};
@@ -3274,7 +3274,7 @@ function _dmakPlayAt(idx){
   // Auto-advance to next kanji after this one finishes (vocab/expr only)
   if(!_dmakIsKanjiPage&&idx<_dmakInstances.length-1){
     const pathCount=(inst&&(inst.paths||inst.strokes||[]).length)||10;
-    _dmakAutoTimer=setTimeout(()=>{_dmakAutoTimer=null;_dmakPlayAt(idx+1);},pathCount*16+600);
+    _dmakAutoTimer=setTimeout(()=>{_dmakAutoTimer=null;_dmakPlayAt(idx+1);},pathCount*10+400);
   }
 }
 
@@ -3330,7 +3330,7 @@ function replayDmak(){
       _dmakUpdateNav();
       if(!_dmakIsKanjiPage&&_dmakIndex<_dmakInstances.length-1){
         const pathCount=(i2&&(i2.paths||i2.strokes||[]).length)||10;
-        _dmakAutoTimer=setTimeout(()=>{_dmakAutoTimer=null;_dmakPlayAt(_dmakIndex+1);},pathCount*16+600);
+        _dmakAutoTimer=setTimeout(()=>{_dmakAutoTimer=null;_dmakPlayAt(_dmakIndex+1);},pathCount*10+400);
       }
     },300);
   },1200);
@@ -3348,7 +3348,7 @@ function _dmakPausePlay(){
     _dmakPlaying=true;
     if(!_dmakIsKanjiPage&&_dmakIndex<_dmakInstances.length-1){
       const pathCount=(inst&&(inst.paths||inst.strokes||[]).length)||10;
-      _dmakAutoTimer=setTimeout(()=>{_dmakAutoTimer=null;_dmakPlayAt(_dmakIndex+1);},pathCount*16+600);
+      _dmakAutoTimer=setTimeout(()=>{_dmakAutoTimer=null;_dmakPlayAt(_dmakIndex+1);},pathCount*10+400);
     }
   }
   _dmakUpdateNav();
