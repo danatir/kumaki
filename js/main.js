@@ -3074,6 +3074,7 @@ function initBearBubble(){
   };
   window._hideBubble = function(){
     clearTimeout(timer);
+    if(!bubble.classList.contains('bb-show')){ scheduleShow(4000); return; }
     bubble.classList.remove('bb-show');
     void bubble.offsetWidth;
     bubble.classList.add('bb-hide');
@@ -3083,6 +3084,7 @@ function initBearBubble(){
     clearTimeout(timer);
     bubble.classList.remove('bb-show','bb-hide');
   };
+  scheduleShow(4000);
 }
 
 function initHomeCanvas(){
