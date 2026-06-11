@@ -1608,6 +1608,7 @@ function setTab(tab, btn){
       requestAnimationFrame(()=>{ homeScreen.classList.remove('fading'); });
       return;
     }
+    if(typeof window._leaveBubble==='function') window._leaveBubble();
     homeScreen.style.display = 'none';
     homeScreen.classList.remove('fading');
     content.style.display = 'block';
@@ -3056,13 +3057,32 @@ function bearClick(e){
 function initBearBubble(){
   const bubble = document.getElementById('bear-bubble');
   if(!bubble) return;
-  window._restartBubble = function(text){
-    if(text) bubble.textContent = text;
-    bubble.style.animation = 'none';
+  let timer = null;
+  function show(){
+    bubble.classList.remove('bb-hide');
     void bubble.offsetWidth;
-    bubble.style.animation = '';
+    bubble.classList.add('bb-show');
+  }
+  function scheduleShow(delay){
+    clearTimeout(timer);
+    timer = setTimeout(show, delay||4000);
+  }
+  window._restartBubble = function(){
+    clearTimeout(timer);
+    bubble.classList.remove('bb-show','bb-hide');
+    scheduleShow(4000);
   };
-  window._hideBubble = function(){};
+  window._hideBubble = function(){
+    clearTimeout(timer);
+    bubble.classList.remove('bb-show');
+    void bubble.offsetWidth;
+    bubble.classList.add('bb-hide');
+    scheduleShow(4300);
+  };
+  window._leaveBubble = function(){
+    clearTimeout(timer);
+    bubble.classList.remove('bb-show','bb-hide');
+  };
 }
 
 function initHomeCanvas(){
