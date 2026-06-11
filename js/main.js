@@ -3142,7 +3142,7 @@ async function initDmak(word){
         uri:'kanji/',
         width:size,height:size,step:0.03,
         autoplay:false,
-        stroke:{attr:{stroke:'#444','stroke-width':7,'stroke-linecap':'round','stroke-linejoin':'round',active:'#e0675c'},order:{visible:false}},
+        stroke:{attr:{stroke:'#9B3333','stroke-width':7,'stroke-linecap':'round','stroke-linejoin':'round',active:'#E53935'},order:{visible:false}},
         grid:{show:true,attr:{stroke:'#ddd','stroke-width':0.5}}
       });
       _dmakInstances.push(inst);
@@ -3226,14 +3226,16 @@ function replayDmak(){
   try{inst.erase();}catch(e){}
   _dmakPlaying=false;
   _dmakUpdateNav();
-  // Wait for erase animation to finish, then render
+  // Wait for erase to finish (~800ms), then 0.3s pause before replaying
   _dmakReplayTimer=setTimeout(()=>{
-    _dmakReplayTimer=null;
-    const i2=_dmakInstances[_dmakIndex];
-    if(i2){try{i2.render();}catch(e){}}
-    _dmakPlaying=true;
-    _dmakUpdateNav();
-  },1000);
+    _dmakReplayTimer=setTimeout(()=>{
+      _dmakReplayTimer=null;
+      const i2=_dmakInstances[_dmakIndex];
+      if(i2){try{i2.render();}catch(e){}}
+      _dmakPlaying=true;
+      _dmakUpdateNav();
+    },300);
+  },800);
 }
 function _dmakPausePlay(){
   const inst=_dmakInstances[_dmakIndex];
