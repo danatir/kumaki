@@ -3056,29 +3056,13 @@ function bearClick(e){
 function initBearBubble(){
   const bubble = document.getElementById('bear-bubble');
   if(!bubble) return;
-  let timer = null;
-  function show(){
-    clearTimeout(timer);
-    bubble.classList.remove('bb-hide','bb-show');
+  window._restartBubble = function(text){
+    if(text) bubble.textContent = text;
+    bubble.style.animation = 'none';
     void bubble.offsetWidth;
-    bubble.classList.add('bb-show');
-    timer = setTimeout(hide, 5000);
-  }
-  function hide(){
-    clearTimeout(timer);
-    bubble.classList.remove('bb-show');
-    void bubble.offsetWidth;
-    bubble.classList.add('bb-hide');
-    timer = setTimeout(show, 4000);
-  }
-  function restart(){
-    clearTimeout(timer);
-    bubble.classList.remove('bb-show','bb-hide');
-    timer = setTimeout(show, 1200);
-  }
-  timer = setTimeout(show, 1500);
-  window._hideBubble = hide;
-  window._restartBubble = restart;
+    bubble.style.animation = '';
+  };
+  window._hideBubble = function(){};
 }
 
 function initHomeCanvas(){
