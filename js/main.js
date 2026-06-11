@@ -3103,7 +3103,7 @@ async function initDmak(word){
 
   // Kanji box larger than kana font so visible strokes match kana visual size
   // 5-char worst case: 5×80 + 4×6 = 424px = container inner width, fits in one row
-  const size=85;
+  const size=95;
   const kanaSize=70;
 
   // Build mixed row synchronously (visible immediately when popup opens)
@@ -3142,7 +3142,7 @@ async function initDmak(word){
         uri:'kanji/',
         width:size,height:size,step:0.03,
         autoplay:false,
-        stroke:{attr:{stroke:'#C03030','stroke-width':7,'stroke-linecap':'round','stroke-linejoin':'round',active:'#FF3333'},order:{visible:false}},
+        stroke:{attr:{stroke:'#C03030','stroke-width':8,'stroke-linecap':'round','stroke-linejoin':'round',active:'#FF3333'},order:{visible:false}},
         grid:{show:true,attr:{stroke:'#ddd','stroke-width':0.5}}
       });
       _dmakInstances.push(inst);

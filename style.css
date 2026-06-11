@@ -188,7 +188,7 @@ main{overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;positi
 .popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s ease;}
 .popup-overlay.hidden{display:none;}
 .popup-overlay.visible{opacity:1;pointer-events:auto;}
-.popup-box{background:var(--white);border-radius:20px;padding:30px 26px 26px;max-width:520px;width:100%;box-shadow:0 12px 48px rgba(0,0,0,.18);position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;transform:scale(.94) translateY(10px);opacity:0;transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .2s ease;}
+.popup-box{background:var(--white);border-radius:20px;padding:30px 26px 26px;max-width:560px;width:100%;box-shadow:0 12px 48px rgba(0,0,0,.18);position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;transform:scale(.94) translateY(10px);opacity:0;transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .2s ease;}
 .popup-overlay.visible .popup-box{transform:scale(1) translateY(0);opacity:1;}
 .popup-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:18px;cursor:pointer;color:var(--dim);line-height:1;z-index:1;padding:4px;}
 .popup-close:hover{color:var(--red);}
