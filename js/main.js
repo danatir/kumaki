@@ -2115,7 +2115,7 @@ function suggPick(el){
     render();
     const mainEl = document.getElementById('main');
     if(mainEl) requestAnimationFrame(()=>{ mainEl.scrollTop = restorePos; });
-    openConjPopup(el.dataset.jp, el.dataset.read, el.dataset.en, el.dataset.pos, el.dataset.ek);
+    openConjPopup(el.dataset.jp, el.dataset.read, el.dataset.en, el.dataset.pos, el.dataset.ek, '', el.dataset.grp||'', el.dataset.adjt||'');
   }
 }
 
@@ -2184,7 +2184,7 @@ function renderVocab(){
       }
       // KL indicator
       const klIndicator = ''; // vocab uses L levels
-      html += `<div class="vocab-card" onclick="openConjPopup('${w.word.replace(/'/g,"\\'")}','${(w.reading||'').replace(/'/g,"\\'")}','${def.replace(/'/g,"\\'")}','${w.pos}','${(w.exprKey||'').replace(/'/g,"\\'")}')">
+      html += `<div class="vocab-card" onclick="openConjPopup('${w.word.replace(/'/g,"\\'")}','${(w.reading||'').replace(/'/g,"\\'")}','${def.replace(/'/g,"\\'")}','${w.pos}','${(w.exprKey||'').replace(/'/g,"\\'")}','','${w.grp||''}','${adjType[w.word]||''}')" data-grp="${w.grp||''}" data-adjt="${adjType[w.word]||''}">
         <div class="vc-left notranslate" translate="no">${rubyHTML(w.word,w.reading||"")}</div>
         <div class="vc-sep"></div>
         <div class="vc-right"><span class="vc-def">${def}${counBadge}</span></div>
@@ -2656,7 +2656,7 @@ function renderAll(){
       let def=w.def; if(w.pos==='Coun') def=def.replace(/\s*\(counter\)\s*/gi,'').trim();
       const adjTag=w.pos==='Adj'?`<span class="vc-adj-tag adj-${adjType[w.word]||'na'}">${adjType[w.word]==='i'?'い':'な'}</span>`:'';
       const grpTag=w.grp?`<span class="vc-grp-tag grp-${w.grp}">${w.grp}</span>`:'';
-      vHtml+=`<div class="vocab-card" onclick="openConjPopup('${w.word.replace(/'/g,"\\'")}','${(w.reading||'').replace(/'/g,"\\'")}','${def.replace(/'/g,"\\'")}','${w.pos}','${(w.exprKey||'').replace(/'/g,"\\'")}')">
+      vHtml+=`<div class="vocab-card" onclick="openConjPopup('${w.word.replace(/'/g,"\\'")}','${(w.reading||'').replace(/'/g,"\\'")}','${def.replace(/'/g,"\\'")}','${w.pos}','${(w.exprKey||'').replace(/'/g,"\\'")}','','${w.grp||''}','${adjType[w.word]||''}')" data-grp="${w.grp||''}" data-adjt="${adjType[w.word]||''}">
         <div class="vc-left notranslate" translate="no">${rubyHTML(w.word,w.reading||"")}</div>
         <div class="vc-sep"></div>
         <div class="vc-right"><span class="vc-def">${def}</span></div>
@@ -2998,11 +2998,24 @@ const exprData = {
 };
 
 // POPUP
+let _prevKanjiArgs = null;
 let _dmakInstances = [];
 let _dmakIndex = 0;
 let _dmakAutoTimer = null;
 let _dmakReplayTimer = null;
 let _dmakPlaying = false;
+let _dmakDimOpacity = parseFloat(localStorage.getItem('kumakey_dmak_opacity')||'0.6');
+
+function _dmakSetDimOpacity(val){
+  _dmakDimOpacity=val;
+  localStorage.setItem('kumakey_dmak_opacity',val);
+  const row=document.querySelector('.popup-dmak-row');
+  if(row){
+    [...row.children].forEach(el=>el.style.opacity=String(val));
+    const ab=document.getElementById('dmak-box-'+_dmakIndex);
+    if(ab)ab.style.opacity='1';
+  }
+}
 
 function popupWordBlock(word,reading,large){
   const cls='popup-word-block'+(large?' popup-word-block--lg':'');
@@ -3013,7 +3026,7 @@ function popupWordBlock(word,reading,large){
   return `<div class="${cls} notranslate" translate="no">${rdHtml}<div class="popup-word-text">${word}</div></div>`;
 }
 
-function openConjPopup(word,reading,def,pos,exprKey,mode){
+function openConjPopup(word,reading,def,pos,exprKey,mode,grp='',adjT=''){
   const counterKey=extraCounterMap[word]||extraCounterMap[reading]||(counTypeMap[word]?.key);
   if(pos==='Coun'||(counterKey&&pos!=='Kanji')){
     let mk=counterKey||null;
@@ -3025,35 +3038,58 @@ function openConjPopup(word,reading,def,pos,exprKey,mode){
   const show=(function(){var _p=document.getElementById('conj-popup');_p.classList.remove('hidden');requestAnimationFrame(function(){_p.classList.add('visible');});});
 
   if(pos==='Kanji'){
-    const modeLabel=mode==='write'?'Write':'Read';
-    const modeCls=mode==='write'?'popup-badge-mode-write':'popup-badge-mode-read';
-    const ctrHtml=counterKey?`<div class="popup-actions"><button class="popup-ctr-btn" onclick="closePopupDirect();openAllCountersPopup('${counterKey}')">See Counters</button></div>`:'';
+    const rdText=(hasKanji(word)&&reading)?reading:'';
+    const _modeArg=mode?`'${mode}'`:'null';
+    const ctrHtml=counterKey?`<div class="popup-actions"><button class="popup-ctr-btn" onclick="_openCountersFromKanji('${word}','${rdText}','${def.replace(/'/g,"\\'")}',${_modeArg},'${counterKey}')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="8" width="6" height="13" rx="1"/><rect x="16" y="13" width="6" height="8" rx="1"/></svg>Counters</button></div>`:'';
+
     box.innerHTML=
       `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
-      `<span class="popup-type-badge">Kanji<span class="popup-badge-sep">·</span><span class="${modeCls}">${modeLabel}</span></span>`+
-      popupWordBlock(word,reading,true)+
-      `<div class="popup-hero-def">${def}</div>`+
+      `<div class="popup-kanji-above-row">`+
+        `<span class="popup-kanji-reading">${rdText}</span>`+
+        `<span class="popup-kanji-def">${def}</span>`+
+      `</div>`+
       `<div id="popup-dmak-container"></div>`+
       `<div id="popup-dmak-nav"></div>`+
       ctrHtml;
-    initDmak(word);show();return;
+    initDmak(word,mode,'Kanji',grp,adjT);show();return;
   }
 
   if(pos==='Expr'){
     const e=exprData[exprKey||word];
     const inner=e?
+      `<div class="popup-divider"></div>`+
       `<div class="popup-expr-kw">${e.keyword}</div>`+
       `<div class="popup-expr-str">${e.structure}</div>`+
       `<div class="popup-expr-meaning">${e.meaning}</div>`+
       `<div class="popup-expr-label">Examples</div>`+
       `<div class="popup-expr-examples">${e.examples.map(ex=>`<div class="popup-expr-ex"><div class="popup-expr-ex-jp">${ex.jp}</div><div class="popup-expr-ex-en">${ex.en}</div></div>`).join('')}</div>`
       :'';
-    box.innerHTML=
-      `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
-      `<span class="popup-type-badge">Expression</span>`+
-      popupWordBlock(word,reading,false)+
-      `<div class="popup-hero-def">${def}</div>`+
-      inner;
+    const wHasKE=hasKanji(word);
+    const rdTextE=(hasKanji(word)&&reading)?reading:'';
+    if(wHasKE){
+      box.innerHTML=
+        `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
+        `<div class="popup-kanji-above-row">`+
+          `<span class="popup-kanji-reading">${rdTextE}</span>`+
+          `<span class="popup-kanji-def">${def}</span>`+
+        `</div>`+
+        `<div id="popup-dmak-container"></div>`+
+        `<div id="popup-dmak-nav"></div>`+
+        inner;
+      initDmak(word,null,'Expr',grp,adjT);
+    } else {
+      box.innerHTML=
+        `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
+        `<div class="popup-kanji-above-row">`+
+          `<span class="popup-kanji-reading">${rdTextE}</span>`+
+          `<span class="popup-kanji-def">${def}</span>`+
+        `</div>`+
+        `<div class="popup-word-display">`+
+          `<span class="popup-dmak-type-icon pos-Expr">Expr</span>`+
+          `<span class="popup-word-display-text" style="font-size:${Math.min(72,Math.floor(500/[...word].length))}px">${word}</span>`+
+        `</div>`+
+        inner;
+    }
     show();return;
   }
 
@@ -3061,20 +3097,37 @@ function openConjPopup(word,reading,def,pos,exprKey,mode){
   const wHasK=hasKanji(word);
   const forms=conjLookup[word]||conjLookup[reading]||null;
   const badge=pos||'Vocab';
-  const dmakHtml=wHasK?
-    `<div id="popup-dmak-container"></div>`+
-    `<div id="popup-dmak-nav"></div>`:'';
   const conjHtml=forms&&forms.length?
     `<div class="popup-divider"></div>`+
     `<div class="popup-section-label">Conjugation</div>`+
     `<div class="conj-sheet notranslate" translate="no">${forms.map(f=>`<div class="conj-cell"><span class="conj-cell-label">${f.label}</span><span class="conj-cell-jp notranslate" translate="no">${f.jp}</span></div>`).join('')}</div>`:'';
+  if(wHasK){
+    const rdText=(hasKanji(word)&&reading)?reading:'';
+    box.innerHTML=
+      `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
+      `<div class="popup-kanji-above-row">`+
+        `<span class="popup-kanji-reading">${rdText}</span>`+
+        `<span class="popup-kanji-def">${def}</span>`+
+      `</div>`+
+      `<div id="popup-dmak-container"></div>`+
+      `<div id="popup-dmak-nav"></div>`+
+      conjHtml;
+    initDmak(word,null,badge,grp,adjT);
+    show();return;
+  }
+  const rdText=(hasKanji(word)&&reading)?reading:'';
   box.innerHTML=
     `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
-    `<span class="popup-type-badge">${badge}</span>`+
-    popupWordBlock(word,reading,false)+
-    `<div class="popup-hero-def">${def}</div>`+
-    dmakHtml+conjHtml;
-  if(wHasK)initDmak(word);
+    `<div class="popup-kanji-above-row">`+
+      `<span class="popup-kanji-reading">${rdText}</span>`+
+      `<span class="popup-kanji-def">${def}</span>`+
+    `</div>`+
+    `<div class="popup-word-display">`+
+      `<span class="popup-dmak-type-icon">${badge}</span>`+
+      (grp?`<span class="popup-dmak-grp-icon grp-${grp}">${grp}</span>`:adjT?`<span class="popup-dmak-adj-icon adj-${adjT}">${adjT==='i'?'い':'な'}</span>`:'')+
+      `<span class="popup-word-display-text" style="font-size:${Math.min(72,Math.floor(500/[...word].length))}px">${word}</span>`+
+    `</div>`+
+    conjHtml;
   show();
 }
 
@@ -3089,7 +3142,7 @@ function closePopupDirect(){
   setTimeout(()=>el.classList.add('hidden'),220);
 }
 
-async function initDmak(word){
+async function initDmak(word,mode=null,posLabel=null,grp='',adjT=''){
   const container=document.getElementById('popup-dmak-container');
   if(!container)return;
   container.innerHTML='';
@@ -3151,9 +3204,38 @@ async function initDmak(word){
 
   // Set initial visual state: dim all row children, highlight first kanji box
   const _initRow=container.querySelector('.popup-dmak-row');
-  if(_initRow)[..._initRow.children].forEach(el=>el.style.opacity='0.6');
+  if(_initRow)[..._initRow.children].forEach(el=>el.style.opacity=String(_dmakDimOpacity));
   const _firstBox=document.getElementById('dmak-box-0');
   if(_firstBox)_firstBox.style.opacity='1';
+
+  // Type label (Noun/Verb/Kanji/etc.) — top-left inside container
+  if(posLabel){
+    const _typeEl=document.createElement('span');
+    _typeEl.className=`popup-dmak-type-icon pos-${posLabel}`;
+    _typeEl.textContent=posLabel;
+    container.appendChild(_typeEl);
+  }
+  // Group badge (G1/G2/G3) or adj type (い/な) — top-right inside container
+  if(grp){
+    const _grpEl=document.createElement('span');
+    _grpEl.className=`popup-dmak-grp-icon grp-${grp}`;
+    _grpEl.textContent=grp;
+    container.appendChild(_grpEl);
+  } else if(adjT){
+    const _adjEl=document.createElement('span');
+    _adjEl.className=`popup-dmak-adj-icon adj-${adjT}`;
+    _adjEl.textContent=adjT==='i'?'い':'な';
+    container.appendChild(_adjEl);
+  }
+  // Mode icon (read/write) — top-right inside container
+  if(mode){
+    const _modeEl=document.createElement('span');
+    _modeEl.className=`popup-dmak-mode-icon mode-${mode}`;
+    const _eyeSvg=`<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    const _penSvg=`<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`;
+    _modeEl.innerHTML=mode==='write'?_penSvg:_eyeSvg;
+    container.appendChild(_modeEl);
+  }
   _dmakUpdateNav();
 
   // Auto-play first kanji 1.5s after popup opened
@@ -3172,7 +3254,7 @@ function _dmakPlayAt(idx){
   _dmakIndex=idx;
   // Dim all row children (kanji + kana), highlight active kanji box
   const _row=document.querySelector('.popup-dmak-row');
-  if(_row)[..._row.children].forEach(el=>el.style.opacity='0.6');
+  if(_row)[..._row.children].forEach(el=>el.style.opacity=String(_dmakDimOpacity));
   const _activeBox=document.getElementById('dmak-box-'+idx);
   if(_activeBox)_activeBox.style.opacity='1';
   const inst=_dmakInstances[idx];
@@ -3182,26 +3264,23 @@ function _dmakPlayAt(idx){
 }
 
 function _dmakUpdateNav(){
+  const _playSvg=`<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>`;
+  const _pauseSvg=`<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>`;
+  const _replaySvg=`<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
   const nav=document.getElementById('popup-dmak-nav');
   if(!nav)return;
   const total=_dmakInstances.length;
   const i=_dmakIndex;
-  const _playSvg=`<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>`;
-  const _pauseSvg=`<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="5" y="4" width="4" height="16"/><rect x="15" y="4" width="4" height="16"/></svg>`;
-  const _replaySvg=`<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
-  const ctrlRow=`<div class="popup-dmak-ctrl-row"><button class="popup-dmak-ctrl-btn" onclick="replayDmak()" title="Replay">${_replaySvg}</button><button class="popup-dmak-ctrl-btn" onclick="_dmakPausePlay()" title="${_dmakPlaying?'Pause':'Play'}">${_dmakPlaying?_pauseSvg:_playSvg}</button></div>`;
-  if(total<=1){
-    nav.innerHTML=ctrlRow;
-  } else {
+  const ctrlHtml=`<div class="popup-dmak-nav-left"><button class="popup-dmak-ctrl-btn" onclick="replayDmak()" title="Replay">${_replaySvg}</button><button class="popup-dmak-ctrl-btn" onclick="_dmakPausePlay()" title="${_dmakPlaying?'Pause':'Play'}">${_dmakPlaying?_pauseSvg:_playSvg}</button></div>`;
+  let dotsHtml='';
+  if(total>1){
     const dots=[...Array(total)].map((_,d)=>`<span class="popup-dmak-dot${d===i?' active':''}"></span>`).join('');
-    nav.innerHTML=
-      `<div class="popup-dmak-nav-row">`+
-      `<button class="popup-dmak-nav-btn" onclick="_dmakPrev()"${i===0?' disabled':''}>&lsaquo;</button>`+
-      `<div class="popup-dmak-dots">${dots}</div>`+
-      `<button class="popup-dmak-nav-btn" onclick="_dmakNext()"${i===total-1?' disabled':''}>&rsaquo;</button>`+
-      `</div>`+
-      ctrlRow;
+    dotsHtml=`<div class="popup-dmak-nav-center"><button class="popup-dmak-nav-btn" onclick="_dmakPrev()"${i===0?' disabled':''}>&lsaquo;</button><div class="popup-dmak-dots">${dots}</div><button class="popup-dmak-nav-btn" onclick="_dmakNext()"${i===total-1?' disabled':''}>&rsaquo;</button></div>`;
+  } else {
+    dotsHtml=`<div class="popup-dmak-nav-center"></div>`;
   }
+  const sliderHtml=`<div class="popup-dmak-nav-right"><input type="range" class="popup-dmak-opacity-slider" min="0.1" max="1" step="0.05" value="${_dmakDimOpacity}" oninput="_dmakSetDimOpacity(parseFloat(this.value))"></div>`;
+  nav.innerHTML=`<div class="popup-dmak-bottom-row">${ctrlHtml}${dotsHtml}${sliderHtml}</div>`;
 }
 
 function _dmakNext(){
@@ -3270,6 +3349,37 @@ function renderCounterTab(key){
   document.getElementById('ctr-popup-grid').innerHTML=
     descHtml+`<div class="ctr-list" style="grid-template-columns:${_ctrLeftW} 1px 1fr">`+rowsHtml+'</div>';
 }
+function _openCountersFromKanji(word,rdText,def,mode,counterKey){
+  _prevKanjiArgs={word,rdText,def,mode,counterKey};
+  closePopupDirect();
+  openAllCountersPopup(counterKey);
+}
+function closeCounterPopupDirect(){
+  var _p=document.getElementById('ctr-popup');
+  _p.classList.remove('visible');
+  setTimeout(function(){
+    _p.classList.add('hidden');
+    if(_prevKanjiArgs){
+      var a=_prevKanjiArgs; _prevKanjiArgs=null;
+      // Re-open kanji popup with saved state
+      var box=document.getElementById('popup-box');
+      var _modeArg=a.mode?`'${a.mode}'`:'null';
+      box.innerHTML=
+        `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
+        `<div class="popup-kanji-above-row">`+
+          `<span class="popup-kanji-reading">${a.rdText}</span>`+
+          `<span class="popup-kanji-def">${a.def}</span>`+
+        `</div>`+
+        `<div id="popup-dmak-container"></div>`+
+        `<div id="popup-dmak-nav"></div>`+
+        (a.counterKey?`<div class="popup-actions"><button class="popup-ctr-btn" onclick="_openCountersFromKanji('${a.word}','${a.rdText}','${a.def.replace(/'/g,"\\'")}',${_modeArg},'${a.counterKey}')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px"><rect x="2" y="3" width="6" height="18" rx="1"/><rect x="9" y="8" width="6" height="13" rx="1"/><rect x="16" y="13" width="6" height="8" rx="1"/></svg>Counters</button></div>`:'');
+      var conj=document.getElementById('conj-popup');
+      conj.classList.remove('hidden');
+      requestAnimationFrame(function(){conj.classList.add('visible');});
+      initDmak(a.word,a.mode,'Kanji');
+    }
+  },220);
+}
 function openAllCountersPopup(startKey){
   const tabRow=document.getElementById('ctr-tab-row');
   tabRow.innerHTML=Object.entries(countersData).map(([key,cat])=>`<button class="ctr-tab" data-key="${key}" onclick="renderCounterTab('${key}')">${cat.label}</button>`).join('');
@@ -3298,7 +3408,7 @@ function openAllCountersPopup(startKey){
   (function(){var _p=document.getElementById('ctr-popup');_p.classList.remove('hidden');requestAnimationFrame(function(){_p.classList.add('visible');});})();
 }
 function openCounterPopup(key,label,e){if(e&&e.stopPropagation)e.stopPropagation();openAllCountersPopup(key);}
-function closeCounterPopup(e){if(e.target.id==='ctr-popup')(function(){var _p=document.getElementById('ctr-popup');_p.classList.remove('visible');setTimeout(function(){_p.classList.add('hidden');},220);})();}
+function closeCounterPopup(e){if(e.target.id==='ctr-popup')closeCounterPopupDirect();}
 
 // PERSIST STATE across Elfsight language change reloads
 function saveState(){try{sessionStorage.setItem('kd_scroll',document.getElementById('main').scrollTop);sessionStorage.setItem('kd_sidebar',document.body.classList.contains('open')?'1':'0');}catch(e){}}
