@@ -3142,7 +3142,7 @@ async function initDmak(word){
         uri:'kanji/',
         width:size,height:size,step:0.03,
         autoplay:false,
-        stroke:{attr:{stroke:'#C03030','stroke-width':8,'stroke-linecap':'round','stroke-linejoin':'round',active:'#FF3333'},order:{visible:false}},
+        stroke:{attr:{stroke:'#C03030','stroke-width':7.5,'stroke-linecap':'round','stroke-linejoin':'round',active:'#FF3333'},order:{visible:false}},
         grid:{show:true,attr:{stroke:'#ddd','stroke-width':0.5}}
       });
       _dmakInstances.push(inst);
@@ -3151,7 +3151,7 @@ async function initDmak(word){
 
   // Set initial visual state: dim all row children, highlight first kanji box
   const _initRow=container.querySelector('.popup-dmak-row');
-  if(_initRow)[..._initRow.children].forEach(el=>el.style.opacity='0.45');
+  if(_initRow)[..._initRow.children].forEach(el=>el.style.opacity='0.6');
   const _firstBox=document.getElementById('dmak-box-0');
   if(_firstBox)_firstBox.style.opacity='1';
   _dmakUpdateNav();
@@ -3172,7 +3172,7 @@ function _dmakPlayAt(idx){
   _dmakIndex=idx;
   // Dim all row children (kanji + kana), highlight active kanji box
   const _row=document.querySelector('.popup-dmak-row');
-  if(_row)[..._row.children].forEach(el=>el.style.opacity='0.45');
+  if(_row)[..._row.children].forEach(el=>el.style.opacity='0.6');
   const _activeBox=document.getElementById('dmak-box-'+idx);
   if(_activeBox)_activeBox.style.opacity='1';
   const inst=_dmakInstances[idx];
