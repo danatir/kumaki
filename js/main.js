@@ -3097,8 +3097,9 @@ async function initDmak(word){
   const kanjiList=chars.filter(isK);
   if(!kanjiList.length)return;
 
-  // Fixed size — consistent area across all popups; 70px fits even 5-char words in one row
-  const size=70;
+  // Kanji box larger than kana font so visible strokes match kana visual size
+  // 5-char worst case: 5×80 + 4×6 = 424px = container inner width, fits in one row
+  const size=80;
   const kanaSize=70;
 
   // Build mixed row synchronously (visible immediately when popup opens)
@@ -3137,7 +3138,7 @@ async function initDmak(word){
         uri:'kanji/',
         width:size,height:size,step:0.03,
         autoplay:false,
-        stroke:{attr:{stroke:'#444','stroke-width':4,'stroke-linecap':'round','stroke-linejoin':'round',active:'#e0675c'},order:{visible:false}},
+        stroke:{attr:{stroke:'#444','stroke-width':6,'stroke-linecap':'round','stroke-linejoin':'round',active:'#e0675c'},order:{visible:false}},
         grid:{show:true,attr:{stroke:'#ddd','stroke-width':0.5}}
       });
       _dmakInstances.push(inst);
