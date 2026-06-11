@@ -34,8 +34,7 @@ body.open .sidebar-top{width:auto;overflow:visible;}
 .home-logo-wrap{display:inline-block;animation:float-logo 4.2s ease-in-out 0.8s infinite;}
 .home-logo-img{width:80px;height:80px;animation:hs-logo-pop .55s cubic-bezier(.34,1.56,.64,1) both;}
 .bear-bubble{position:absolute;top:-4px;left:calc(100% - 14px);background:#fff;border:1.5px solid #e8d8d4;border-radius:12px 12px 12px 3px;padding:5px 11px;font-family:Arial,sans-serif;font-size:12px;color:#9c7b76;white-space:nowrap;box-shadow:0 2px 10px rgba(167,139,137,.14);pointer-events:none;opacity:0;z-index:10;}
-.bear-bubble.bb-show{animation:speech-reveal 1.1s ease both,speech-float 3.2s ease-in-out 1.1s infinite;}
-.bear-bubble.bb-hide{animation:bb-scaleout .3s ease forwards;}
+.bear-bubble.bb-float{animation:speech-float 3.2s ease-in-out infinite;}
 @keyframes float-logo{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}@keyframes cf0{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(1px,-5px) rotate(-1.1deg)}}@keyframes cf1{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(1px,-2px) rotate(-2.1deg)}}@keyframes cf2{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-2px,-4px) rotate(-2.4deg)}}@keyframes cf3{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(0px,-4px) rotate(0.4deg)}}@keyframes cf4{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(2px,-3px) rotate(-0.8deg)}}
 .home-title-wrap{margin:12px 0 6px;animation:hs-fade-up .5s .12s ease both;}
 .home-tagline{font-size:11px;color:var(--dim);font-family:Arial,sans-serif;letter-spacing:.06em;margin:0 0 18px;animation:hs-fade-up .5s .22s ease both;}

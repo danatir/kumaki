@@ -3059,30 +3059,36 @@ function initBearBubble(){
   if(!bubble) return;
   let timer = null;
   function show(){
-    bubble.classList.remove('bb-hide');
+    bubble.classList.remove('bb-float');
     void bubble.offsetWidth;
-    bubble.classList.add('bb-show');
+    bubble.style.transition = 'opacity .4s ease';
+    bubble.style.opacity = '1';
+    setTimeout(function(){ bubble.classList.add('bb-float'); }, 420);
   }
   function scheduleShow(delay){
     clearTimeout(timer);
-    timer = setTimeout(show, delay||4000);
+    timer = setTimeout(show, delay != null ? delay : 4000);
   }
   window._restartBubble = function(){
     clearTimeout(timer);
-    bubble.classList.remove('bb-show','bb-hide');
+    bubble.classList.remove('bb-float');
+    bubble.style.transition = '';
+    bubble.style.opacity = '0';
     scheduleShow(4000);
   };
   window._hideBubble = function(){
     clearTimeout(timer);
-    if(!bubble.classList.contains('bb-show')){ scheduleShow(4000); return; }
-    bubble.classList.remove('bb-show');
-    void bubble.offsetWidth;
-    bubble.classList.add('bb-hide');
+    if(parseFloat(bubble.style.opacity||'0') < 0.5){ scheduleShow(4000); return; }
+    bubble.classList.remove('bb-float');
+    bubble.style.transition = 'opacity .3s ease';
+    bubble.style.opacity = '0';
     scheduleShow(4300);
   };
   window._leaveBubble = function(){
     clearTimeout(timer);
-    bubble.classList.remove('bb-show','bb-hide');
+    bubble.classList.remove('bb-float');
+    bubble.style.transition = '';
+    bubble.style.opacity = '0';
   };
   scheduleShow(4000);
 }
