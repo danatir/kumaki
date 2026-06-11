@@ -162,6 +162,23 @@
   <div class="translator-panel hidden" id="translator-panel"><div class="tp-header"><div class="tp-tabs"><button class="tp-tab active" onclick="switchTool('dict',this)">Takoboto</button></div><button class="tp-close" onclick="toggleTranslator()">✕</button></div><div class="tp-body"><div class="tp-page" id="tp-dict"><iframe src="https://takoboto.jp/" style="width:100%;height:100%;border:none;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe></div></div></div>
 </main>
 
+<nav id="mobile-nav">
+  <div class="mnav-inner">
+    <button class="mnav-btn active" data-tab="vocab" onclick="setTab('vocab',null)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <span class="mnav-label">Vocab</span>
+    </button>
+    <button class="mnav-btn" data-tab="kanji" onclick="setTab('kanji',null)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span class="mnav-label">Kanji</span>
+    </button>
+    <button class="mnav-btn" data-tab="sheets" onclick="setTab('sheets',null)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+      <span class="mnav-label">Sheets</span>
+    </button>
+  </div>
+</nav>
+
 <!-- Conjugation popup -->
 <div class="popup-overlay hidden" id="conj-popup" onclick="closePopup(event)">
   <div class="popup-box" id="popup-box"></div>

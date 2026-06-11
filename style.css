@@ -559,41 +559,38 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
    ══════════════════════════════════════════════════════════ */
 @media(max-width:640px){
 
-  /* ── Root layout: flex column, height:100% avoids all 100vh/dvh bugs ── */
+  /* ── Root layout: position:fixed for both main and nav — no body-height dependency ── */
   html{
-    height:100%;
-    overflow:hidden;
     overflow-x:hidden;
     max-width:100vw;
   }
   body{
-    display:flex!important;
-    flex-direction:column;
-    height:100%;          /* fills exactly the visible viewport, no browser quirks */
-    overflow:hidden;
+    display:block!important;
     max-width:100vw;
     overflow-x:hidden!important;
+    /* NO overflow:hidden — it clips position:fixed children on iOS Safari */
   }
   aside{display:none!important;}
   main{
-    flex:1 1 0%!important;  /* 0% base size forces flex to calculate correctly */
-    min-height:0!important;
-    position:relative!important;
-    top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    right:0!important;
+    bottom:calc(56px + env(safe-area-inset-bottom))!important;
     width:100%!important;
     max-width:100vw!important;
-    height:auto!important;
     overflow-y:auto!important;
     overflow-x:hidden!important;
-    -webkit-overflow-scrolling:touch;
+    /* position:fixed on main means float-filters/kanji-float (also fixed) are viewport-relative */
   }
-  /* Nav: flex child at the bottom — no position:fixed, no viewport bugs */
+  /* Nav: already has position:fixed; bottom:0; left:0; right:0 in base CSS — just show it */
   #mobile-nav{
     display:flex!important;
-    flex-shrink:0!important;
-    position:static!important;
-    width:100%;
-    z-index:400;
+    position:fixed!important;
+    bottom:0!important;
+    left:0!important;
+    right:0!important;
+    z-index:400!important;
   }
 
   /* ── Search bar: full width + profile btn ──────── */
