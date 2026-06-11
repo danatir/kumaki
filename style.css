@@ -16,8 +16,7 @@ aside{background:var(--white);border-right:1px solid var(--rose);display:flex;fl
 
 
 body.open aside{width:160px;}
-.sidebar-top{display:flex;align-items:center;justify-content:flex-start;width:56px;height:56px;border-bottom:1px solid var(--rose);flex-shrink:0;padding:0;gap:8px;overflow:hidden;}
-body.open .sidebar-top{width:auto;overflow:visible;}
+.sidebar-top{display:flex;align-items:center;justify-content:flex-start;height:56px;border-bottom:1px solid var(--rose);flex-shrink:0;padding:0;gap:8px;overflow:hidden;}
 @keyframes hs-fade-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes hs-logo-pop{0%{opacity:0;transform:scale(.65) rotate(-6deg)}70%{transform:scale(1.07) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
 @keyframes hs-card-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}

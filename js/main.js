@@ -1960,6 +1960,7 @@ function updateSuggestions(raw){
   buildSuggIndex();
   const q = raw.toLowerCase();
   const qr = toRomaji(q);
+  const numWord = /^\d+$/.test(q) ? (_NUMERAL_WORDS[q]||null) : null;
 
   const scoreItem = (item) => {
     for(const f of item.searchForms){
@@ -1967,8 +1968,11 @@ function updateSuggestions(raw){
       const fl = f.toLowerCase();
       const fr = toRomaji(fl);
       if(fl === q || fr === q || fr === qr) return 3;
+      if(numWord && fl === numWord) return 3;
       if(fl.startsWith(q) || fr.startsWith(q) || fr.startsWith(qr)) return 2;
+      if(numWord && fl.startsWith(numWord)) return 2;
       if(fl.includes(q) || fr.includes(q) || fr.includes(qr)) return 1;
+      if(numWord && fl.includes(numWord)) return 1;
     }
     return 0;
   };
