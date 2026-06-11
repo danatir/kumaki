@@ -202,7 +202,7 @@ main{overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;positi
 .popup-word-reading{display:flex;justify-content:space-between;font-size:13px;color:var(--mid);font-family:'Chihaya','Noto Serif JP',serif;padding:0 3px;margin-bottom:2px;}
 .popup-word-text{font-family:'Chihaya','Noto Serif JP',serif;font-size:40px;color:var(--ink);line-height:1.1;white-space:nowrap;}
 .popup-word-block--lg .popup-word-reading{font-size:16px;}
-.popup-word-block--lg .popup-word-text{font-size:64px;}
+.popup-word-block--lg .popup-word-text{font-size:44px;}
 /* def */
 .popup-hero-def{font-size:14px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.5;}
 /* divider */

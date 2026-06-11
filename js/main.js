@@ -3097,10 +3097,9 @@ async function initDmak(word){
   const kanjiList=chars.filter(isK);
   if(!kanjiList.length)return;
 
-  // Dynamic size: always fits all characters in one row, capped at 130px
-  const _gap=6, _maxSz=130, _minSz=50, _containerW=424;
-  const size=Math.max(_minSz,Math.min(_maxSz,Math.floor((_containerW-_gap*(chars.length-1))/chars.length)));
-  const kanaSize=size;
+  // Fixed size — consistent area across all popups; 70px fits even 5-char words in one row
+  const size=70;
+  const kanaSize=70;
 
   // Build mixed row synchronously (visible immediately when popup opens)
   const row=document.createElement('div');
