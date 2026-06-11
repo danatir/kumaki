@@ -1611,7 +1611,7 @@ const counTypeMap = {};
 })();
 
 function hasKanji(str){return /[\u4e00-\u9faf\u3400-\u4dbf]/.test(str);}
-function rubyHTML(word,reading,style){const rt=hasKanji(word)&&reading?'<rt>'+reading+'</rt>':'';const st=style?' style="'+style+'"':'';return '<ruby class="card-ruby notranslate" translate="no"'+st+'>'+word+rt+'</ruby>';}
+function rubyHTML(word,reading,style){const hasRd=hasKanji(word)&&reading;const rtStyle=hasRd&&[...reading].length===1?' style="text-align:center;text-align-last:center"':'';const rt=hasRd?'<rt'+rtStyle+'>'+reading+'</rt>':'';const st=style?' style="'+style+'"':'';return '<ruby class="card-ruby notranslate" translate="no"'+st+'>'+word+rt+'</ruby>';}
 function toggleTranslator(){
   const panel=document.getElementById('translator-panel');
   const btn=document.querySelector('.translator-toggle');
@@ -3000,11 +3000,14 @@ const exprData = {
 // POPUP
 let _dmakInstances = [];
 let _dmakIndex = 0;
+let _dmakAutoTimer = null;
 
 function popupWordBlock(word,reading,large){
   const cls='popup-word-block'+(large?' popup-word-block--lg':'');
   const hasRd=hasKanji(word)&&reading;
-  const rdHtml=hasRd?`<div class="popup-word-reading">${[...reading].map(c=>`<span>${c}</span>`).join('')}</div>`:'';
+  const rdChars=[...reading];
+  const justify=rdChars.length<=1?'justify-content:center':'justify-content:space-between';
+  const rdHtml=hasRd?`<div class="popup-word-reading" style="${justify}">${rdChars.map(c=>`<span>${c}</span>`).join('')}</div>`:'';
   return `<div class="${cls} notranslate" translate="no">${rdHtml}<div class="popup-word-text">${word}</div></div>`;
 }
 
@@ -3075,28 +3078,31 @@ function openConjPopup(word,reading,def,pos,exprKey,mode){
 
 function closePopup(e){ if(e.target.id==='conj-popup') closePopupDirect(); }
 function closePopupDirect(){
+  if(_dmakAutoTimer){clearTimeout(_dmakAutoTimer);_dmakAutoTimer=null;}
   const el=document.getElementById('conj-popup');
   el.classList.remove('visible');
   _dmakInstances.forEach(inst=>{if(inst){try{inst.pause();}catch(e){}}}); _dmakInstances=[]; _dmakIndex=0;
   setTimeout(()=>el.classList.add('hidden'),220);
 }
 
-function initDmak(word){
+async function initDmak(word){
   const container=document.getElementById('popup-dmak-container');
   if(!container)return;
   container.innerHTML='';
   if(typeof Dmak==='undefined'){container.innerHTML='<div style="font-size:11px;color:var(--sub);font-family:Arial,sans-serif;padding:12px;">Animation library not loaded.</div>';return;}
+  if(_dmakAutoTimer){clearTimeout(_dmakAutoTimer);_dmakAutoTimer=null;}
   _dmakInstances=[]; _dmakIndex=0;
   const isK=ch=>/[一-龯㐀-䶿]/.test(ch);
   const chars=[...word];
   const kanjiList=chars.filter(isK);
   if(!kanjiList.length)return;
 
-  // Size scales down for more kanji so everything fits in one row
-  const size=kanjiList.length>=3?95:kanjiList.length===2?120:150;
-  const kanaSize=kanjiList.length>=3?34:kanjiList.length===2?42:50;
+  // Dynamic size: always fits all characters in one row, capped at 130px
+  const _gap=6, _maxSz=130, _minSz=50, _containerW=424;
+  const size=Math.max(_minSz,Math.min(_maxSz,Math.floor((_containerW-_gap*(chars.length-1))/chars.length)));
+  const kanaSize=size;
 
-  // Build mixed row: kanji boxes + kana spans in word order
+  // Build mixed row synchronously (visible immediately when popup opens)
   const row=document.createElement('div');
   row.className='popup-dmak-row';
   let ki=0;
@@ -3104,20 +3110,27 @@ function initDmak(word){
     if(isK(ch)){
       const box=document.createElement('div');
       box.id='dmak-box-'+ki;
-      box.style.cssText='border-radius:8px;background:var(--white);flex-shrink:0;transition:opacity .2s;';
+      // Explicit dimensions so box is visible before DMAK's XHR completes
+      box.style.cssText=`width:${size}px;height:${size}px;border-radius:8px;background:var(--white);flex-shrink:0;transition:opacity .2s;`;
       row.appendChild(box);
       ki++;
     } else {
       const span=document.createElement('span');
       span.className='popup-dmak-kana';
-      span.style.fontSize=kanaSize+'px';
+      span.style.cssText=`font-size:${kanaSize}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;`;
       span.textContent=ch;
       row.appendChild(span);
     }
   });
   container.appendChild(row);
 
-  // Create one DMAK instance per kanji, autoplay:false
+  // Pre-fetch all SVGs in parallel so DMAK gets instant cache hits
+  await Promise.all(kanjiList.map(ch=>{
+    const hex=ch.codePointAt(0).toString(16).padStart(5,'0');
+    return fetch('kanji/'+hex+'.svg').catch(()=>{});
+  }));
+
+  // Create DMAK instances — SVGs now in cache, renders without waiting
   kanjiList.forEach((ch,i)=>{
     try{
       const inst=new Dmak(ch,{
@@ -3132,7 +3145,19 @@ function initDmak(word){
     }catch(e){console.warn('DMAK error:',e);_dmakInstances.push(null);}
   });
 
-  _dmakPlayAt(0);
+  // Set initial visual state (first highlighted, no animation yet)
+  _dmakInstances.forEach((_,i)=>{
+    const b=document.getElementById('dmak-box-'+i);
+    if(b) b.style.opacity=i===0?'1':'0.3';
+  });
+  _dmakUpdateNav();
+
+  // Auto-play first kanji 1.5s after popup opened
+  _dmakAutoTimer=setTimeout(()=>{
+    _dmakAutoTimer=null;
+    const inst=_dmakInstances[0];
+    if(inst){try{inst.erase();}catch(e){}try{inst.render();}catch(e){}}
+  },1500);
 }
 
 function _dmakPlayAt(idx){
