@@ -1858,13 +1858,16 @@ function toRomaji(str){
   return r;
 }
 
+const _NUMERAL_WORDS = {'0':'zero','1':'one','2':'two','3':'three','4':'four','5':'five','6':'six','7':'seven','8':'eight','9':'nine','10':'ten','11':'eleven','12':'twelve','20':'twenty','100':'hundred','200':'two hundred','300':'three hundred','1000':'thousand','10000':'ten thousand'};
 function matchesSearch(q, ...fields){
   if(!q) return true;
+  const numWord = /^\d+$/.test(q) ? (_NUMERAL_WORDS[q]||null) : null;
   for(const f of fields){
     if(!f) continue;
     const s=f.toLowerCase();
     if(s.includes(q)) return true;
     if(toRomaji(s).includes(q)) return true;
+    if(numWord && s.includes(numWord)) return true;
   }
   return false;
 }
@@ -2190,6 +2193,12 @@ function renderVocab(){
   el.innerHTML = html || `<div class="empty"><span class="empty-jp">語</span>No vocabulary found.</div>`;
 }
 
+const _KANJI_NUM = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'百':100,'千':1000,'万':10000};
+function _kanjiSortVal(k){
+  const n = _KANJI_NUM[k.kanji[0]];
+  if(n !== undefined) return n * 100 + [...k.kanji].length;
+  return 99900 + [...k.kanji].length;
+}
 function renderKanji(){
   const kData = kanjiData[sem]||{};
   const q = currentSearch;
@@ -2203,13 +2212,13 @@ function renderKanji(){
       if(!kanjiShowWrite && k.mode==='write') return false;
       if(!q) return true;
       return matchesSearch(q,k.kanji,k.reading,k.meaning);
-    });
+    }).sort((a,b)=>{ const va=_kanjiSortVal(a),vb=_kanjiSortVal(b); return va!==vb?va-vb:a.reading.localeCompare(b.reading); });
     if(!entries.length) continue;
     html += `<div class="level-tag"><span>${lvl}</span><span class="lt-line"></span><span class="lt-count">${(kData[lvl]||[]).length} entries</span></div>`;
     html += `<div class="kanji-grid">`;
     for(const k of entries){
       const mc = k.mode==='write'?'kanji-write':'kanji-read';
-      html += `<div class="kanji-card ${mc}" onclick="openConjPopup('${k.kanji.replace(/'/g,"\\'")}','${(k.reading||'').replace(/'/g,"\\'")}','${(k.meaning||'').replace(/'/g,"\\'")}','Kanji')">
+      html += `<div class="kanji-card ${mc}" onclick="openConjPopup('${k.kanji.replace(/'/g,"\\'")}','${(k.reading||'').replace(/'/g,"\\'")}','${(k.meaning||'').replace(/'/g,"\\'")}','Kanji','','${k.mode||''}')">
         <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"")}</div>
         <div class="vc-sep"></div>
         <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
@@ -2658,10 +2667,10 @@ function renderAll(){
   const kData=kanjiData[sem]||{};
   let kHtml='';
   for(const lvl of Object.keys(kData).sort((a,b)=>parseInt(a.slice(2))-parseInt(b.slice(2)))){
-    const ks=(kData[lvl]||[]).filter(k=>matchesSearch(q,k.kanji,k.reading,k.meaning));
+    const ks=(kData[lvl]||[]).filter(k=>matchesSearch(q,k.kanji,k.reading,k.meaning)).sort((a,b)=>{ const va=_kanjiSortVal(a),vb=_kanjiSortVal(b); return va!==vb?va-vb:a.reading.localeCompare(b.reading); });
     for(const k of ks){
       const mc=k.mode==='write'?'kanji-write':'kanji-read';
-      kHtml+=`<div class="kanji-card ${mc}" onclick="openConjPopup('${k.kanji.replace(/'/g,"\\'")}','${(k.reading||'').replace(/'/g,"\\'")}','${(k.meaning||'').replace(/'/g,"\\'")}','Kanji')">
+      kHtml+=`<div class="kanji-card ${mc}" onclick="openConjPopup('${k.kanji.replace(/'/g,"\\'")}','${(k.reading||'').replace(/'/g,"\\'")}','${(k.meaning||'').replace(/'/g,"\\'")}','Kanji','','${k.mode||''}')">
         <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"")}</div>
         <div class="vc-sep"></div><div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
         <div class="vc-indicators"><span class="vc-lvl-tag">${lvl}</span></div>
@@ -2985,27 +2994,39 @@ const exprData = {
 };
 
 // POPUP
-let _dmakInstance = null;
-function openConjPopup(word,reading,def,pos,exprKey){
+let _dmakInstances = [];
+let _dmakIndex = 0;
+
+function popupWordBlock(word,reading,large){
+  const cls='popup-word-block'+(large?' popup-word-block--lg':'');
+  const hasRd=hasKanji(word)&&reading;
+  const rdHtml=hasRd?`<div class="popup-word-reading">${[...reading].map(c=>`<span>${c}</span>`).join('')}</div>`:'';
+  return `<div class="${cls} notranslate" translate="no">${rdHtml}<div class="popup-word-text">${word}</div></div>`;
+}
+
+function openConjPopup(word,reading,def,pos,exprKey,mode){
   const counterKey=extraCounterMap[word]||extraCounterMap[reading]||(counTypeMap[word]?.key);
   if(pos==='Coun'||(counterKey&&pos!=='Kanji')){
     let mk=counterKey||null;
     if(!mk)for(const[k,cat]of Object.entries(countersData)){if(cat.items.some(i=>i.jp===word||i.reading===reading)){mk=k;break;}}
     openAllCountersPopup(mk||undefined);return;
   }
-  if(_dmakInstance){try{_dmakInstance.pause();}catch(e){}_dmakInstance=null;}
+  _dmakInstances.forEach(inst=>{if(inst){try{inst.pause();}catch(e){}}}); _dmakInstances=[]; _dmakIndex=0;
   const box=document.getElementById('popup-box');
   const show=(function(){var _p=document.getElementById('conj-popup');_p.classList.remove('hidden');requestAnimationFrame(function(){_p.classList.add('visible');});});
 
   if(pos==='Kanji'){
-    const ctrHtml=counterKey?`<button class="popup-ctr-btn" onclick="closePopupDirect();openAllCountersPopup('${counterKey}')">See Counters</button>`:'';
+    const modeLabel=mode==='write'?'Write':'Read';
+    const modeCls=mode==='write'?'popup-badge-mode-write':'popup-badge-mode-read';
+    const ctrHtml=counterKey?`<div class="popup-actions"><button class="popup-ctr-btn" onclick="closePopupDirect();openAllCountersPopup('${counterKey}')">See Counters</button></div>`:'';
     box.innerHTML=
       `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
-      `<span class="popup-type-badge">Kanji</span>`+
-      `<div class="popup-hero-ruby popup-hero-ruby--lg notranslate" translate="no">${rubyHTML(word,reading)}</div>`+
+      `<span class="popup-type-badge">Kanji<span class="popup-badge-sep">·</span><span class="${modeCls}">${modeLabel}</span></span>`+
+      popupWordBlock(word,reading,true)+
       `<div class="popup-hero-def">${def}</div>`+
       `<div id="popup-dmak-container"></div>`+
-      `<div class="popup-actions">${ctrHtml}<button class="popup-replay-btn" onclick="replayDmak()">↺ replay animation</button></div>`;
+      `<div id="popup-dmak-nav"></div>`+
+      ctrHtml;
     initDmak(word);show();return;
   }
 
@@ -3021,7 +3042,7 @@ function openConjPopup(word,reading,def,pos,exprKey){
     box.innerHTML=
       `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
       `<span class="popup-type-badge">Expression</span>`+
-      `<div class="popup-hero-ruby notranslate" translate="no">${rubyHTML(word,reading)}</div>`+
+      popupWordBlock(word,reading,false)+
       `<div class="popup-hero-def">${def}</div>`+
       inner;
     show();return;
@@ -3033,7 +3054,7 @@ function openConjPopup(word,reading,def,pos,exprKey){
   const badge=pos||'Vocab';
   const dmakHtml=wHasK?
     `<div id="popup-dmak-container"></div>`+
-    `<div class="popup-actions"><button class="popup-replay-btn" onclick="replayDmak()">↺ replay animation</button></div>`:'';
+    `<div id="popup-dmak-nav"></div>`:'';
   const conjHtml=forms&&forms.length?
     `<div class="popup-divider"></div>`+
     `<div class="popup-section-label">Conjugation</div>`+
@@ -3041,7 +3062,7 @@ function openConjPopup(word,reading,def,pos,exprKey){
   box.innerHTML=
     `<button class="popup-close" onclick="closePopupDirect()">✕</button>`+
     `<span class="popup-type-badge">${badge}</span>`+
-    `<div class="popup-hero-ruby notranslate" translate="no">${rubyHTML(word,reading)}</div>`+
+    popupWordBlock(word,reading,false)+
     `<div class="popup-hero-def">${def}</div>`+
     dmakHtml+conjHtml;
   if(wHasK)initDmak(word);
@@ -3052,42 +3073,122 @@ function closePopup(e){ if(e.target.id==='conj-popup') closePopupDirect(); }
 function closePopupDirect(){
   const el=document.getElementById('conj-popup');
   el.classList.remove('visible');
-  if(_dmakInstance){try{_dmakInstance.pause();}catch(e){}_dmakInstance=null;}
+  _dmakInstances.forEach(inst=>{if(inst){try{inst.pause();}catch(e){}}}); _dmakInstances=[]; _dmakIndex=0;
   setTimeout(()=>el.classList.add('hidden'),220);
 }
+
 function initDmak(word){
   const container=document.getElementById('popup-dmak-container');
   if(!container)return;
   container.innerHTML='';
   if(typeof Dmak==='undefined'){container.innerHTML='<div style="font-size:11px;color:var(--sub);font-family:Arial,sans-serif;padding:12px;">Animation library not loaded.</div>';return;}
-  // Only pass CJK unified ideograph characters (KanjiVG has these)
-  const kanjiOnly=[...word].filter(ch=>/[一-龯㐀-䶿]/.test(ch)).join('');
-  if(!kanjiOnly)return;
-  const drawDiv=document.createElement('div');
-  drawDiv.id='dmak-draw-target';
-  drawDiv.style.cssText='display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px;';
-  container.appendChild(drawDiv);
-  try{
-    _dmakInstance=new Dmak(kanjiOnly,{
-      element:'dmak-draw-target',
-      uri:'kanji/',
-      width:165,height:165,step:0.03,
-      stroke:{attr:{stroke:'#444','stroke-width':4,'stroke-linecap':'round','stroke-linejoin':'round',active:'#e0675c'},order:{visible:false}},
-      grid:{show:true,attr:{stroke:'#ddd','stroke-width':0.5}}
-    });
-  }catch(e){console.warn('DMAK error:',e);}
+  _dmakInstances=[]; _dmakIndex=0;
+  const isK=ch=>/[一-龯㐀-䶿]/.test(ch);
+  const chars=[...word];
+  const kanjiList=chars.filter(isK);
+  if(!kanjiList.length)return;
+
+  // Size scales down for more kanji so everything fits in one row
+  const size=kanjiList.length>=3?95:kanjiList.length===2?120:150;
+  const kanaSize=kanjiList.length>=3?34:kanjiList.length===2?42:50;
+
+  // Build mixed row: kanji boxes + kana spans in word order
+  const row=document.createElement('div');
+  row.className='popup-dmak-row';
+  let ki=0;
+  chars.forEach(ch=>{
+    if(isK(ch)){
+      const box=document.createElement('div');
+      box.id='dmak-box-'+ki;
+      box.style.cssText='border-radius:8px;background:var(--white);flex-shrink:0;transition:opacity .2s;';
+      row.appendChild(box);
+      ki++;
+    } else {
+      const span=document.createElement('span');
+      span.className='popup-dmak-kana';
+      span.style.fontSize=kanaSize+'px';
+      span.textContent=ch;
+      row.appendChild(span);
+    }
+  });
+  container.appendChild(row);
+
+  // Create one DMAK instance per kanji, autoplay:false
+  kanjiList.forEach((ch,i)=>{
+    try{
+      const inst=new Dmak(ch,{
+        element:'dmak-box-'+i,
+        uri:'kanji/',
+        width:size,height:size,step:0.03,
+        autoplay:false,
+        stroke:{attr:{stroke:'#444','stroke-width':4,'stroke-linecap':'round','stroke-linejoin':'round',active:'#e0675c'},order:{visible:false}},
+        grid:{show:true,attr:{stroke:'#ddd','stroke-width':0.5}}
+      });
+      _dmakInstances.push(inst);
+    }catch(e){console.warn('DMAK error:',e);_dmakInstances.push(null);}
+  });
+
+  _dmakPlayAt(0);
 }
-function replayDmak(){
-  if(_dmakInstance){
-    try{_dmakInstance.erase();}catch(e){}
-    try{_dmakInstance.render();}catch(e){}
+
+function _dmakPlayAt(idx){
+  if(idx<0||idx>=_dmakInstances.length)return;
+  _dmakIndex=idx;
+  // Dim others, highlight current
+  _dmakInstances.forEach((_,i)=>{
+    const b=document.getElementById('dmak-box-'+i);
+    if(b)b.style.opacity=i===idx?'1':'0.3';
+  });
+  const inst=_dmakInstances[idx];
+  if(inst){try{inst.erase();}catch(e){}try{inst.render();}catch(e){}}
+  _dmakUpdateNav();
+}
+
+function _dmakUpdateNav(){
+  const nav=document.getElementById('popup-dmak-nav');
+  if(!nav)return;
+  const total=_dmakInstances.length;
+  const i=_dmakIndex;
+  if(total<=1){
+    nav.innerHTML=`<button class="popup-replay-btn" onclick="replayDmak()">↺ replay</button>`;
+  } else {
+    const dots=[...Array(total)].map((_,d)=>`<span class="popup-dmak-dot${d===i?' active':''}"></span>`).join('');
+    nav.innerHTML=
+      `<div class="popup-dmak-nav-row">`+
+      `<button class="popup-dmak-nav-btn" onclick="_dmakPrev()"${i===0?' disabled':''}>&lsaquo;</button>`+
+      `<div class="popup-dmak-dots">${dots}</div>`+
+      `<button class="popup-dmak-nav-btn" onclick="_dmakNext()"${i===total-1?' disabled':''}>&rsaquo;</button>`+
+      `</div>`+
+      `<button class="popup-replay-btn" onclick="replayDmak()">↺ replay</button>`;
   }
 }
+
+function _dmakNext(){
+  if(_dmakIndex<_dmakInstances.length-1){
+    const cur=_dmakInstances[_dmakIndex];
+    if(cur){try{cur.pause();}catch(e){}}
+    _dmakPlayAt(_dmakIndex+1);
+  }
+}
+function _dmakPrev(){
+  if(_dmakIndex>0){
+    const cur=_dmakInstances[_dmakIndex];
+    if(cur){try{cur.pause();}catch(e){}}
+    _dmakPlayAt(_dmakIndex-1);
+  }
+}
+function replayDmak(){ _dmakPlayAt(_dmakIndex); }
+
+let _ctrLeftW = 'max-content';
+let _ctrDescMinH = 0;
 
 function renderCounterTab(key){
   const cat=countersData[key];if(!cat)return;
   document.querySelectorAll('.ctr-tab').forEach(b=>b.classList.toggle('active',b.dataset.key===key));
-  const descHtml=cat.desc?`<div class="ctr-desc">${cat.desc}</div>`:'';
+  // Always render desc div with consistent height (even if empty) when any tab has a desc
+  const descHtml=_ctrDescMinH>0
+    ?`<div class="ctr-desc" style="min-height:${_ctrDescMinH}px">${cat.desc||''}</div>`
+    :(cat.desc?`<div class="ctr-desc">${cat.desc}</div>`:'');
   const rowsHtml=cat.items.map(item=>
     `<div class="ctr-row">`+
     `<div class="ctr-row-left notranslate" translate="no">${rubyHTML(item.jp,item.reading||'')}</div>`+
@@ -3095,11 +3196,33 @@ function renderCounterTab(key){
     `<div class="ctr-row-def">${item.def}</div>`+
     `</div>`
   ).join('');
-  document.getElementById('ctr-popup-grid').innerHTML=descHtml+'<div class="ctr-list">'+rowsHtml+'</div>';
+  document.getElementById('ctr-popup-grid').innerHTML=
+    descHtml+`<div class="ctr-list" style="grid-template-columns:${_ctrLeftW} 1px 1fr">`+rowsHtml+'</div>';
 }
 function openAllCountersPopup(startKey){
   const tabRow=document.getElementById('ctr-tab-row');
   tabRow.innerHTML=Object.entries(countersData).map(([key,cat])=>`<button class="ctr-tab" data-key="${key}" onclick="renderCounterTab('${key}')">${cat.label}</button>`).join('');
+
+  // ── Measure consistent dimensions across ALL tabs once ──────────────────
+  // 1. Max left-column width (font-accurate measurement)
+  const wProbe=document.createElement('span');
+  wProbe.style.cssText='position:fixed;visibility:hidden;font-family:"Chihaya","Noto Serif JP",serif;font-size:18px;white-space:nowrap;top:-9999px;left:-9999px;';
+  document.body.appendChild(wProbe);
+  let maxW=40;
+  Object.values(countersData).forEach(cat=>{cat.items.forEach(item=>{wProbe.textContent=item.jp;maxW=Math.max(maxW,wProbe.offsetWidth);});});
+  document.body.removeChild(wProbe);
+  _ctrLeftW=(maxW+8)+'px';
+
+  // 2. Max desc height so all tabs reserve the same space
+  const dProbe=document.createElement('div');
+  dProbe.style.cssText='position:fixed;visibility:hidden;top:-9999px;left:-9999px;width:680px;font-size:11px;font-family:Arial,sans-serif;padding:6px 10px;line-height:1.5;box-sizing:border-box;';
+  document.body.appendChild(dProbe);
+  let maxH=0;
+  Object.values(countersData).forEach(cat=>{dProbe.textContent=cat.desc||'';maxH=Math.max(maxH,dProbe.offsetHeight);});
+  document.body.removeChild(dProbe);
+  _ctrDescMinH=maxH;
+  // ────────────────────────────────────────────────────────────────────────
+
   renderCounterTab(startKey||Object.keys(countersData)[0]);
   (function(){var _p=document.getElementById('ctr-popup');_p.classList.remove('hidden');requestAnimationFrame(function(){_p.classList.add('visible');});})();
 }
