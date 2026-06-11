@@ -3061,9 +3061,14 @@ function initBearBubble(){
   function show(){
     bubble.classList.remove('bb-float');
     void bubble.offsetWidth;
-    bubble.style.transition = 'opacity .4s ease';
-    bubble.style.opacity = '1';
-    setTimeout(function(){ bubble.classList.add('bb-float'); }, 420);
+    bubble.style.transformOrigin = '0% 100%';
+    bubble.style.animation = 'bubble-appear .45s cubic-bezier(.34,1.56,.64,1) both';
+    setTimeout(function(){
+      bubble.style.opacity = '1';
+      bubble.style.animation = '';
+      bubble.style.transformOrigin = '';
+      bubble.classList.add('bb-float');
+    }, 480);
   }
   function scheduleShow(delay){
     clearTimeout(timer);
@@ -3080,9 +3085,14 @@ function initBearBubble(){
     clearTimeout(timer);
     if(parseFloat(bubble.style.opacity||'0') < 0.5){ scheduleShow(4000); return; }
     bubble.classList.remove('bb-float');
-    bubble.style.transition = 'opacity .3s ease';
-    bubble.style.opacity = '0';
-    scheduleShow(4300);
+    bubble.style.transformOrigin = '0% 100%';
+    bubble.style.animation = 'bubble-disappear .25s ease both';
+    setTimeout(function(){
+      bubble.style.animation = '';
+      bubble.style.transformOrigin = '';
+      bubble.style.opacity = '0';
+      scheduleShow(4000);
+    }, 280);
   };
   window._leaveBubble = function(){
     clearTimeout(timer);

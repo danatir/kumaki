@@ -27,6 +27,8 @@ body.open .sidebar-top{width:auto;overflow:visible;}
 @keyframes speech-reveal{0%,50%{opacity:0;transform:scale(.7) translateY(4px)}100%{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes speech-float{0%,100%{transform:translateY(0) rotate(-.4deg)}50%{transform:translateY(-5px) rotate(.4deg)}}
 @keyframes bb-scalein{0%{opacity:0;transform:scale(0)}70%{opacity:1;transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}@keyframes bb-scaleout{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0)}}
+@keyframes bubble-appear{0%{opacity:0;transform:scale(0.1)}60%{opacity:1;transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+@keyframes bubble-disappear{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0.1)}}
 .home-screen{position:relative;flex:1;display:flex;align-items:center;justify-content:center;background:linear-gradient(155deg,#fff9f8 0%,#fdf0ef 60%,#fae6e4 100%);overflow:hidden;}
 .home-screen.hidden{display:none!important;}
 .home-inner{position:relative;max-width:620px;width:100%;text-align:center;padding:28px 20px 36px;z-index:2;}
