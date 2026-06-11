@@ -3149,11 +3149,11 @@ async function initDmak(word){
     }catch(e){console.warn('DMAK error:',e);_dmakInstances.push(null);}
   });
 
-  // Set initial visual state (first highlighted, no animation yet)
-  _dmakInstances.forEach((_,i)=>{
-    const b=document.getElementById('dmak-box-'+i);
-    if(b) b.style.opacity=i===0?'1':'0.3';
-  });
+  // Set initial visual state: dim all row children, highlight first kanji box
+  const _initRow=container.querySelector('.popup-dmak-row');
+  if(_initRow)[..._initRow.children].forEach(el=>el.style.opacity='0.45');
+  const _firstBox=document.getElementById('dmak-box-0');
+  if(_firstBox)_firstBox.style.opacity='1';
   _dmakUpdateNav();
 
   // Auto-play first kanji 1.5s after popup opened
@@ -3170,11 +3170,11 @@ function _dmakPlayAt(idx){
   if(idx<0||idx>=_dmakInstances.length)return;
   if(_dmakReplayTimer){clearTimeout(_dmakReplayTimer);_dmakReplayTimer=null;}
   _dmakIndex=idx;
-  // Dim others, highlight current
-  _dmakInstances.forEach((_,i)=>{
-    const b=document.getElementById('dmak-box-'+i);
-    if(b)b.style.opacity=i===idx?'1':'0.3';
-  });
+  // Dim all row children (kanji + kana), highlight active kanji box
+  const _row=document.querySelector('.popup-dmak-row');
+  if(_row)[..._row.children].forEach(el=>el.style.opacity='0.45');
+  const _activeBox=document.getElementById('dmak-box-'+idx);
+  if(_activeBox)_activeBox.style.opacity='1';
   const inst=_dmakInstances[idx];
   if(inst){try{inst.erase();}catch(e){}try{inst.render();}catch(e){}}
   _dmakPlaying=true;
