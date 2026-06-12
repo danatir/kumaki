@@ -9,37 +9,193 @@
 <link rel="stylesheet" href="style.css">
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
 <script>
+  // ── Service Worker (rate-limit interceptor) ──────────────────────────────
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  }
+  // ── Refresh rate limiter ─────────────────────────────────────────────────
+  // Blocks on the 3rd navigation within 30 s; SW handles subsequent requests
+  // so blocked loads never hit Netlify.
+  (function(){
+    var WIN=30000, MAX=3, BLK=1500000; // 30 s window, block after 3, block for 25 min
+    function getUntil(){ var m=document.cookie.match(/_bu=(\d+)/); return m?+m[1]:0; }
+    var until=getUntil();
+    if(until && Date.now()<until){ window._rateBlocked=until; return; }
+    if(until){ document.cookie='_bu=0;path=/;max-age=0;SameSite=Lax'; }
+    try{
+      var raw=localStorage.getItem('_krs'), state={count:0,first:Date.now()};
+      try{ var s=JSON.parse(raw); if(s&&Date.now()-s.first<WIN){ state=s; } }catch(ex){}
+      state.count++;
+      if(!state.first) state.first=Date.now();
+      if(state.count>=MAX){
+        var nu=Date.now()+BLK;
+        document.cookie='_bu='+nu+';path=/;max-age=1500;SameSite=Lax';
+        localStorage.removeItem('_krs');
+        window._rateBlocked=nu;
+        window._rlPendingReport=nu; // auth callback will report this to server when JWT ready
+      } else {
+        localStorage.setItem('_krs',JSON.stringify(state));
+      }
+    }catch(e){}
+  })();
+</script>
+<script>
   // Auth gate: register listener early; widget auto-inits on DOMContentLoaded (body exists by then, no crash)
   (function(){
     document.documentElement.style.visibility = 'hidden';
     var fallback = setTimeout(function(){
       document.documentElement.style.visibility = '';
     }, 3000);
+
+    // ── Rate-limit blocked screen ─────────────────────────────────────────
+    function _showRateLimitScreen(until){
+      var kana='あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+      var kItems='';
+      for(var i=0;i<22;i++){
+        var ch=kana[Math.floor(Math.random()*kana.length)];
+        kItems+='<span class="rlk" style="left:'+Math.random()*100+'%;top:'+(60+Math.random()*40)+'%;font-size:'+(14+Math.random()*22)+'px;--dur:'+(5+Math.random()*8)+'s;--delay:'+Math.random()*6+'s;--op:'+(0.05+Math.random()*0.12)+';--rot:'+(Math.random()*30-15)+'deg">'+ch+'</span>';
+      }
+      var st=document.createElement('style');
+      st.textContent=
+        '.rlov{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;'+
+        'background:linear-gradient(150deg,#fff9f8 0%,#fdf0ef 55%,#fae6e4 100%);font-family:Arial,sans-serif;color:#3d2c28}'+
+        '.rlrg{position:fixed;border-radius:50%;border:1px solid rgba(209,125,110,.1);'+
+        'animation:rlpu 6s ease-in-out infinite;pointer-events:none;top:50%;left:50%;transform:translate(-50%,-50%)}'+
+        '.rlrg:nth-child(1){width:420px;height:420px}.rlrg:nth-child(2){width:650px;height:650px;animation-delay:1.8s}'+
+        '.rlrg:nth-child(3){width:880px;height:880px;animation-delay:3.6s}'+
+        '@keyframes rlpu{0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(1)}50%{opacity:.15;transform:translate(-50%,-50%) scale(1.03)}}'+
+        '.rlkb{position:fixed;inset:0;pointer-events:none;overflow:hidden}'+
+        '.rlk{position:absolute;font-family:"Chihaya","Hiragino Sans","Yu Gothic",sans-serif;color:#d17d6e;opacity:0;'+
+        'animation:rlri var(--dur) var(--delay) ease-in infinite;user-select:none}'+
+        '@keyframes rlri{0%{opacity:0;transform:translateY(0) rotate(0)}12%{opacity:var(--op)}80%{opacity:var(--op)}100%{opacity:0;transform:translateY(-130px) rotate(var(--rot))}}'+
+        '.rlsc{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;text-align:center}'+
+        '.rlbw{position:relative;display:inline-block;margin-bottom:22px;opacity:0;animation:rlup .4s ease both;animation-fill-mode:forwards}'+
+        '.rlbi{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 6px 20px rgba(209,125,110,.28));'+
+        'animation:rlsh 1.1s cubic-bezier(.36,.07,.19,.97) both,rlfl 3.4s 1.1s ease-in-out infinite}'+
+        '@keyframes rlsh{0%,100%{transform:rotate(0) translateY(0)}12%{transform:rotate(-10deg) translateY(-5px)}'+
+        '25%{transform:rotate(10deg) translateY(-5px)}37%{transform:rotate(-8deg) translateY(-3px)}'+
+        '50%{transform:rotate(8deg) translateY(-3px)}62%{transform:rotate(-5deg) translateY(-1px)}'+
+        '75%{transform:rotate(5deg) translateY(-1px)}87%{transform:rotate(-2deg)}}'+
+        '@keyframes rlfl{0%,100%{transform:translateY(0) rotate(-.5deg)}50%{transform:translateY(-7px) rotate(.5deg)}}'+
+        '.rlsp{position:absolute;top:-4px;left:calc(100% - 24px);background:rgba(255,255,255,.88);border:1.5px solid #e8d8d4;'+
+        'border-radius:12px 12px 12px 3px;padding:5px 11px;font-size:12.5px;white-space:nowrap;color:#9c7b76;'+
+        'font-family:"Chihaya","Hiragino Sans",sans-serif;box-shadow:0 2px 10px rgba(167,139,137,.14);'+
+        'animation:rlspi 1.1s ease both,rlspf 3.2s ease-in-out 1.1s infinite}'+
+        '@keyframes rlspi{0%,50%{opacity:0;transform:scale(.7) translateY(4px)}100%{opacity:1;transform:scale(1) translateY(0)}}'+
+        '@keyframes rlspf{0%,100%{transform:translateY(0) rotate(-.4deg)}50%{transform:translateY(-5px) rotate(.4deg)}}'+
+        '@keyframes rlup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}'+
+        '.rlbg{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.72);border:1px solid #e8d8d4;'+
+        'border-radius:20px;padding:4px 13px;font-size:10px;font-weight:700;letter-spacing:.09em;color:#af6e6a;'+
+        'text-transform:uppercase;margin-bottom:12px;animation:rlup .4s .6s ease both;opacity:0;animation-fill-mode:forwards}'+
+        '.rltit{font-family:"Chihaya","Noto Serif JP",serif;font-size:30px;color:#e0675c;margin-bottom:8px;'+
+        'animation:rlup .4s .72s ease both;opacity:0;animation-fill-mode:forwards}'+
+        '.rlmsg{font-size:13px;color:#9c7b76;line-height:1.7;margin-bottom:22px;'+
+        'animation:rlup .4s .84s ease both;opacity:0;animation-fill-mode:forwards}'+
+        '.rltb{display:inline-flex;flex-direction:column;align-items:center;'+
+        'background:rgba(255,255,255,.6);border:1px solid #edd8d4;border-radius:50px;'+
+        'padding:10px 32px;margin-bottom:18px;'+
+        'animation:rlup .4s .92s ease both;opacity:0;animation-fill-mode:forwards}'+
+        '.rltl{font-size:10px;letter-spacing:.08em;color:#c4a9a5;text-transform:uppercase;margin-bottom:2px}'+
+        '.rltv{font-family:"Chihaya",monospace;font-size:36px;color:#d17d6e;letter-spacing:.02em;line-height:1}'+
+        '.rlsub{font-size:11px;color:#c4a9a5;line-height:1.6;animation:rlup .4s 1s ease both;opacity:0;animation-fill-mode:forwards}';
+      document.head.appendChild(st);
+      var ov=document.createElement('div');
+      ov.className='rlov';
+      ov.innerHTML=
+        '<div class="rlrg"></div><div class="rlrg"></div><div class="rlrg"></div>'+
+        '<div class="rlkb">'+kItems+'</div>'+
+        '<div class="rlsc">'+
+          '<div class="rlbw"><img class="rlbi" src="images/logo.png" alt="Kumaki"><div class="rlsp">ちょっと待って！</div></div>'+
+          '<div class="rlbg"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Too Many Refreshes</div>'+
+          '<div class="rltit">慌てないで</div>'+
+          '<div class="rlmsg">You refreshed too quickly!<br>Please wait before returning.</div>'+
+          '<div class="rltb"><div class="rltl">come back in</div><div class="rltv" id="rl-timer">25:00</div></div>'+
+          '<div class="rlsub">This keeps くまキィ available for everyone. ʕ•ᴥ•ʔ</div>'+
+        '</div>';
+      document.body.appendChild(ov);
+      clearTimeout(fallback);
+      document.documentElement.style.visibility='';
+      (function tick(){
+        var rem=Math.max(0,until-Date.now());
+        var min=Math.floor(rem/60000), sec=Math.floor((rem%60000)/1000);
+        var el=document.getElementById('rl-timer');
+        if(el) el.textContent=min+':'+(sec<10?'0':'')+sec;
+        if(rem<=0){
+          document.cookie='_bu=0;path=/;max-age=0;SameSite=Lax';
+          try{localStorage.removeItem('_krs');localStorage.removeItem('_rlChecked');}catch(ex){}
+          location.reload();
+        } else { setTimeout(tick,1000); }
+      })();
+    }
+
+    // ── Server-side rate limit helpers ───────────────────────────────────────
+    function _reportBlock(token, until){
+      fetch('/.netlify/functions/ratelimit',{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+        body:JSON.stringify({action:'block',until:until})
+      }).catch(function(){});
+    }
+    function _checkServerBlock(token, cb){
+      // Only check once per browser (localStorage persists across tabs/sessions).
+      // Cleared when block expires so the check re-runs after 25 min.
+      if(localStorage.getItem('_rlChecked')){ cb(false); return; }
+      localStorage.setItem('_rlChecked','1');
+      fetch('/.netlify/functions/ratelimit',{headers:{'Authorization':'Bearer '+token}})
+        .then(function(r){ return r.json(); })
+        .then(function(d){ cb(d.blocked && Date.now()<d.until, d.until); })
+        .catch(function(){ cb(false); });
+    }
+
     netlifyIdentity.on('init', function(user){
       clearTimeout(fallback);
-      if(user){
-        // Force-refresh token so roles reflect latest Netlify dashboard state
-        user.jwt(true).then(function(token){
-          try {
-            var payload = JSON.parse(atob(token.split('.')[1]));
-            var roles = (payload.app_metadata && payload.app_metadata.roles) || [];
-            if(roles.indexOf('beta') !== -1){
-              document.documentElement.style.visibility = '';
-            } else {
-              netlifyIdentity.logout();
-              document.location.replace('/login.html');
-            }
-          } catch(e) {
+
+      // No user → blocked users see blocked screen; others go to login
+      if(!user){
+        if(window._rateBlocked){ _showRateLimitScreen(window._rateBlocked); }
+        else { document.location.replace('/login.html'); }
+        return;
+      }
+
+      // Force-refresh token so roles reflect latest Netlify dashboard state
+      user.jwt(true).then(function(token){
+        try {
+          var payload = JSON.parse(atob(token.split('.')[1]));
+          var roles = (payload.app_metadata && payload.app_metadata.roles) || [];
+          if(roles.indexOf('beta') === -1){
             netlifyIdentity.logout();
             document.location.replace('/login.html');
+            return;
           }
-        }).catch(function(){
+        } catch(e) {
           netlifyIdentity.logout();
           document.location.replace('/login.html');
+          return;
+        }
+
+        // User is authenticated with beta role
+        if(window._rateBlocked){
+          // Just blocked on this load — report to server so other browsers are covered too
+          _reportBlock(token, window._rateBlocked);
+          _showRateLimitScreen(window._rateBlocked);
+          return;
+        }
+
+        // Not locally blocked — check server once per session (catches cross-browser blocks)
+        _checkServerBlock(token, function(blocked, until){
+          if(blocked){
+            var age = Math.max(1, Math.ceil((until - Date.now()) / 1000));
+            document.cookie = '_bu='+until+';path=/;max-age='+age+';SameSite=Lax';
+            window._rateBlocked = until;
+            _showRateLimitScreen(until);
+          } else {
+            document.documentElement.style.visibility = '';
+          }
         });
-      } else {
+      }).catch(function(){
+        netlifyIdentity.logout();
         document.location.replace('/login.html');
-      }
+      });
     });
   })();
 </script>
