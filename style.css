@@ -321,7 +321,8 @@ body.open .sticky-search{left:160px;}
 .sticky-search .search-wrap{position:relative;display:inline-flex;align-items:center;pointer-events:auto;}
 .sticky-search input{height:36px;width:320px;padding:0 36px 0 18px;border:1.5px solid var(--dot);border-radius:20px;font-size:12px;font-weight:700;font-family:Arial,sans-serif;background:var(--white);color:var(--mid);outline:none;box-shadow:0 2px 8px rgba(0,0,0,.08);}
 .sticky-search input:focus{border-color:var(--mid);}
-.search-suggestions{position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);width:320px;background:var(--white);border:1.5px solid var(--dot);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:400;overflow:hidden;display:none;pointer-events:auto;}
+/* left:40px = skip scroll-top-btn (34px) + its margin-right (6px) so dropdown aligns with input */
+.search-suggestions{position:absolute;top:calc(100% + 4px);left:40px;right:0;width:auto;transform:none;background:var(--white);border:1.5px solid var(--dot);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:400;overflow:hidden;display:none;pointer-events:auto;}
 .search-suggestions.visible{display:block;}
 .sugg-item{padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--bg);transition:background .08s;}
 .sugg-item:last-child{border-bottom:none;}
@@ -391,7 +392,7 @@ body.open .sticky-search{left:160px;}
 .sheet-tab.active{background:var(--red);color:var(--white);border-color:var(--red);}
 .sheet-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 200px);border:1px solid var(--dot);border-radius:10px;}
 .sheet-table{border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:12px;}
-.sheet-table th{background:var(--white);color:var(--mid);font-weight:700;padding:0 12px;height:34px;line-height:34px;text-align:left;white-space:nowrap;position:sticky;top:0;z-index:2;border-bottom:1px solid var(--dot);}
+.sheet-table th{background:var(--rose);color:var(--mid);font-weight:700;padding:0 12px;height:34px;line-height:34px;text-align:left;white-space:nowrap;position:sticky;top:0;z-index:2;border-bottom:1px solid var(--dot);}
 .sheet-table td{padding:7px 12px;border-bottom:1px solid var(--dot);color:var(--sub);background:var(--white);vertical-align:middle;white-space:nowrap;}
 .sheet-table tr:hover td{background:var(--bg);}
 .sheet-table td.jp{font-family:'Chihaya','Noto Serif JP',serif;font-size:15px;color:var(--ink);}
@@ -606,6 +607,8 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
   .sticky-search .search-wrap{flex:1;min-width:0;}
   .sticky-search input{width:100%;min-width:0;}
   .scroll-top-btn{display:none!important;}
+  /* scroll-top-btn hidden → input starts at left:0 → override desktop's left:40px */
+  .search-suggestions{left:0;}
   #mobile-profile-btn{display:flex;}
 
   /* ── Content padding ───────────────────────────── */

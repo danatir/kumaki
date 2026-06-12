@@ -1646,6 +1646,9 @@ async function translate(){const input=document.getElementById('trans-input').va
 function toggleSidebar(){ document.body.classList.toggle('open'); }
 
 function setTab(tab, btn){
+  // Tab change invalidates any in-progress search snapshot and pending retranslate
+  _contentSnapshot = null; _snapshotMeta = null;
+  clearTimeout(_suggRetranslateTimer);
   document.querySelectorAll('.s-btn').forEach(b=>b.classList.remove('active'));
   // Sync mobile bottom nav active state
   document.querySelectorAll('.mnav-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
@@ -1887,24 +1890,111 @@ function clearSearch(){
   const mainEl = document.getElementById('main');
   if(mainEl) requestAnimationFrame(()=>{ mainEl.scrollTop = restorePos; });
 }
+let _renderTimer = null;
+let _suggRetranslateTimer = null; // debounced retranslate for suggestions after typing stops
+// Snapshot of the already-translated content div, taken on first search keystroke.
+// Restored instantly when clearing search so GT doesn't need to re-translate.
+let _contentSnapshot = null;
+let _snapshotMeta = null; // {tab, sem, filter} — invalidate if these change
+
 function doSearch(val){
   const wasEmpty = !currentSearch;
   currentSearch = val.trim().toLowerCase();
   const clr = document.getElementById('search-clear');
   if(clr) clr.classList.toggle('visible', currentSearch.length>0);
   updateSuggestions(val.trim());
-  if(currentSearch){
-    // On first keystroke, snapshot scroll so it survives renderAll() and tab switches
-    if(wasEmpty){
-      const mainEl = document.getElementById('main');
-      if(mainEl) preSearchScrollPos = mainEl.scrollTop;
-      scrollPositions[currentTab] = preSearchScrollPos;
-    }
-    renderAll();
-  } else {
-    preSearchScrollPos = null;
-    render();
+
+  // Snapshot scroll on very first keystroke
+  if(currentSearch && wasEmpty){
+    const mainEl = document.getElementById('main');
+    if(mainEl) preSearchScrollPos = mainEl.scrollTop;
+    scrollPositions[currentTab] = preSearchScrollPos;
   }
+
+  // Vocab/kanji: filterCardsInPlace is pure CSS show/hide so it can be nearly instant.
+  // setTimeout(0) creates a task boundary so GTranSlate's MutationObserver processes
+  // new suggestion nodes before card mutations arrive (works for single-char searches).
+  // For multi-char searches typed quickly, suggestions rebuild multiple times before
+  // GTranSlate can respond. _suggRetranslateTimer fires 300ms after typing stops and
+  // explicitly retranslates whatever suggestion nodes are currently visible.
+  if(currentTab==='vocab'||currentTab==='kanji'){
+    if(!currentSearch){ preSearchScrollPos = null; }
+    clearTimeout(_renderTimer);
+    _renderTimer = setTimeout(()=>filterCardsInPlace(currentSearch), 0);
+    // Debounced explicit retranslate for suggestions — fires after user pauses typing
+    clearTimeout(_suggRetranslateTimer);
+    if(currentSearch){
+      _suggRetranslateTimer = setTimeout(()=>{ // 100ms: fast enough to feel instant, long enough to debounce rapid typing
+        try {
+          const m = document.cookie.match(/googtrans=\/[a-z-]+\/([a-z-]+)/i);
+          if(!m || m[1]==='en') return;
+          const lang = m[1];
+          // Try clicking the GTranSlate language link directly
+          let link = null;
+          document.querySelectorAll('a').forEach(a=>{
+            if(link) return;
+            const oc = a.getAttribute('onclick')||'';
+            const hr = a.getAttribute('href')||'';
+            if(oc.includes("'en|"+lang+"'") || hr.includes("'en|"+lang+"'")) link = a;
+          });
+          if(link){ link.click(); return; }
+          // Fallback: call doGTranslate directly
+          if(typeof window.doGTranslate==='function') window.doGTranslate('en|'+lang);
+        } catch(e){}
+      }, 100);
+    }
+    return;
+  }
+
+  // Grammar/sheets rebuild the DOM so debounce to avoid overwhelming GTranSlate
+  // Also snapshot the translated content on first keystroke for fast restore on clear
+  if(currentSearch && wasEmpty){
+    const contentEl = document.getElementById('content');
+    if(contentEl){ _contentSnapshot = contentEl.innerHTML; _snapshotMeta = {tab:currentTab, sem, filter:activeFilter}; }
+  }
+  clearTimeout(_renderTimer);
+  _renderTimer = setTimeout(()=>{
+    if(currentSearch){
+      renderAll();
+      _retranslate();
+    } else {
+      preSearchScrollPos = null;
+      const contentEl = document.getElementById('content');
+      const meta = _snapshotMeta;
+      if(contentEl && _contentSnapshot && meta &&
+         meta.tab===currentTab && meta.sem===sem && meta.filter===activeFilter){
+        contentEl.innerHTML = _contentSnapshot;
+      } else {
+        render();
+      }
+      _contentSnapshot = null; _snapshotMeta = null;
+    }
+  }, 180);
+}
+
+// Ask GTranSlate to re-translate the page after dynamic DOM changes.
+// Rather than calling doGTranslate() raw (which GTranSlate may short-circuit),
+// we find the hidden language link in the widget and click it — exactly what
+// the user does manually, which is known to work.
+function _retranslate(){
+  setTimeout(()=>{
+    try {
+      const m = document.cookie.match(/googtrans=\/[a-z-]+\/([a-z-]+)/i);
+      if(!m || m[1]==='en') return;
+      const lang = m[1];
+      // Find the GTranSlate anchor for the current language and click it
+      let link = null;
+      document.querySelectorAll('a').forEach(a=>{
+        if(link) return;
+        const oc = a.getAttribute('onclick')||'';
+        const hr = a.getAttribute('href')||'';
+        if(oc.includes("'en|"+lang+"'") || hr.includes("'en|"+lang+"'")) link = a;
+      });
+      if(link){ link.click(); return; }
+      // Fallback: direct call if no link found
+      if(typeof window.doGTranslate==='function') window.doGTranslate('en|'+lang);
+    } catch(e){}
+  }, 300);
 }
 
 // ── AUTOCOMPLETE ──
@@ -1990,13 +2080,13 @@ function updateSuggestions(raw){
   }
   scored.sort((a,b)=>b.s-a.s);
 
-  const vocabHits = scored.filter(x=>x.item.type==='vocab').slice(0,6).map(x=>x.item);
+  const vocabHits = scored.filter(x=>x.item.type==='vocab').slice(0,4).map(x=>x.item);
   // For grammar: deduplicate by section - prefer card-level (has cardLabel) over section-level
   const gramScored = scored.filter(x=>x.item.type==='grammar');
   const seenSec = new Set();
   const gramHits = [];
   for(const {item} of gramScored){
-    if(gramHits.length >= 3) break;
+    if(gramHits.length >= 2) break;
     const key = item.secTitle + '|' + (item.cardLabel||'');
     if(seenSec.has(key)) continue;
     // If we already have a card-level entry for this section, skip section-level
@@ -2023,8 +2113,10 @@ function updateSuggestions(raw){
     const badgeStyle = isGram ? 'background:var(--red);color:#fff;' : '';
     let innerHtml;
     if(isGram && !h.jp){
-      // non-particle grammar: English meaning only
-      innerHtml = `<span class="sugg-en" style="flex:1">${h.en}</span>`;
+      // non-particle grammar: show English-only title (strip Japanese pattern if "JP — EN" format)
+      const rawLabel = h.cardLabel || h.en || '';
+      const engLabel = rawLabel.includes(' — ') ? rawLabel.split(' — ').slice(1).join(' — ') : rawLabel;
+      innerHtml = `<span class="sugg-en" style="flex:1">${engLabel}</span>`;
     } else if(isGram && h.jp){
       // particles: label contains Japanese, no separate sugg-en
       innerHtml = `<span class="sugg-jp notranslate" translate="no" style="flex:1">${h.jp}</span>`;
@@ -2077,7 +2169,12 @@ function suggPick(el){
                   if(lbl && lbl.textContent.trim()===cardLabel){
                     card.style.outline='2px solid var(--red)';
                     card.style.boxShadow='0 0 0 4px rgba(224,103,92,.15)';
-                    card.scrollIntoView({behavior:'smooth', block:'nearest'});
+                    const isLast = card === cards[cards.length - 1];
+                    if(isLast && mainEl){
+                      mainEl.scrollTo({top: mainEl.scrollHeight, behavior:'smooth'});
+                    } else {
+                      card.scrollIntoView({behavior:'smooth', block:'nearest'});
+                    }
                     setTimeout(()=>{
                       card.style.outline='2px solid transparent';
                       card.style.boxShadow='0 0 0 4px rgba(224,103,92,0)';
@@ -2131,12 +2228,18 @@ function pickSugg(idx){
 
 function searchKeyNav(e){
   const box = document.getElementById('search-suggestions');
+  // Enter: pick highlighted suggestion, or dismiss dropdown if nothing is highlighted
+  if(e.key==='Enter'){
+    const items = box.querySelectorAll('.sugg-item');
+    if(_suggActive>=0 && items[_suggActive]){ e.preventDefault(); suggPick(items[_suggActive]); }
+    else { box.classList.remove('visible'); }
+    return;
+  }
+  if(e.key==='Escape'){ box.classList.remove('visible'); return; }
   const items = box.querySelectorAll('.sugg-item');
   if(!items.length) return;
   if(e.key==='ArrowDown'){ e.preventDefault(); _suggActive=Math.min(_suggActive+1,items.length-1); items.forEach((el,i)=>el.classList.toggle('active',i===_suggActive)); }
   else if(e.key==='ArrowUp'){ e.preventDefault(); _suggActive=Math.max(_suggActive-1,0); items.forEach((el,i)=>el.classList.toggle('active',i===_suggActive)); }
-  else if(e.key==='Enter' && _suggActive>=0){ e.preventDefault(); const el=box.querySelectorAll('.sugg-item')[_suggActive]; if(el) suggPick(el); }
-  else if(e.key==='Escape'){ box.classList.remove('visible'); }
 }
 
 document.addEventListener('click', e=>{ if(!e.target.closest('.sticky-search')) document.getElementById('search-suggestions').classList.remove('visible'); });
@@ -2146,6 +2249,42 @@ function render(){
   else if(currentTab==='kanji') renderKanji();
   else if(currentTab==='grammar') renderGrammar();
   else if(currentTab==='sheets') renderSheets();
+  // After building DOM for vocab/kanji, apply any active search in-place
+  if(currentSearch && (currentTab==='vocab'||currentTab==='kanji')) filterCardsInPlace(currentSearch);
+}
+
+// Show/hide existing vocab/kanji cards based on query, without rebuilding the DOM.
+// This preserves GTranSlate's translations on the card elements.
+function filterCardsInPlace(q){
+  const el = document.getElementById('content');
+  if(!el) return;
+  let anyVisible = false;
+
+  el.querySelectorAll('.vocab-card[data-sw], .kanji-card[data-sw]').forEach(card=>{
+    const show = !q || matchesSearch(q, card.dataset.sw, card.dataset.sr, card.dataset.sd);
+    card.style.display = show ? '' : 'none';
+    if(show) anyVisible = true;
+  });
+
+  // Show/hide level-tag headers: hide if every card in the following grid is hidden
+  el.querySelectorAll('.level-tag').forEach(tag=>{
+    const grid = tag.nextElementSibling;
+    if(!grid){ tag.style.display='none'; return; }
+    const hasVisible = Array.from(grid.children).some(c=>c.style.display!=='none');
+    tag.style.display = hasVisible ? '' : 'none';
+    grid.style.display = hasVisible ? '' : 'none';
+  });
+
+  // Empty state
+  let emptyEl = el.querySelector('.search-no-results');
+  if(!anyVisible && q){
+    if(!emptyEl){
+      emptyEl = document.createElement('div');
+      emptyEl.className = 'search-no-results empty';
+      emptyEl.innerHTML = `<span class="empty-jp">？</span>No results for "${q}".`;
+      el.appendChild(emptyEl);
+    }
+  } else if(emptyEl){ emptyEl.remove(); }
 }
 
 function renderVocab(){
@@ -2157,7 +2296,7 @@ function renderVocab(){
 
   for(const lvl of levels){
     const words = (vData[lvl]||[]).filter(w=>{
-      // pos filter
+      // pos filter only — search is applied in-place via filterCardsInPlace()
       if(activeFilter && w.pos !== activeFilter) return false;
       if(activeSubFilter){
         if(w.pos==='Verb' && w.grp !== activeSubFilter) return false;
@@ -2167,9 +2306,7 @@ function renderVocab(){
           if(activeSubFilter==='na' && at!=='na') return false;
         }
       }
-      // search
-      if(!q) return true;
-      return matchesSearch(q,w.word,w.reading,w.def);
+      return true;
     });
     if(!words.length) continue;
     html += `<div class="level-tag"><span>${lvl==="Q"?"Q: Expressions":lvl}</span><span class="lt-line"></span><span class="lt-count">${(vData[lvl]||[]).length} words</span></div>`;
@@ -2187,7 +2324,9 @@ function renderVocab(){
       }
       // KL indicator
       const klIndicator = ''; // vocab uses L levels
-      html += `<div class="vocab-card" onclick="openConjPopup('${w.word.replace(/'/g,"\\'")}','${(w.reading||'').replace(/'/g,"\\'")}','${def.replace(/'/g,"\\'")}','${w.pos}','${(w.exprKey||'').replace(/'/g,"\\'")}','','${w.grp||''}','${adjType[w.word]||''}')" data-grp="${w.grp||''}" data-adjt="${adjType[w.word]||''}">
+      // data-sw/sr/sd store searchable text for filterCardsInPlace()
+      const _ea = s=>(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      html += `<div class="vocab-card" onclick="openConjPopup('${w.word.replace(/'/g,"\\'")}','${(w.reading||'').replace(/'/g,"\\'")}','${def.replace(/'/g,"\\'")}','${w.pos}','${(w.exprKey||'').replace(/'/g,"\\'")}','','${w.grp||''}','${adjType[w.word]||''}')" data-grp="${w.grp||''}" data-adjt="${adjType[w.word]||''}" data-sw="${_ea(w.word)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(def)}">
         <div class="vc-left notranslate" translate="no">${rubyHTML(w.word,w.reading||"")}</div>
         <div class="vc-sep"></div>
         <div class="vc-right"><span class="vc-def">${def}${counBadge}</span></div>
@@ -2217,15 +2356,15 @@ function renderKanji(){
     const entries = (kData[lvl]||[]).filter(k=>{
       if(!kanjiShowRead && k.mode==='read') return false;
       if(!kanjiShowWrite && k.mode==='write') return false;
-      if(!q) return true;
-      return matchesSearch(q,k.kanji,k.reading,k.meaning);
+      return true; // search applied in-place via filterCardsInPlace()
     }).sort((a,b)=>{ const va=_kanjiSortVal(a),vb=_kanjiSortVal(b); return va!==vb?va-vb:a.reading.localeCompare(b.reading); });
     if(!entries.length) continue;
     html += `<div class="level-tag"><span>${lvl}</span><span class="lt-line"></span><span class="lt-count">${(kData[lvl]||[]).length} entries</span></div>`;
     html += `<div class="kanji-grid">`;
     for(const k of entries){
       const mc = k.mode==='write'?'kanji-write':'kanji-read';
-      html += `<div class="kanji-card ${mc}" onclick="openConjPopup('${k.kanji.replace(/'/g,"\\'")}','${(k.reading||'').replace(/'/g,"\\'")}','${(k.meaning||'').replace(/'/g,"\\'")}','Kanji','','${k.mode||''}')">
+      const _ea = s=>(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      html += `<div class="kanji-card ${mc}" onclick="openConjPopup('${k.kanji.replace(/'/g,"\\'")}','${(k.reading||'').replace(/'/g,"\\'")}','${(k.meaning||'').replace(/'/g,"\\'")}','Kanji','','${k.mode||''}')" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
         <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"")}</div>
         <div class="vc-sep"></div>
         <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
