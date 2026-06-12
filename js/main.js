@@ -60,7 +60,6 @@ vocabData['S1'] = {
     {word:'ふく',reading:'ふく',def:'clothes',pos:'Noun'},
     {word:'めがね',reading:'めがね',def:'glasses',pos:'Noun'},
     {word:'パソコン',reading:'',def:'computer',pos:'Noun'},
-    {word:'車',reading:'くるま',def:'car',pos:'Noun'},
     {word:'スイス',reading:'',def:'Switzerland',pos:'Noun'},
     {word:'イタリア',reading:'',def:'Italy',pos:'Noun'},
     {word:'カメラ',reading:'',def:'camera',pos:'Noun'},
@@ -118,6 +117,21 @@ vocabData['S1'] = {
     {word:'おおやさん',reading:'おおやさん',def:'landlord',pos:'Noun'},
     {word:'ちかい',reading:'ちかい',def:'close, near',adj:'i',pos:'Adj'},
     {word:'でも',reading:'',def:'but, however',pos:'Conj'},
+    {word:'低い',reading:'ひくい',def:'low; short (height)',pos:'Adj'},
+    {word:'短い',reading:'みじかい',def:'short (length)',pos:'Adj'},
+    {word:'難しい',reading:'むずかしい',def:'difficult',pos:'Adj'},
+    {word:'易しい',reading:'やさしい',def:'easy',pos:'Adj'},
+    {word:'暑い',reading:'あつい',def:'hot (weather)',pos:'Adj'},
+    {word:'寒い',reading:'さむい',def:'cold (weather)',pos:'Adj'},
+    {word:'悪い',reading:'わるい',def:'bad; wrong',pos:'Adj'},
+    {word:'面白い',reading:'おもしろい',def:'interesting; funny',pos:'Adj'},
+    {word:'重い',reading:'おもい',def:'heavy',pos:'Adj'},
+    {word:'軽い',reading:'かるい',def:'light (weight)',pos:'Adj'},
+    {word:'白い',reading:'しろい',def:'white',pos:'Adj'},
+    {word:'黒い',reading:'くろい',def:'black',pos:'Adj'},
+    {word:'便利',reading:'べんり',def:'convenient; useful',pos:'Adj'},
+    {word:'静か',reading:'しずか',def:'quiet; calm',pos:'Adj'},
+    {word:'近い',reading:'ちかい',def:'near; close',pos:'Adj'},
   ],
   'L4': [
     {word:'スケジュール',reading:'',def:'schedule',pos:'Noun'},
@@ -219,7 +233,6 @@ vocabData['S1'] = {
     {word:'すし',reading:'すし',def:'sushi',pos:'Noun'},
     {word:'ウィスキー',reading:'',def:'whiskey',pos:'Noun'},
     {word:'ビール',reading:'',def:'beer',pos:'Noun'},
-    {word:'英語',reading:'えいご',def:'English (language)',pos:'Noun'},
     {word:'ドイツ語',reading:'どいつご',def:'German (language)',pos:'Noun'},
     {word:'にほんしゅ',reading:'にほんしゅ',def:'Japanese sake',pos:'Noun'},
     {word:'こうちゃ',reading:'こうちゃ',def:'black tea',pos:'Noun'},
@@ -246,6 +259,14 @@ vocabData['S1'] = {
     {word:'いそがしい',reading:'いそがしい',def:'busy',adj:'i',pos:'Adj'},
     {word:'少し',reading:'すこし',def:'a little',pos:'Adv'},
     {word:'〜ごろ',reading:'〜ごろ',def:'around ~ (time)',pos:'Noun'},
+    {word:'仕事をします',reading:'しごとをします',def:'to work',pos:'Verb'},
+    {word:'吸います',reading:'すいます',def:'to smoke; to inhale',pos:'Verb'},
+    {word:'香港',reading:'ほんこん',def:'Hong Kong',pos:'Noun'},
+    {word:'泳ぎます',reading:'およぎます',def:'to swim',pos:'Verb'},
+    {word:'磨きます',reading:'みがきます',def:'to brush; to polish',pos:'Verb'},
+    {word:'寝ます',reading:'ねます',def:'to sleep; to go to bed',pos:'Verb'},
+    {word:'大変',reading:'たいへん',def:'tough; hard; terrible',pos:'Adj'},
+    {word:'忙しい',reading:'いそがしい',def:'busy',pos:'Adj'},
   ],
   'L6': [
     {word:'きのう',reading:'きのう',def:'yesterday',pos:'Noun'},
@@ -261,7 +282,6 @@ vocabData['S1'] = {
     {word:'おととい',reading:'',def:'day before yesterday',pos:'Noun'},
     {word:'あさって',reading:'',def:'day after tomorrow',pos:'Noun'},
     {word:'今週',reading:'こんしゅう',def:'this week',pos:'Noun'},
-    {word:'先週',reading:'せんしゅう',def:'last week',pos:'Noun'},
     {word:'来週',reading:'らいしゅう',def:'next week',pos:'Noun'},
     {word:'先月',reading:'せんげつ',def:'last month',pos:'Noun'},
     {word:'今月',reading:'こんげつ',def:'this month',pos:'Noun'},
@@ -298,6 +318,14 @@ vocabData['S1'] = {
     {word:'おみやげ',reading:'おみやげ',def:'souvenir',pos:'Noun'},
     {word:'おまんじゅう',reading:'',def:'sweet bun',pos:'Noun'},
     {word:'とまります',reading:'とまります',def:'to stay (at a hotel)',grp:'G3',pos:'Verb'},
+    {word:'作ります',reading:'つくります',def:'to make; to create',pos:'Verb'},
+    {word:'今朝',reading:'けさ',def:'this morning',pos:'Noun'},
+    {word:'暇',reading:'ひま',def:'free time; not busy',pos:'Adj'},
+    {word:'楽しい',reading:'たのしい',def:'fun; enjoyable',pos:'Adj'},
+    {word:'上手',reading:'じょうず',def:'good at; skilled',pos:'Adj'},
+    {word:'大変',reading:'たいへん',def:'tough; hard; terrible',pos:'Adj'},
+    {word:'暖かい',reading:'あたたかい',def:'warm',pos:'Adj'},
+    {word:'泊まります',reading:'とまります',def:'to stay (overnight)',pos:'Verb'},
   ],
   'L7': [
     {word:'はな',reading:'はな',def:'nose, flower',pos:'Noun'},
@@ -379,6 +407,7 @@ vocabData['S1'] = {
     {word:'有名',reading:'ゆうめい',def:'famous',adj:'na',pos:'Adj'},
     {word:'北口',reading:'きたぐち',def:'north exit',pos:'Noun'},
     {word:'南口',reading:'みなみぐち',def:'south exit',pos:'Noun'},
+    {word:'子ども部屋',reading:'こどもべや',def:'children\'s room',pos:'Noun'},
   ],
   'L8': [
     {word:'父',reading:'ちち',def:'father (own)',pos:'Noun'},
@@ -466,6 +495,32 @@ vocabData['S1'] = {
     {word:'スポーツマン',reading:'',def:'sportsman',pos:'Noun'},
     {word:'高校生',reading:'こうこうせい',def:'high school student',pos:'Noun'},
     {word:'いろいろ',reading:'いろいろ',def:'various, all kinds',adj:'na',pos:'Adj'},
+    {word:'狭い',reading:'せまい',def:'narrow; small (space)',pos:'Adj'},
+    {word:'赤い',reading:'あかい',def:'red',pos:'Adj'},
+    {word:'茶色い',reading:'ちゃいろい',def:'brown',pos:'Adj'},
+    {word:'嫌い',reading:'きらい',def:'dislike; hate',pos:'Adj'},
+    {word:'四角い',reading:'しかくい',def:'square; rectangular',pos:'Adj'},
+    {word:'汚い',reading:'きたない',def:'dirty; messy',pos:'Adj'},
+    {word:'黄色い',reading:'きいろい',def:'yellow',pos:'Adj'},
+    {word:'丸い',reading:'まるい',def:'round; circular',pos:'Adj'},
+    {word:'新鮮',reading:'しんせん',def:'fresh',pos:'Adj'},
+    {word:'乗ります',reading:'のります',def:'to ride; to get on',pos:'Verb'},
+    {word:'描きます',reading:'かきます',def:'to draw; to paint',pos:'Verb'},
+    {word:'育てます',reading:'そだてます',def:'to raise; to bring up',pos:'Verb'},
+    {word:'編みます',reading:'あみます',def:'to knit; to braid',pos:'Verb'},
+    {word:'弾きます',reading:'ひきます',def:'to play (instrument)',pos:'Verb'},
+    {word:'釣りをします',reading:'つりをします',def:'to fish; go fishing',pos:'Verb'},
+    {word:'死にます',reading:'しにます',def:'to die',pos:'Verb'},
+    {word:'呼びます',reading:'よびます',def:'to call; to invite',pos:'Verb'},
+    {word:'開けます',reading:'あけます',def:'to open',pos:'Verb'},
+    {word:'歌います',reading:'うたいます',def:'to sing',pos:'Verb'},
+    {word:'苦い',reading:'にがい',def:'bitter',pos:'Adj'},
+    {word:'寂しい',reading:'さびしい',def:'lonely',pos:'Adj'},
+    {word:'悲しい',reading:'かなしい',def:'sad',pos:'Adj'},
+    {word:'苦しい',reading:'くるしい',def:'painful; hard (suffering)',pos:'Adj'},
+    {word:'嬉しい',reading:'うれしい',def:'happy; glad',pos:'Adj'},
+    {word:'痛い',reading:'いたい',def:'painful; sore',pos:'Adj'},
+    {word:'色々',reading:'いろいろ',def:'various; all kinds of',pos:'Adj'},
   ],
   'L9': [
     {word:'けしゴム',reading:'けしゴム',def:'eraser',pos:'Noun'},
@@ -493,7 +548,6 @@ vocabData['S1'] = {
     {word:'見せます',reading:'みせます',def:'to show',grp:'G2',pos:'Verb'},
     {word:'あるきます',reading:'あるきます',def:'to walk',grp:'G1',pos:'Verb'},
     {word:'とります',reading:'とります',def:'to take',grp:'G1',pos:'Verb'},
-    {word:'持ちます',reading:'もちます',def:'to have/hold',grp:'G1',pos:'Verb'},
     {word:'わらいます',reading:'わらいます',def:'to laugh',grp:'G1',pos:'Verb'},
     {word:'さんぽ',reading:'さんぽ',def:'walk, stroll',pos:'Noun'},
     {word:'ロビー',reading:'',def:'lobby',pos:'Noun'},
@@ -504,6 +558,20 @@ vocabData['S1'] = {
     {word:'（お）たく',reading:'（お）たく',def:'your home (polite)',pos:'Noun'},
     {word:'もういちど',reading:'もういちど',def:'once more, again',pos:'Adv'},
     {word:'出ます',reading:'でます',def:'to leave',grp:'G2',pos:'Verb'},
+    {word:'暗い',reading:'くらい',def:'dark; gloomy',pos:'Adj'},
+    {word:'貸します',reading:'かします',def:'to lend',pos:'Verb'},
+    {word:'手伝います',reading:'てつだいます',def:'to help; to assist',pos:'Verb'},
+    {word:'閉めます',reading:'しめます',def:'to close; to shut',pos:'Verb'},
+    {word:'消します',reading:'けします',def:'to turn off; to erase',pos:'Verb'},
+    {word:'忘れます',reading:'わすれます',def:'to forget',pos:'Verb'},
+    {word:'引っ越します',reading:'ひっこします',def:'to move (house)',pos:'Verb'},
+    {word:'大丈夫',reading:'だいじょうぶ',def:'OK; all right; fine',pos:'Adj'},
+    {word:'飛びます',reading:'とびます',def:'to fly; to jump',pos:'Verb'},
+    {word:'歩きます',reading:'あるきます',def:'to walk',pos:'Verb'},
+    {word:'取ります',reading:'とります',def:'to take; to get',pos:'Verb'},
+    {word:'笑います',reading:'わらいます',def:'to laugh; to smile',pos:'Verb'},
+    {word:'遊びます',reading:'あそびます',def:'to play; to have fun',pos:'Verb'},
+    {word:'踊ります',reading:'おどります',def:'to dance',pos:'Verb'},
   ],
   'L10': [
     {word:'ねつ',reading:'ねつ',def:'fever',pos:'Noun'},
@@ -556,6 +624,14 @@ vocabData['S1'] = {
     {word:'持って帰ります',reading:'もってかえります',def:'to take home',grp:'G1',pos:'Verb'},
     {word:'ボールペン',reading:'',def:'ballpoint pen',pos:'Noun'},
     {word:'テスト中',reading:'テストちゅう',def:'during the exam',pos:'Noun'},
+    {word:'受けます',reading:'うけます',def:'to take (exam); to receive',pos:'Verb'},
+    {word:'止めます',reading:'とめます',def:'to stop; to park',pos:'Verb'},
+    {word:'洗います',reading:'あらいます',def:'to wash',pos:'Verb'},
+    {word:'浴びます',reading:'あびます',def:'to take (shower); to bathe',pos:'Verb'},
+    {word:'乗ります',reading:'のります',def:'to ride; to get on',pos:'Verb'},
+    {word:'降ります',reading:'おります',def:'to get off; to get out',pos:'Verb'},
+    {word:'乗り換えます',reading:'のりかえます',def:'to transfer (transport)',pos:'Verb'},
+    {word:'作って行きます',reading:'つくっていきます',def:'to make and bring',pos:'Verb'},
   ],
   'L11': [
     {word:'ぎゅうにく',reading:'ぎゅうにく',def:'beef',pos:'Noun'},
@@ -613,6 +689,14 @@ vocabData['S1'] = {
     {word:'カラオケ',reading:'',def:'karaoke',pos:'Noun'},
     {word:'かぶき',reading:'かぶき',def:'kabuki',pos:'Noun'},
     {word:'履きます',reading:'はきます',def:'to wear (shoes / trousers)',pos:'Verb',grp:'G1'},
+    {word:'速い',reading:'はやい',def:'fast; quick',pos:'Adj'},
+    {word:'若い',reading:'わかい',def:'young',pos:'Adj'},
+    {word:'決めます',reading:'きめます',def:'to decide',pos:'Verb'},
+    {word:'甘い',reading:'あまい',def:'sweet',pos:'Adj'},
+    {word:'足ります',reading:'たります',def:'to be enough; to suffice',pos:'Verb'},
+    {word:'派手',reading:'はで',def:'showy; flashy',pos:'Adj'},
+    {word:'地味',reading:'じみ',def:'plain; modest',pos:'Adj'},
+    {word:'間違えます',reading:'まちがえます',def:'to make a mistake',pos:'Verb'},
   ],
   'L12': [
     {word:'おかし',reading:'おかし',def:'snacks, sweets',pos:'Noun'},
@@ -671,6 +755,21 @@ vocabData['S1'] = {
     {word:'こたえます',reading:'こたえます',def:'to answer',grp:'G2',pos:'Verb'},
     {word:'〜について',reading:'',def:'about ~, regarding ~',pos:'Noun'},
     {word:'ちょっと',reading:'',def:'a little; just a moment',pos:'Noun'},
+    {word:'危ない',reading:'あぶない',def:'dangerous',pos:'Adj'},
+    {word:'押します',reading:'おします',def:'to push',pos:'Verb'},
+    {word:'遅れます',reading:'おくれます',def:'to be late; to be delayed',pos:'Verb'},
+    {word:'座ります',reading:'すわります',def:'to sit down',pos:'Verb'},
+    {word:'捨てます',reading:'すてます',def:'to throw away; to discard',pos:'Verb'},
+    {word:'触ります',reading:'さわります',def:'to touch',pos:'Verb'},
+    {word:'変',reading:'へん',def:'strange; odd',pos:'Adj'},
+    {word:'片付けます',reading:'かたづけます',def:'to tidy up; to put away',pos:'Verb'},
+    {word:'着ます',reading:'きます',def:'to wear; to put on (clothes)',pos:'Verb'},
+    {word:'降ります',reading:'ふります',def:'to fall (rain/snow)',pos:'Verb'},
+    {word:'疲れます',reading:'つかれます',def:'to get tired',pos:'Verb'},
+    {word:'遠い',reading:'とおい',def:'far; distant',pos:'Adj'},
+    {word:'迷います',reading:'まよいます',def:'to get lost; to be lost',pos:'Verb'},
+    {word:'答えます',reading:'こたえます',def:'to answer; to reply',pos:'Verb'},
+    {word:'優しい',reading:'やさしい',def:'kind; gentle',pos:'Adj'},
   ],
   'Q': [
     {word:'何か',reading:'なにか',def:'Something / Anything',pos:'Expr',exprKey:'なにか ありますか'},
@@ -706,7 +805,7 @@ kanjiData['S1'] = {
     {kanji:'九',reading:'きゅう',meaning:'nine',mode:'write'},
     {kanji:'一つ',reading:'ひとつ',meaning:'one (counter)',mode:'write'},
     {kanji:'九つ',reading:'ここのつ',meaning:'nine (counter)',mode:'write'},
-    {kanji:'一月',reading:'いちがつ',meaning:'January',mode:'write'},
+    {kanji:'一月',reading:'いちがつ',meaning:'January',mode:'read'},
     {kanji:'九月',reading:'くがつ',meaning:'September',mode:'read'},
     {kanji:'二',reading:'に',meaning:'two',mode:'write'},
     {kanji:'十',reading:'じゅう',meaning:'ten',mode:'write'},
@@ -725,7 +824,7 @@ kanjiData['S1'] = {
     {kanji:'四つ',reading:'よっつ',meaning:'four (counter)',mode:'write'},
     {kanji:'六百',reading:'ろっぴゃく',meaning:'600',mode:'write'},
     {kanji:'四月',reading:'しがつ',meaning:'April',mode:'read'},
-    {kanji:'八百',reading:'はっぴゃく',meaning:'800',mode:'write'},
+    {kanji:'八百',reading:'はっぴゃく',meaning:'800',mode:'read'},
     {kanji:'五',reading:'ご',meaning:'five',mode:'write'},
     {kanji:'千',reading:'せん',meaning:'thousand',mode:'write'},
     {kanji:'五つ',reading:'いつつ',meaning:'five (counter)',mode:'write'},
@@ -794,7 +893,7 @@ kanjiData['S1'] = {
     {kanji:'五分',reading:'ごふん',meaning:'5 minutes',mode:'write'},
     {kanji:'十分',reading:'じゅっぷん',meaning:'10 minutes',mode:'write'},
     {kanji:'分かる',reading:'わかる',meaning:'to understand',mode:'write'},
-  ],
+    {kanji:'一月',reading:'いちがつ',meaning:'January',mode:'write'},  ],
   'KL3': [
     {kanji:'上',reading:'うえ',meaning:'above, up',mode:'write'},
     {kanji:'後ろ',reading:'うしろ',meaning:'behind, back',mode:'write'},
@@ -810,7 +909,7 @@ kanjiData['S1'] = {
     {kanji:'午前中',reading:'ごぜんちゅう',meaning:'during the morning',mode:'write'},
     {kanji:'中',reading:'なか',meaning:'inside, middle',mode:'write'},
     {kanji:'門',reading:'もん',meaning:'gate',mode:'write'},
-    {kanji:'中国',reading:'ちゅうごく',meaning:'China',mode:'write'},
+    {kanji:'中国',reading:'ちゅうごく',meaning:'China',mode:'read'},
     {kanji:'間',reading:'あいだ',meaning:'between, space',mode:'write'},
     {kanji:'一年中',reading:'いちねんじゅう',meaning:'all year long',mode:'read'},
     {kanji:'時間',reading:'じかん',meaning:'hours',mode:'write'},
@@ -818,7 +917,7 @@ kanjiData['S1'] = {
     {kanji:'二時間',reading:'にじかん',meaning:'two hours',mode:'write'},
     {kanji:'外',reading:'そと',meaning:'outside',mode:'write'},
     {kanji:'東',reading:'ひがし',meaning:'east',mode:'write'},
-    {kanji:'外国',reading:'がいこく',meaning:'foreign country',mode:'write'},
+    {kanji:'外国',reading:'がいこく',meaning:'foreign country',mode:'read'},
     {kanji:'東口',reading:'ひがしぐち',meaning:'east exit',mode:'write'},
     {kanji:'外国人',reading:'がいこくじん',meaning:'foreigner',mode:'read'},
     {kanji:'東京',reading:'とうきょう',meaning:'Tokyo',mode:'read'},
@@ -836,7 +935,7 @@ kanjiData['S1'] = {
     {kanji:'北',reading:'きた',meaning:'north',mode:'write'},
     {kanji:'前',reading:'まえ',meaning:'front, before',mode:'write'},
     {kanji:'北口',reading:'きたぐち',meaning:'north exit',mode:'write'},
-    {kanji:'名前',reading:'なまえ',meaning:'name',mode:'write'},
+    {kanji:'名前',reading:'なまえ',meaning:'name',mode:'read'},
   ],
   'KL4': [
     {kanji:'田中さん',reading:'たなかさん',meaning:'Tanaka (name)',mode:'write'},
@@ -865,7 +964,7 @@ kanjiData['S1'] = {
     {kanji:'去年',reading:'きょねん',meaning:'last year',mode:'write'},
     {kanji:'大学',reading:'だいがく',meaning:'university',mode:'read'},
     {kanji:'毎日',reading:'まいにち',meaning:'every day',mode:'write'},
-    {kanji:'学校',reading:'がっこう',meaning:'school',mode:'write'},
+    {kanji:'学校',reading:'がっこう',meaning:'school',mode:'read'},
     {kanji:'毎月',reading:'まいつき',meaning:'every month',mode:'write'},
     {kanji:'先生',reading:'せんせい',meaning:'teacher',mode:'write'},
     {kanji:'毎年',reading:'まいとし',meaning:'every year',mode:'write'},
@@ -876,7 +975,8 @@ kanjiData['S1'] = {
     {kanji:'誕生日',reading:'たんじょうび',meaning:'birthday',mode:'read'},
     {kanji:'先月',reading:'せんげつ',meaning:'last month',mode:'write'},
     {kanji:'先に',reading:'さきに',meaning:'ahead, first',mode:'read'},
-    {kanji:'国籍',reading:'こくせき',meaning:'nationality',mode:'read'},
+    {kanji:'国籍',reading:'こくせき',meaning:'nationality',mode:'read'},    {kanji:'外国',reading:'がいこく',meaning:'foreign country',mode:'write'},
+    {kanji:'中国',reading:'ちゅうごく',meaning:'China',mode:'write'},
   ],
   'KL5': [
     {kanji:'見る',reading:'みる',meaning:'to see',mode:'write'},
@@ -884,15 +984,15 @@ kanjiData['S1'] = {
     {kanji:'見せる',reading:'みせる',meaning:'to show',mode:'write'},
     {kanji:'聞く',reading:'きく',meaning:'to listen, hear',mode:'write'},
     {kanji:'行く',reading:'いく',meaning:'to go',mode:'write'},
-    {kanji:'新聞',reading:'しんぶん',meaning:'newspaper',mode:'write'},
-    {kanji:'銀行',reading:'ぎんこう',meaning:'bank',mode:'write'},
+    {kanji:'新聞',reading:'しんぶん',meaning:'newspaper',mode:'read'},
+    {kanji:'銀行',reading:'ぎんこう',meaning:'bank',mode:'read'},
     {kanji:'言う',reading:'いう',meaning:'to say',mode:'write'},
     {kanji:'旅行',reading:'りょこう',meaning:'travel',mode:'read'},
     {kanji:'話す',reading:'はなす',meaning:'to speak',mode:'write'},
     {kanji:'お米',reading:'おこめ',meaning:'rice (uncooked)',mode:'write'},
     {kanji:'話',reading:'はなし',meaning:'story, talk',mode:'write'},
     {kanji:'欧米',reading:'おうべい',meaning:'Europe and America',mode:'read'},
-    {kanji:'電話',reading:'でんわ',meaning:'telephone',mode:'write'},
+    {kanji:'電話',reading:'でんわ',meaning:'telephone',mode:'read'},
     {kanji:'来る',reading:'くる',meaning:'to come',mode:'write'},
     {kanji:'話し合う',reading:'はなしあう',meaning:'to discuss',mode:'read'},
     {kanji:'来ます',reading:'きます',meaning:'to wear (clothes)',mode:'write'},
@@ -919,7 +1019,7 @@ kanjiData['S1'] = {
     {kanji:'週末',reading:'しゅうまつ',meaning:'weekend',mode:'read'},
     {kanji:'会う',reading:'あう',meaning:'to meet',mode:'write'},
     {kanji:'会話',reading:'かいわ',meaning:'conversation',mode:'write'},
-    {kanji:'会社',reading:'かいしゃ',meaning:'company',mode:'write'},
+    {kanji:'会社',reading:'かいしゃ',meaning:'company',mode:'read'},
   ],
   'KL6': [
     {kanji:'大きい',reading:'おおきい',meaning:'big',mode:'write'},
@@ -939,7 +1039,7 @@ kanjiData['S1'] = {
     {kanji:'高校',reading:'こうこう',meaning:'high school',mode:'read'},
     {kanji:'長い',reading:'ながい',meaning:'long',mode:'write'},
     {kanji:'円高',reading:'えんだか',meaning:'strong yen',mode:'read'},
-    {kanji:'社長',reading:'しゃちょう',meaning:'company president',mode:'write'},
+    {kanji:'社長',reading:'しゃちょう',meaning:'company president',mode:'read'},
     {kanji:'安い',reading:'やすい',meaning:'cheap',mode:'write'},
     {kanji:'明るい',reading:'あかるい',meaning:'bright',mode:'write'},
     {kanji:'安全',reading:'あんぜん',meaning:'safe, safety',mode:'read'},
@@ -956,9 +1056,10 @@ kanjiData['S1'] = {
     {kanji:'親友',reading:'しんゆう',meaning:'close friend',mode:'read'},
     {kanji:'気をつける',reading:'きをつける',meaning:'to be careful',mode:'write'},
     {kanji:'天気',reading:'てんき',meaning:'weather',mode:'read'},
-    {kanji:'電気',reading:'でんき',meaning:'electricity, light',mode:'write'},
-    {kanji:'気持ち',reading:'きもち',meaning:'feeling',mode:'write'},
+    {kanji:'電気',reading:'でんき',meaning:'electricity, light',mode:'read'},
+    {kanji:'気持ち',reading:'きもち',meaning:'feeling',mode:'read'},
     {kanji:'人気',reading:'にんき',meaning:'popularity',mode:'read'},
+    {kanji:'新聞',reading:'しんぶん',meaning:'newspaper',mode:'write'},
   ],
   'KL7': [
     {kanji:'入る',reading:'はいる',meaning:'to enter',mode:'write'},
@@ -999,6 +1100,12 @@ kanjiData['S1'] = {
     {kanji:'車',reading:'くるま',meaning:'car',mode:'write'},
     {kanji:'自転車',reading:'じてんしゃ',meaning:'bicycle',mode:'read'},
     {kanji:'駐車場',reading:'ちゅうしゃじょう',meaning:'parking lot',mode:'read'},
+    {kanji:'電気',reading:'でんき',meaning:'electricity; light (electric)',mode:'write'},
+    {kanji:'電話',reading:'でんわ',meaning:'telephone',mode:'write'},
+    {kanji:'会社',reading:'かいしゃ',meaning:'company; office',mode:'write'},
+    {kanji:'社長',reading:'しゃちょう',meaning:'company president',mode:'write'},
+    {kanji:'学校',reading:'がっこう',meaning:'school',mode:'write'},
+    {kanji:'銀行',reading:'ぎんこう',meaning:'bank',mode:'write'},
   ],
   'KL8': [
     {kanji:'休む',reading:'やすむ',meaning:'to rest',mode:'write'},
@@ -1037,7 +1144,8 @@ kanjiData['S1'] = {
     {kanji:'辞書',reading:'じしょ',meaning:'dictionary',mode:'read'},
     {kanji:'英語',reading:'えいご',meaning:'English (language)',mode:'read'},
     {kanji:'教科書',reading:'きょうかしょ',meaning:'textbook',mode:'read'},
-    {kanji:'外国語',reading:'がいこくご',meaning:'foreign language',mode:'read'},
+    {kanji:'外国語',reading:'がいこくご',meaning:'foreign language',mode:'read'},    {kanji:'気持ち',reading:'きもち',meaning:'feeling; mood',mode:'write'},
+    {kanji:'名前',reading:'なまえ',meaning:'name',mode:'write'},
   ],
 };
 const grammarData = {};
@@ -2345,6 +2453,41 @@ function _kanjiSortVal(k){
   if(n !== undefined) return n * 100 + [...k.kanji].length;
   return 99900 + [...k.kanji].length;
 }
+function _sortKanjiLevel(arr){
+  const NUM={'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'百':100,'千':1000,'万':10000};
+  // Compute numeric prefix: val = number value, end = chars consumed
+  function npx(k){const ch=[...k];let v=0,c=0,i=0;for(;i<ch.length;i++){if(NUM[ch[i]]===undefined)break;if(NUM[ch[i]]>=10){v+=(c||1)*NUM[ch[i]];c=0;}else c=NUM[ch[i]];}return{val:v+c,end:i};}
+  // Group key: strip leading number kanji → use remainder as key; if no num prefix → use last char
+  function gk(k){const{end}=npx(k),ch=[...k];return end>0&&end<ch.length?ch.slice(end).join(''):ch[ch.length-1];}
+  const singles=arr.filter(e=>[...e.kanji].length===1);
+  const compounds=arr.filter(e=>[...e.kanji].length>1);
+  // Sort singles: numbers 1→∞ first, then others by reading
+  singles.sort((a,b)=>{const na=NUM[a.kanji],nb=NUM[b.kanji];if(na!=null&&nb!=null)return na-nb;if(na!=null)return -1;if(nb!=null)return 1;return a.reading.localeCompare(b.reading,'ja');});
+  // Build suffix groups
+  const groups=new Map();
+  for(const e of compounds){const k=gk(e.kanji);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(e);}
+  // Sort within each group: sub-base entries first (if A's kanji is a proper suffix of B → A before B), then by numeric prefix value, then reading
+  for(const[,grp] of groups){
+    grp.sort((a,b)=>{
+      const al=[...a.kanji].length,bl=[...b.kanji].length;
+      if(al<bl&&b.kanji.endsWith(a.kanji))return -1;
+      if(bl<al&&a.kanji.endsWith(b.kanji))return 1;
+      const na=npx(a.kanji).val,nb=npx(b.kanji).val;
+      if(na!==nb)return na-nb;
+      return a.reading.localeCompare(b.reading,'ja');
+    });
+  }
+  const singlesSet=new Set(singles.map(e=>e.kanji));
+  const out=[]; const emitted=new Set();
+  // Emit each single followed immediately by its matching suffix group
+  for(const s of singles){
+    out.push(s);
+    if(groups.has(s.kanji)){out.push(...groups.get(s.kanji));emitted.add(s.kanji);}
+  }
+  // Remaining groups (suffix not a standalone): sort by group key locale
+  [...groups.entries()].filter(([k])=>!emitted.has(k)).sort(([a],[b])=>a.localeCompare(b,'ja')).forEach(([,grp])=>out.push(...grp));
+  return out;
+}
 function renderKanji(){
   const kData = kanjiData[sem]||{};
   const q = currentSearch;
@@ -2353,11 +2496,11 @@ function renderKanji(){
   let html = '';
 
   for(const lvl of levels){
-    const entries = (kData[lvl]||[]).filter(k=>{
+    const entries = _sortKanjiLevel((kData[lvl]||[]).filter(k=>{
       if(!kanjiShowRead && k.mode==='read') return false;
       if(!kanjiShowWrite && k.mode==='write') return false;
       return true; // search applied in-place via filterCardsInPlace()
-    }).sort((a,b)=>{ const va=_kanjiSortVal(a),vb=_kanjiSortVal(b); return va!==vb?va-vb:a.reading.localeCompare(b.reading); });
+    }));
     if(!entries.length) continue;
     html += `<div class="level-tag"><span>${lvl}</span><span class="lt-line"></span><span class="lt-count">${(kData[lvl]||[]).length} entries</span></div>`;
     html += `<div class="kanji-grid">`;
