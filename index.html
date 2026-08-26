@@ -208,8 +208,7 @@
     <span class="brand-jp" id="brand-name" onclick="setTab('home',null)"></span>
   </div>
   <nav class="nav-list">
-    <button class="s-btn" onclick="setTab('vocab',this)"><span class="s-chip notranslate" translate="no"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="s-label">Vocab</span></button>
-    <button class="s-btn" onclick="setTab('kanji',this)"><span class="s-chip notranslate" translate="no"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6"/><path d="M12 9v6"/><path d="M9 15h6"/></svg></span><span class="s-label">Kanji</span></button>
+    <button class="s-btn" onclick="setTab('words',this)"><span class="s-chip notranslate" translate="no"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7"/><path d="M9 11h7"/></svg></span><span class="s-label">Words</span></button>
     <button class="s-btn" onclick="setTab('grammar',this)"><span class="s-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span><span class="s-label">Grammar</span></button>
     <button class="s-btn" onclick="setTab('sheets',this)"><span class="s-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/></svg></span><span class="s-label">Sheets</span></button>
   </nav>
@@ -258,19 +257,15 @@
         <h1 class="home-title notranslate" id="home-title-text" translate="no"></h1>
       </div>
       <p class="home-tagline">the key to bear Japanese</p>
-      <p class="home-sub">Your self-contained study companion for <strong>KAI Japanese School</strong> — Module&nbsp;1. Vocabulary, kanji, grammar, and study sheets, all in one place.</p>
+      <p class="home-sub">Your self-contained study companion for <strong>KAI Japanese School</strong> — Module&nbsp;1. Words (vocabulary L1–L12 + kanji L1–L8), grammar lesson by lesson with the class slides, and study sheets — all in one place.</p>
       <div class="home-cards">
-        <button class="home-card" onclick="setTab('vocab',document.querySelector('.s-btn[onclick*=\'vocab\']'))">
-          <span class="home-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
-          <span class="home-card-text"><b>Vocabulary</b>All M1 words — readings, definitions & conjugation</span>
-        </button>
-        <button class="home-card" onclick="setTab('kanji',document.querySelector('.s-btn[onclick*=\'kanji\']'))">
-          <span class="home-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6"/><path d="M12 9v6"/><path d="M9 15h6"/></svg></span>
-          <span class="home-card-text"><b>Kanji</b>M1 kanji by level — readings & meanings</span>
+        <button class="home-card" onclick="setTab('words',document.querySelector('.s-btn[onclick*=\'words\']'))">
+          <span class="home-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7"/><path d="M9 11h7"/></svg></span>
+          <span class="home-card-text"><b>Words</b>Vocabulary L1–L12 and kanji L1–L8 together, with stroke order</span>
         </button>
         <button class="home-card" onclick="setTab('grammar',document.querySelector('.s-btn[onclick*=\'grammar\']'))">
           <span class="home-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span>
-          <span class="home-card-text"><b>Grammar</b>Every M1 pattern with examples</span>
+          <span class="home-card-text"><b>Grammar</b>Lesson by lesson with the class slides, full conversations & practice material</span>
         </button>
         <button class="home-card" onclick="setTab('sheets',document.querySelector('.s-btn[onclick*=\'sheets\']'))">
           <span class="home-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/></svg></span>
@@ -288,8 +283,8 @@
   </div>
   <div class="content" id="content"></div>
 
-  <!-- Vocab floating filters -->
-  <div class="float-filters" id="vocab-floats">
+  <!-- Words floating filters (vocabulary + kanji) -->
+  <div class="float-filters" id="words-floats">
     <div class="float-row">
       <button class="float-btn" id="flt-Noun" onclick="toggleFilter('Noun',this)">Noun</button>
       <button class="float-btn" id="flt-Verb" onclick="toggleFilter('Verb',this)">Verb</button>
@@ -297,6 +292,7 @@
       <button class="float-btn" id="flt-Adv"  onclick="toggleFilter('Adv',this)">Adv</button>
       <button class="float-btn" id="flt-Conj" onclick="toggleFilter('Conj',this)">Conj</button>
       <button class="float-btn" id="flt-Expr" onclick="toggleFilter('Expr',this)">Expr</button>
+      <button class="float-btn" id="flt-Kanji" onclick="toggleFilter('Kanji',this)">Kanji</button>
     </div>
     <div class="float-sub" id="sub-Verb">
       <button class="float-btn float-btn-circle" id="flt-G1" onclick="toggleSubFilter('G1',this)" title="Group 1">1</button>
@@ -307,11 +303,9 @@
       <button class="float-btn float-btn-circle notranslate" translate="no" id="flt-i" onclick="toggleSubFilter('i',this)" title="い-adjective">い</button>
       <button class="float-btn float-btn-circle notranslate" translate="no" id="flt-na" onclick="toggleSubFilter('na',this)" title="な-adjective">な</button>
     </div>
-  </div>
-  <div class="kanji-float" id="kanji-floats">
-    <div class="float-row">
-      <button class="float-btn active" id="kflt-read" onclick="toggleKanjiMode('read',this)" title="Read"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      <button class="float-btn active" id="kflt-write" onclick="toggleKanjiMode('write',this)" title="Write"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+    <div class="float-sub" id="sub-Kanji">
+      <button class="float-btn active" id="kflt-read" onclick="toggleKanjiMode('read',this)" title="Read-only kanji"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button class="float-btn active" id="kflt-write" onclick="toggleKanjiMode('write',this)" title="Read + write kanji"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
     </div>
   </div>
   <button class="translator-toggle" onclick="toggleTranslator()"><img src="https://takoboto.jp/takoboto_48x48.png" width="46" height="46" style="display:block;border-radius:50%;" /></button>
@@ -320,13 +314,13 @@
 
 <nav id="mobile-nav">
   <div class="mnav-inner">
-    <button class="mnav-btn active" data-tab="vocab" onclick="setTab('vocab',null)">
+    <button class="mnav-btn active" data-tab="words" onclick="setTab('words',null)">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-      <span class="mnav-label">Vocab</span>
+      <span class="mnav-label">Words</span>
     </button>
-    <button class="mnav-btn" data-tab="kanji" onclick="setTab('kanji',null)">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      <span class="mnav-label">Kanji</span>
+    <button class="mnav-btn" data-tab="grammar" onclick="setTab('grammar',null)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+      <span class="mnav-label">Grammar</span>
     </button>
     <button class="mnav-btn" data-tab="sheets" onclick="setTab('sheets',null)">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>

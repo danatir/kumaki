@@ -4,3 +4,6 @@ preview-noaccess.html
 _sync_preview_to_prod.py
 *.zip
 .DS_Store
+
+# local dev
+.claude/
