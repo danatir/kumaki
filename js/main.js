@@ -2821,11 +2821,16 @@ function kanjiCardHTML(k, kl){
   </div>`;
 }
 
+let _wordsFillTimer = null;
 function renderWords(){
   const vData = vocabData[sem]||{};
   const kData = kanjiData[sem]||{};
   const el = document.getElementById('content');
-  let html = '';
+  if(_wordsFillTimer){ cancelAnimationFrame(_wordsFillTimer); _wordsFillTimer = null; }
+
+  // Build each lesson group's markup up front, but hand it to the DOM one group
+  // per frame. A single 15,000-node insert locks up the page translator.
+  const groups = [];
   for(const lvl of WORD_LEVELS){
     const kl = lvl==='EXPR' ? 'SIGN' : (/^L\d+$/.test(lvl) ? 'KL'+lvl.slice(1) : null);
     const allW = vData[lvl]||[];
@@ -2837,14 +2842,32 @@ function renderWords(){
     const counts = [];
     if(allW.length) counts.push(allW.length+' words');
     if(allK.length) counts.push(allK.length+' kanji');
-    html += `<div class="level-tag"><span class="lt-key">${lvl}${(kl&&kl!==lvl&&allK.length)?' · '+kl:''}</span><span class="lt-sub notranslate" translate="no">${meta.jp}</span><span class="lt-en">${meta.en}</span><span class="lt-line"></span><span class="lt-count">${counts.join(' · ')}</span></div>`;
-    if(meta.hint) html += `<div class="lt-hint">${meta.hint}</div>`;
-    html += `<div class="vocab-grid">`;
-    for(const w of words) html += wordCardHTML(w, lvl);
-    for(const k of kanji) html += kanjiCardHTML(k, kl);
-    html += `</div>`;
+    let head = `<div class="level-tag"><span class="lt-key">${lvl}${(kl&&kl!==lvl&&allK.length)?' · '+kl:''}</span><span class="lt-sub notranslate" translate="no">${meta.jp}</span><span class="lt-en">${meta.en}</span><span class="lt-line"></span><span class="lt-count">${counts.join(' · ')}</span></div>`;
+    if(meta.hint) head += `<div class="lt-hint">${meta.hint}</div>`;
+    let cards = '';
+    for(const w of words) cards += wordCardHTML(w, lvl);
+    for(const k of kanji) cards += kanjiCardHTML(k, kl);
+    groups.push({head, cards, n: words.length+kanji.length});
   }
-  el.innerHTML = html || `<div class="empty"><span class="empty-jp">語</span>No words found.</div>`;
+  if(!groups.length){
+    el.innerHTML = `<div class="empty"><span class="empty-jp">語</span>No words found.</div>`;
+    return;
+  }
+  // Reserve each grid's height so the scrollbar does not jump while it fills.
+  const cols = window.innerWidth>900 ? 3 : (window.innerWidth>560 ? 2 : 1);
+  el.innerHTML = groups.map((g,i)=>
+    g.head + `<div class="vocab-grid" data-wg="${i}" style="min-height:${Math.ceil(g.n/cols)*82}px"></div>`
+  ).join('');
+
+  let i = 0;
+  (function fill(){
+    _wordsFillTimer = null;
+    const grid = el.querySelector(`.vocab-grid[data-wg="${i}"]`);
+    if(grid){ grid.innerHTML = groups[i].cards; grid.style.minHeight = ''; }
+    i++;
+    if(i < groups.length){ _wordsFillTimer = requestAnimationFrame(fill); }
+    else if(currentSearch){ filterCardsInPlace(currentSearch); }
+  })();
 }
 // back-compat aliases
 function renderVocab(){ renderWords(); }
