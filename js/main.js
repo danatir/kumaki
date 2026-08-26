@@ -732,7 +732,7 @@ vocabData['S1'] = {
     {word:'答えます',reading:'こたえます',def:'to answer; to reply',pos:'Verb',grp:'G2',sub:'12·Reading',ex:'私は日本はおもしろいとこたえました。'},
     {word:'〜について',reading:'',def:'about ~, regarding ~',pos:'Expr',sub:'12·Reading',ex:'日本についておしえてください。'},
   ],
-  'Q': [
+  'EXPR': [
     {word:'何か',reading:'なにか',def:'Something / Anything',pos:'Expr',sub:'Question',exprKey:'なにか ありますか'},
     {word:'だれ',reading:'だれ',def:'Who',pos:'Expr',sub:'Question',exprKey:'だれと 飲みますか'},
     {word:'どこ',reading:'どこ',def:'Where',pos:'Expr',sub:'Question',exprKey:'どこで 食べますか'},
@@ -2410,7 +2410,9 @@ function buildSuggIndex(){
           forms.push(stem+'くない',stem+'かった',stem+'くなかった',stem+'くて');
         }
       }
-      _suggIndex.push({type:'vocab', jp:w.word, read:w.reading||'', en:w.def, badge:w.pos, pos:w.pos, exprKey:w.exprKey||'', searchForms:forms});
+      const _d = displayForm(w);
+      if(_d!==w.word) forms.push(_d);
+      _suggIndex.push({type:'vocab', jp:_d, read:w.reading||'', en:w.def, badge:w.pos, pos:w.pos, grp:w.grp||'', adjt:adjType[w.word]||'', exprKey:w.exprKey||'', searchForms:forms});
     }
   }
 
@@ -2513,7 +2515,7 @@ function updateSuggestions(raw){
     } else {
       innerHtml = `<span class="sugg-jp notranslate" translate="no">${h.jp}</span><span class="sugg-en">${h.en}</span>`;
     }
-    return `<div class="sugg-item${isGram?' sugg-gram':''}" data-jp="${jp}" data-read="${read}" data-en="${en}" data-pos="${pos}" data-ek="${ek}" data-sec="${secTitle}" data-card="${cardLabel}" data-type="${h.type}" onpointerdown="event.preventDefault();suggPick(this)">
+    return `<div class="sugg-item${isGram?' sugg-gram':''}" data-jp="${jp}" data-read="${read}" data-en="${en}" data-pos="${pos}" data-ek="${ek}" data-sec="${secTitle}" data-card="${cardLabel}" data-type="${h.type}" data-grp="${h.grp||''}" data-adjt="${h.adjt||''}" onpointerdown="event.preventDefault();suggPick(this)">
       ${innerHtml}
       <span class="sugg-badge" style="${badgeStyle}">${h.badge}</span>
     </div>`;
@@ -2732,11 +2734,29 @@ const LESSON_META = {
   L10:{jp:'だい10か', en:'Lesson 10 · Permission · Rules · Linking Actions'},
   L11:{jp:'だい11か', en:'Lesson 11 · Comparison · すぎます · やすい／にくい'},
   L12:{jp:'だい12か', en:'Lesson 12 · Final Vocabulary Set'},
-  Q  :{jp:'ぎもんし',  en:'Question Words', hint:'Question Words Review'},
-  SIGN:{jp:'サインの漢字', en:'Kanji on Signs', hint:'サインの漢字①② — the kanji you actually read on doors, lifts, switches and station exits'},
+  EXPR:{jp:'ひょうげん', en:'Expressions', hint:'Question Words Review + サインの漢字 — the kanji you read on doors, lifts, switches and station exits'},
 };
-const WORD_LEVELS = ['GEN','L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','Q','SIGN'];
+const WORD_LEVELS = ['GEN','L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','EXPR'];
 
+// Every kanji character that appears anywhere in the class kanji list (L1–L8 + signs).
+// A vocabulary word is written in kanji only when all of its kanji are in this set;
+// anything else is shown in kana, exactly as the course expects you to read it.
+const TAUGHT_KANJI = (function(){
+  const set = new Set();
+  const kd = kanjiData[sem]||{};
+  for(const lv of Object.keys(kd)) for(const k of kd[lv]) for(const ch of k.kanji) if(hasKanji(ch)) set.add(ch);
+  return set;
+})();
+function taughtWriting(word){
+  const ks = [...word].filter(hasKanji);
+  return ks.length>0 && ks.every(c=>TAUGHT_KANJI.has(c));
+}
+// Form actually shown on the card: kanji when taught, otherwise the kana reading.
+function displayForm(w){
+  if(!hasKanji(w.word)) return w.word;
+  if(taughtWriting(w.word)) return w.word;
+  return w.reading || w.word;
+}
 const _ea = s=>(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
 const _eq = s=>(s||'').replace(/'/g,"\\'");
 
@@ -2763,10 +2783,10 @@ function _counterBadge(word,reading){
   const key = extraCounterMap[word] || extraCounterMap[reading] || (counTypeMap[word]||{}).key;
   if(!key || !countersData[key]) return '';
   const cat = countersData[key];
-  return `<span class="vc-coun-tag" onclick="openCounterPopup('${_eq(key)}','${_eq(cat.label)}',event)">${cat.icon} ${cat.label}</span>`;
+  return `<span class="vc-ind-dot dot-coun" title="${_ea(cat.label)} counter — tap for the table" onclick="openCounterPopup('${_eq(key)}','${_eq(cat.label)}',event)">${cat.icon}</span>`;
 }
-const _EYE='<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
-const _PEN='<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+const _EYE='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const _PEN='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
 
 function wordCardHTML(w, lvl){
   const at = adjType[w.word];
@@ -2774,26 +2794,30 @@ function wordCardHTML(w, lvl){
   const grpTag = w.grp ? `<span class="vc-grp-tag grp-${w.grp}">${w.grp}</span>` : '';
   const coun   = _counterBadge(w.word, w.reading);
   const subTag = w.sub ? `<span class="vc-sub-tag">${_ea(w.sub)}</span>` : '';
-  return `<div class="vocab-card" onclick="openConjPopup('${_eq(w.word)}','${_eq(w.reading||'')}','${_eq(w.def)}','${w.pos}','${_eq(w.exprKey||'')}','','${w.grp||''}','${at||''}')" data-grp="${w.grp||''}" data-adjt="${at||''}" data-sw="${_ea(w.word)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(w.def)}">
-    <div class="vc-left notranslate" translate="no">${rubyHTML(w.word,w.reading||"")}</div>
+  const disp   = displayForm(w);
+  const rd     = (disp===w.reading) ? '' : (w.reading||'');
+  return `<div class="vocab-card" onclick="openConjPopup('${_eq(disp)}','${_eq(w.reading||'')}','${_eq(w.def)}','${w.pos}','${_eq(w.exprKey||'')}','','${w.grp||''}','${at||''}')" data-grp="${w.grp||''}" data-adjt="${at||''}" data-sw="${_ea(w.word)} ${_ea(disp)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(w.def)}">
+    <div class="vc-left notranslate" translate="no">${rubyHTML(disp,rd)}</div>
     <div class="vc-sep"></div>
-    <div class="vc-right"><span class="vc-def">${w.def}${coun}</span></div>
-    <div style="position:absolute;top:8px;right:8px;display:flex;gap:4px;align-items:center;">${adjTag}${grpTag}<span class="vc-badge pos-${w.pos}" style="position:static;">${w.pos}</span></div>
-    <div class="vc-indicators">${subTag}<span class="vc-lvl-tag">${lvl}</span></div>
+    <div class="vc-right"><span class="vc-def">${w.def}</span></div>
+    <div class="vc-badges">${adjTag}${grpTag}<span class="vc-badge pos-${w.pos}" style="position:static;">${w.pos}</span></div>
+    <div class="vc-indicators">${coun}${subTag}<span class="vc-lvl-tag">${lvl}</span></div>
   </div>`;
 }
 
 function kanjiCardHTML(k, kl){
   const mc = k.mode==='write' ? 'kanji-write' : 'kanji-read';
-  const modeTag = `<span class="vc-mode-tag mode-${k.mode}">${k.mode==='write'?_PEN:_EYE}${k.mode==='write'?'read + write':'read'}</span>`;
+  const eye = `<span class="vc-ind-dot dot-read" title="Read">${_EYE}</span>`;
+  const pen = `<span class="vc-ind-dot dot-write" title="Write">${_PEN}</span>`;
+  const modeTag = k.mode==='write' ? eye+pen : eye;
   const coun = _counterBadge(k.kanji, k.reading);
   const part = k.part ? `<span class="vc-sub-tag">${kl==='SIGN' ? (k.part===1?'サイン①':'サイン②') : kl.replace('KL','')+'-'+k.part}</span>` : '';
   return `<div class="vocab-card kanji-card ${mc}" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','Kanji','','${k.mode||''}')" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
     <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"")}</div>
     <div class="vc-sep"></div>
-    <div class="vc-right"><span class="vc-def">${k.meaning||''}${coun}</span></div>
-    <div style="position:absolute;top:8px;right:8px;display:flex;gap:4px;align-items:center;">${modeTag}<span class="vc-badge pos-Kanji" style="position:static;">Kanji</span></div>
-    <div class="vc-indicators">${part}<span class="vc-lvl-tag">${kl}</span></div>
+    <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
+    <div class="vc-badges"><span class="vc-badge pos-Kanji" style="position:static;">Kanji</span></div>
+    <div class="vc-indicators">${modeTag}${coun}${part}<span class="vc-lvl-tag">${kl}</span></div>
   </div>`;
 }
 
@@ -2803,7 +2827,7 @@ function renderWords(){
   const el = document.getElementById('content');
   let html = '';
   for(const lvl of WORD_LEVELS){
-    const kl = lvl==='SIGN' ? 'SIGN' : (/^L\d+$/.test(lvl) ? 'KL'+lvl.slice(1) : null);
+    const kl = lvl==='EXPR' ? 'SIGN' : (/^L\d+$/.test(lvl) ? 'KL'+lvl.slice(1) : null);
     const allW = vData[lvl]||[];
     const allK = (kl && kData[kl]) ? kData[kl] : [];
     const words = allW.filter(_wordPasses);
@@ -3757,7 +3781,7 @@ function renderAll(){
   const kData = kanjiData[sem]||{};
   let wHtml = '';
   for(const lvl of WORD_LEVELS){
-    const kl = lvl==='SIGN' ? 'SIGN' : (/^L\d+$/.test(lvl) ? 'KL'+lvl.slice(1) : null);
+    const kl = lvl==='EXPR' ? 'SIGN' : (/^L\d+$/.test(lvl) ? 'KL'+lvl.slice(1) : null);
     const fw = (vData[lvl]||[]).filter(w=>matchesSearch(q,w.word,w.reading,w.def));
     for(const w of fw) wHtml += wordCardHTML(w, lvl);
     if(kl){
