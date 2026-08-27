@@ -159,6 +159,10 @@ main{overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;positi
 .gc-meaning{font-size:11.5px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;}
 .gc-pattern{background:var(--rose);border-radius:10px;padding:9px 11px;}
 .gram-fc{background:var(--white);border:1px solid var(--dot);border-radius:12px;padding:14px 16px 14px;display:flex;flex-direction:column;gap:9px;height:100%;box-sizing:border-box;transition:outline .6s ease,box-shadow .6s ease;}
+.gram-fc-head{display:flex;align-items:flex-start;gap:8px;}
+.gram-fc-head .gram-fc-label{flex:1 1 auto;min-width:0;}
+/* the lesson badge: same chip as a word card's level, rightmost on the card */
+.gc-lvl{flex:0 0 auto;height:17px;line-height:17px;display:inline-flex;align-items:center;margin-top:1px;}
 .gram-fc-label{display:flex;flex-direction:column;gap:1px;}
 .gc-t{font:700 14px/1.35 Arial,sans-serif;color:var(--ink);letter-spacing:.01em;}
 .gc-t-jp{font-family:'Chihaya','Noto Serif JP',serif;font-size:13px;color:var(--red);line-height:1.4;}
@@ -1037,6 +1041,9 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 .ff-panel.open .ff-line:nth-child(8){transition-delay:.16s}
 .ff-panel.open .ff-line:nth-child(9){transition-delay:.18s}
 .ff-panel.open .ff-line:nth-child(10){transition-delay:.20s}
+.ff-panel.open .ff-line:nth-child(11){transition-delay:.22s}
+.ff-panel.open .ff-line:nth-child(12){transition-delay:.24s}
+.ff-panel.open .ff-line:nth-child(13){transition-delay:.26s}
 /* one shape for every button in the menu */
 .ff-panel .float-btn{box-sizing:border-box;height:32px;min-width:0;width:92px;flex:0 0 92px;padding:0;border-radius:16px;align-self:center;
   font:700 11px/1 Arial,sans-serif;border:1.5px solid var(--dot);background:var(--white);color:var(--mid);
@@ -1054,6 +1061,10 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
   max-width:0;opacity:0;overflow:hidden;pointer-events:none;
   transition:opacity .18s ease,max-width .24s ease;}
 .ff-subs.visible{max-width:520px;opacity:1;pointer-events:auto;}
+/* the Grammar tab's twelve lesson chips are always out, and scroll sideways
+   rather than push the menu off a narrow screen */
+.gf-levels{max-width:min(520px,calc(100vw - 90px));overflow-x:auto;padding:2px 0;}
+.gf-levels::-webkit-scrollbar{display:none;}
 
 /* Sheets: pick which columns the Copy button puts on the clipboard */
 /* the column chips share the Copy button's row and sit at the right edge */
