@@ -299,8 +299,11 @@ main{overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;positi
 .ctr-row-def{padding:10px 0 10px 14px;font-size:13px;color:var(--sub);font-family:Arial,sans-serif;display:flex;align-items:center;border-bottom:1px solid var(--rose);}
 
 /* FLOATING FILTERS */
+/* The container is a positioning shell only — it must never swallow clicks
+   meant for the page underneath, which is what blocked the collapse toggle. */
 .float-filters{position:fixed;right:20px;top:20px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;z-index:50;opacity:0;transform:translateY(-8px);pointer-events:none;transition:opacity .2s ease,transform .2s ease;}
-.float-filters.ff-visible{opacity:1;transform:translateY(0);pointer-events:auto;}
+.float-filters.ff-visible{opacity:1;transform:translateY(0);}
+.float-filters.ff-visible .ff-toggle{pointer-events:auto;}
 .float-row{display:flex;flex-direction:row;gap:6px;justify-content:flex-end;flex-wrap:nowrap;overflow-x:auto;max-width:calc(50vw - 20px);}
 .float-btn{min-width:44px;height:36px;border-radius:20px;padding:0 12px;border:1.5px solid var(--dot);background:var(--white);cursor:pointer;font-size:12px;font-weight:700;color:var(--mid);display:flex;align-items:center;justify-content:center;transition:all .12s;font-family:Arial,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.08);}
 .float-btn:hover{border-color:var(--mid);background:var(--rose);}
@@ -972,7 +975,7 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 /* Kanji-level filter chips wrap onto a second line on narrow screens */
 
 /* ── Words filters: one menu button, everything else inside the panel ───── */
-.ff-toggle{position:relative;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--dot);
+.ff-toggle{position:relative;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--dot);
   background:var(--white);color:var(--mid);cursor:pointer;display:flex;align-items:center;justify-content:center;
   box-shadow:0 2px 10px rgba(0,0,0,.10);transition:all .14s;}
 .ff-toggle:hover{border-color:var(--mid);background:var(--rose);}
@@ -1042,8 +1045,8 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 /* one glyph or one digit: a true circle. Longer labels keep the pill. */
 .ff-panel .ff-sub-btn{box-sizing:border-box;width:32px;min-width:0;flex:0 0 32px;padding:0;border-radius:50%;}
 .ff-panel .ff-sub-btn.ff-wide{width:62px;flex:0 0 62px;border-radius:16px;}
-.ff-panel .ff-clear{background:var(--red);border-color:var(--red);color:#fff;font-weight:800;}
-.ff-panel .ff-clear:hover{background:#a3323f;border-color:#a3323f;color:#fff;}
+.ff-panel .ff-clear{background:#8e2f3a;border-color:#8e2f3a;color:#fff;font-weight:800;}
+.ff-panel .ff-clear:hover{background:#75242d;border-color:#75242d;color:#fff;}
 /* sub-buttons share their parent's line, sitting to its left */
 /* the chips that appear sit in one row that grows leftward, so no button
    already on screen ever shifts */
@@ -1053,7 +1056,9 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 .ff-subs.visible{max-width:520px;opacity:1;pointer-events:auto;}
 
 /* Sheets: pick which columns the Copy button puts on the clipboard */
-.copy-cols{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:10px 0 0;}
+/* the column chips share the Copy button's row and sit at the right edge */
+.copy-cols{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end;
+  margin-left:auto;padding:0;}
 .cc-label{font:700 8.5px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-right:2px;}
 .cc-chip{height:26px;padding:0 10px;border-radius:13px;border:1.5px solid var(--dot);background:var(--white);
   color:var(--mid);font:700 10.5px/1 Arial,sans-serif;cursor:pointer;transition:all .12s;}
@@ -1128,3 +1133,6 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 /* Level chips always close the row: kanji level, then vocabulary level */
 .vc-indicators .vc-kl-tag{margin-left:auto;}
 .vc-indicators .vc-kl-tag + .vc-lvl-tag{margin-left:0;}
+
+/* The eye reports a state through its glyph, so it never looks pressed */
+#kflt-read.active{background:var(--white);color:var(--mid);border-color:var(--dot);}

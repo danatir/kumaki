@@ -1886,8 +1886,8 @@ let currentSearch = '';
 let preSearchScrollPos = null; // scroll position saved before renderAll() takes over
 let activeFilter = null;
 let activeSubFilter = null;
-// One kanji filter: show only the read-only (よみ) kanji.
-let kanjiReadOnly = false;
+// Hide the kanji you only have to read, leaving the ones you must write.
+let hideReadOnly = false;
 let activeCounterOnly = false;   // show only words that have a counter table
 let activeKind = null;           // Greeting, … — the kind tag on a card
 const activeKanjiLevels = new Set(); // KL1–KL8 / SIGN filter chips in the Words tab
@@ -1912,7 +1912,7 @@ function saveTabState(tab){
   tabState[tab].filter    = activeFilter;
   tabState[tab].subFilter = activeSubFilter;
   if(tab === 'words'){
-    tabState[tab].readOnly  = kanjiReadOnly;
+    tabState[tab].readOnly  = hideReadOnly;
   }
   if(tab === 'sheets'){
     tabState[tab].sheetType  = currentSheetType;
@@ -1935,7 +1935,7 @@ function restoreTabState(tab){
   activeFilter    = tabState[tab].filter    || null;
   activeSubFilter = tabState[tab].subFilter || null;
   if(tab === 'words'){
-    kanjiReadOnly  = tabState[tab].readOnly === true;
+    hideReadOnly  = tabState[tab].readOnly === true;
   }
   if(tab === 'sheets'){
     currentSheetType = tabState[tab].sheetType  || 'verbs';
@@ -1976,9 +1976,8 @@ function applyFilterVisuals(){
     if(sb) sb.classList.add('active');
   }
   // restore the read-only chip
-  const kr = document.getElementById('kflt-read');
-  if(kr) kr.classList.toggle('active', kanjiReadOnly);
-  if(activeFilter==='Kanji' || activeKanjiLevels.size || kanjiReadOnly){
+  _syncEyeBtn();
+  if(activeFilter==='Kanji' || activeKanjiLevels.size || hideReadOnly){
     const sk=document.getElementById('sub-Kanji'); if(sk) sk.classList.add('visible');
   }
   const cf = document.getElementById('flt-coun');
@@ -2117,6 +2116,11 @@ function setTab(tab, btn){
   if(_stb && tab === 'sheets') _stb.classList.remove('visible');
 
   function applyTab(){
+    // Clear the outgoing-page class here, not in a requestAnimationFrame. rAF
+    // is skipped when the tab is backgrounded, and page-exiting carries
+    // pointer-events:none — leaving it stuck made the whole content area
+    // unclickable, which is what killed the collapse toggle.
+    content.classList.remove('page-exiting');
     if(tab === 'home'){
       homeScreen.style.display = 'flex';
       content.style.display = 'none';
@@ -2239,7 +2243,7 @@ function toggleFilterMenu(){
   if(t) t.classList.toggle('open', _ffOpen);
 }
 function _activeFilterCount(){
-  return (activeFilter?1:0) + (activeSubFilter?1:0) + (kanjiReadOnly?1:0) + (activeCounterOnly?1:0) + (activeKind?1:0) + activeKanjiLevels.size;
+  return (activeFilter?1:0) + (activeSubFilter?1:0) + (hideReadOnly?1:0) + (activeCounterOnly?1:0) + (activeKind?1:0) + activeKanjiLevels.size;
 }
 function _updateFilterBadge(){
   const b=document.getElementById('ff-count');
@@ -2249,13 +2253,25 @@ function _updateFilterBadge(){
   b.classList.toggle('on', n>0);
 }
 function clearAllFilters(){
-  activeFilter=null; activeSubFilter=null; kanjiReadOnly=false; activeCounterOnly=false; activeKind=null; activeKanjiLevels.clear();
+  activeFilter=null; activeSubFilter=null; hideReadOnly=false; activeCounterOnly=false; activeKind=null; activeKanjiLevels.clear();
   applyFilterVisuals(); _refilter();
 }
+const _EYE_ON  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const _EYE_OFF = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 20C5 20 1 12 1 12a19 19 0 0 1 5.1-5.9M9.9 4.2A10.9 10.9 0 0 1 12 4c7 0 11 8 11 8a19 19 0 0 1-2.2 3.2M9.9 9.9a3 3 0 0 0 4.2 4.2"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
+// The eye is a state, not a pressed button: the glyph says whether the
+// read-only kanji are on screen or hidden. It never changes colour.
 function toggleKanjiMode(mode, btn){
-  kanjiReadOnly = !kanjiReadOnly;
-  btn.classList.toggle('active', kanjiReadOnly);
+  hideReadOnly = !hideReadOnly;
+  _syncEyeBtn();
+  _updateFilterBadge();
   _refilter();
+}
+function _syncEyeBtn(){
+  const b = document.getElementById('kflt-read');
+  if(!b) return;
+  b.innerHTML = hideReadOnly ? _EYE_OFF : _EYE_ON;
+  b.title = hideReadOnly ? 'Read-only kanji hidden — click to show them' : 'Hide the read-only kanji';
+  b.classList.remove('active');
 }
 
 // ── Romaji conversion ──
@@ -2907,9 +2923,12 @@ function _kanjiInfo(word){
 }
 // Which level/mode a card shows: the one you picked, else the earliest.
 function _klShown(entries){
+  // entries run lowest level first
   if(activeKanjiLevels.size){
-    const pick = entries.find(e=>activeKanjiLevels.has(e.kl));
-    if(pick) return pick;
+    const sel = entries.filter(e=>activeKanjiLevels.has(e.kl));
+    // Pick several levels and you get the level you meet it at, with what the
+    // last of those levels asks of you: KL5+KL6 on 新聞 gives KL5 and "write".
+    if(sel.length) return {kl: sel[0].kl, mode: sel[sel.length-1].mode};
   }
   const final = entries.some(e=>e.mode==='write') ? 'write' : 'read';
   return {kl: entries[0].kl, mode: final};
@@ -2941,7 +2960,7 @@ function _wordPasses(w){
   }
   // Read-only is a kanji filter: it hides anything that is not a read-only
   // kanji, words that are not on the kanji list included.
-  if(kanjiReadOnly && (!ki || ki.mode!=='read')) return false;
+  if(hideReadOnly && (!ki || ki.mode!=='read')) return false;
   return true;
 }
 function _kanjiPasses(k, kl){
@@ -2949,7 +2968,7 @@ function _kanjiPasses(k, kl){
   if(activeCounterOnly && !(extraCounterMap[k.kanji]||extraCounterMap[k.reading]||(counTypeMap[k.kanji]||{}).key)) return false;
   if(activeFilter && activeFilter!=='Kanji') return false;
   if(activeKanjiLevels.size && !activeKanjiLevels.has(kl)) return false;
-  if(kanjiReadOnly && k.mode!=='read') return false;
+  if(hideReadOnly && k.mode==='read') return false;
   return true;
 }
 function _counterBadge(word,reading){
@@ -3071,14 +3090,14 @@ function _cardPasses(el){
   if(activeKanjiLevels.size){
     if(!kl || !kl.split(' ').some(l => activeKanjiLevels.has(l))) return false;
   }
-  if(kanjiReadOnly && el.dataset.kmode !== 'read') return false;
+  if(hideReadOnly && el.dataset.kmode === 'read') return false;
   return true;
 }
 function applyWordFilters(){
   const el = document.getElementById('content');
   if(!el || currentTab !== 'words') return;
   const q = currentSearch;
-  const anyFilter = !!(q || activeFilter || activeSubFilter || kanjiReadOnly ||
+  const anyFilter = !!(q || activeFilter || activeSubFilter || hideReadOnly ||
                        activeCounterOnly || activeKind || activeKanjiLevels.size);
   // A term taught over two levels shows the level you filtered to, with that
   // level's own requirement: 新聞 is KL5 + read-only under a KL5 filter and
@@ -3800,7 +3819,7 @@ const grammarSections=[
 ]},
 ];function renderSheets(){
   const el = document.getElementById('content');
-  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="switchSheet(\'expr\',this)">Expr</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div id="copy-cols" class="copy-cols"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="switchSheet(\'expr\',this)">Expr</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div id="copy-cols" class="copy-cols"></div><div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
   // Migrate legacy 'questions' type to 'expr'
   if(currentSheetType === 'questions') currentSheetType = 'expr';
   switchSheet(currentSheetType, document.getElementById('stab-'+currentSheetType) || document.getElementById('stab-verbs'), true);
