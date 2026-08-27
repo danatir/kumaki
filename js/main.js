@@ -3021,7 +3021,14 @@ function _wordPasses(w){
 function _kanjiPasses(k, kl){
   if(activeKind) return false;              // kanji carry no kind tag
   if(activeCounterOnly && !(extraCounterMap[k.kanji]||extraCounterMap[k.reading]||(counTypeMap[k.kanji]||{}).key)) return false;
-  if(activeFilter && activeFilter!=='Kanji') return false;
+  // A kanji entry now states its real part of speech, so Noun or Verb must
+  // reach it the same way it reaches a word. "Kanji" stays list membership.
+  const kp = _kpos(k.kanji);
+  if(activeFilter && activeFilter!=='Kanji' && kp.pos!==activeFilter) return false;
+  if(activeSubFilter){
+    if(kp.pos==='Verb' && kp.grp!==activeSubFilter) return false;
+    if(kp.pos==='Adj'  && kp.adj!==activeSubFilter) return false;
+  }
   if(activeKanjiLevels.size && !activeKanjiLevels.has(kl)) return false;
   if(hideReadOnly && k.mode==='read') return false;
   return true;
@@ -3030,7 +3037,7 @@ function _counterBadge(word,reading){
   const key = extraCounterMap[word] || extraCounterMap[reading] || (counTypeMap[word]||{}).key;
   if(!key || !countersData[key]) return '';
   const cat = countersData[key];
-  return `<span class="vc-ind-dot dot-coun" title="${_ea(cat.label)} counter — tap for the table" onclick="openCounterPopup('${_eq(key)}','${_eq(cat.label)}',event)">${cat.icon}</span>`;
+  return `<span class="vc-badge vc-coun-badge" title="${_ea(cat.label)} counter — tap for the table" onclick="openCounterPopup('${_eq(key)}','${_eq(cat.label)}',event)">${cat.icon}</span>`;
 }
 const _EYE='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 const _PEN='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
@@ -3070,22 +3077,93 @@ function wordCardHTML(w, lvl){
     <div class="vc-left${rd?'':' vc-left-wrap'} notranslate" translate="no">${rubyHTML(disp,rd,_jpStyle(disp))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${w.def}</span></div>
-    <div class="vc-badges">${adjTag}${grpTag}<span class="vc-badge pos-${w.pos}" style="position:static;">${w.pos}</span></div>
-    <div class="vc-indicators">${modeDot}${coun}${kindTag}${klTag}<span class="vc-lvl-tag" title="Level ${lvl}">${lvl}</span></div>
+    <div class="vc-badges">${coun}${adjTag}${grpTag}<span class="vc-badge pos-${w.pos}" style="position:static;">${w.pos}</span></div>
+    <div class="vc-indicators">${modeDot}${kindTag}${klTag}<span class="vc-lvl-tag" title="Level ${lvl}">${lvl}</span></div>
   </div>`;
 }
 
+// Part of speech for kanji-list entries that are not also vocabulary. Without
+// it a kanji card could only say "Kanji", which describes the list it comes
+// from, not what the word does in a sentence. Anything absent is a noun —
+// numbers, dates, places and compounds are the bulk of the list.
+const KANJI_POS = {
+  "分かる":{pos:"Verb",grp:"G1"},
+  "会う":{pos:"Verb",grp:"G1"},
+  "言う":{pos:"Verb",grp:"G1"},
+  "話し合う":{pos:"Verb",grp:"G1"},
+  "行く":{pos:"Verb",grp:"G1"},
+  "聞く":{pos:"Verb",grp:"G1"},
+  "話す":{pos:"Verb",grp:"G1"},
+  "立つ":{pos:"Verb",grp:"G1"},
+  "待つ":{pos:"Verb",grp:"G1"},
+  "飲む":{pos:"Verb",grp:"G1"},
+  "出す":{pos:"Verb",grp:"G1"},
+  "入る":{pos:"Verb",grp:"G1"},
+  "買う":{pos:"Verb",grp:"G1"},
+  "書く":{pos:"Verb",grp:"G1"},
+  "起こす":{pos:"Verb",grp:"G1"},
+  "持つ":{pos:"Verb",grp:"G1"},
+  "休む":{pos:"Verb",grp:"G1"},
+  "読む":{pos:"Verb",grp:"G1"},
+  "売る":{pos:"Verb",grp:"G1"},
+  "帰る":{pos:"Verb",grp:"G1"},
+  "走る":{pos:"Verb",grp:"G1"},
+  "押":{pos:"Verb",grp:"G1"},
+  "引":{pos:"Verb",grp:"G1"},
+  "上げる":{pos:"Verb",grp:"G2"},
+  "下げる":{pos:"Verb",grp:"G2"},
+  "生きる":{pos:"Verb",grp:"G2"},
+  "生まれる":{pos:"Verb",grp:"G2"},
+  "入れる":{pos:"Verb",grp:"G2"},
+  "出かける":{pos:"Verb",grp:"G2"},
+  "出る":{pos:"Verb",grp:"G2"},
+  "食べる":{pos:"Verb",grp:"G2"},
+  "見せる":{pos:"Verb",grp:"G2"},
+  "見る":{pos:"Verb",grp:"G2"},
+  "起きる":{pos:"Verb",grp:"G2"},
+  "売り切れる":{pos:"Verb",grp:"G2"},
+  "気をつける":{pos:"Verb",grp:"G2"},
+  "協力する":{pos:"Verb",grp:"G3"},
+  "出席する":{pos:"Verb",grp:"G3"},
+  "退院する":{pos:"Verb",grp:"G3"},
+  "入院する":{pos:"Verb",grp:"G3"},
+  "入学する":{pos:"Verb",grp:"G3"},
+  "勉強する":{pos:"Verb",grp:"G3"},
+  "来る":{pos:"Verb",grp:"G3"},
+  "来ない":{pos:"Verb",grp:"G3"},
+  "開":{pos:"Verb"},
+  "閉":{pos:"Verb"},
+  "良い":{pos:"Adj",adj:"i"},
+  "明るい":{pos:"Adj",adj:"i"},
+  "少ない":{pos:"Adj",adj:"i"},
+  "早い":{pos:"Adj",adj:"i"},
+  "元気な":{pos:"Adj",adj:"na"},
+  "好きな":{pos:"Adj",adj:"na"},
+  "大好きな":{pos:"Adj",adj:"na"},
+  "大切な":{pos:"Adj",adj:"na"},
+  "有名な":{pos:"Adj",adj:"na"},
+  "先に":{pos:"Adv"},
+  "少々":{pos:"Adv"},
+  "後で":{pos:"Adv"},
+  "時々":{pos:"Adv"},
+  "クラスの後":{pos:"Expr"},
+  "下さい":{pos:"Expr"},
+};
+const _kpos = w => KANJI_POS[w] || {pos:"Noun"};
 // Kanji that are not also vocabulary. The level badge IS the kanji level here,
 // so it is written once — no second copy of the same tag.
 function kanjiCardHTML(k, kl){
   const coun = _counterBadge(k.kanji, k.reading);
   const label = kl==='SIGN' ? 'サイン' : kl;
-  return `<div class="vocab-card kanji-card is-kanji" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','Kanji','','${k.mode||''}')" data-pos="Kanji" data-kl="${kl}" data-kmode="${k.mode||''}" data-coun="${coun?'1':''}" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
+  const kp = _kpos(k.kanji);
+  const adjTag = kp.pos==='Adj' ? `<span class="vc-adj-tag adj-${kp.adj||'na'}">${kp.adj==='i'?'い':'な'}</span>` : '';
+  const grpTag = kp.grp ? `<span class="vc-grp-tag grp-${kp.grp}">${kp.grp}</span>` : '';
+  return `<div class="vocab-card kanji-card is-kanji" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','${kp.pos}','','${k.mode||''}','${kp.grp||''}','${kp.adj||''}')" data-pos="${kp.pos}" data-grp="${kp.grp||''}" data-adjt="${kp.adj||''}" data-kl="${kl}" data-kmode="${k.mode||''}" data-coun="${coun?'1':''}" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
     <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"",_jpStyle(k.kanji))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
-    <div class="vc-badges"><span class="vc-badge pos-Kanji" style="position:static;">Kanji</span></div>
-    <div class="vc-indicators">${_kanjiDot(k.mode)}${coun}<span class="vc-lvl-tag" title="Kanji list ${label}">${label}</span></div>
+    <div class="vc-badges">${coun}${adjTag}${grpTag}<span class="vc-badge pos-${kp.pos}" style="position:static;">${kp.pos}</span></div>
+    <div class="vc-indicators">${_kanjiDot(k.mode)}<span class="vc-lvl-tag" title="Kanji list ${label}">${label}</span></div>
   </div>`;
 }
 
