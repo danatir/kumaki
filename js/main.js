@@ -3787,9 +3787,16 @@ function renderGrammar(){
         c.convo.lines.map(l=>`<div class="gc-convo-line"><span class="gc-convo-sp notranslate" translate="no">${l[0]||''}</span><span class="gc-convo-jp notranslate" translate="no">${l[1]}</span><span class="gc-convo-en">${l[2]||''}</span></div>`).join('')
       }</div>`:'';
       const imgsHtml=(c.imgs&&c.imgs.length)?`<div class="gc-imgs">${
-        c.imgs.map(src=>`<button class="gc-img-btn" onclick="openMaterial('materials/${src}')" title="From the class slides — tap to enlarge"><img class="gc-img" loading="lazy" decoding="async" data-src="materials/${src}" alt="Slide from the class material"></button>`).join('')
-      }</div><div class="gc-imgs-cap">From the KAI class slides</div>`:'';
-      return `<div class="gram-fc"><div class="gram-fc-label">${c.label}</div>${meaningHtml}${patternHtml}<div class="gram-fc-rule notranslate">${rowsHtml}</div>${convoHtml}${imgsHtml}${noteHtml}</div>`;
+        c.imgs.map(src=>`<button class="gc-img-btn" onclick="openMaterial('materials/${src}')" title="Class slide — tap to enlarge"><img class="gc-img" loading="lazy" decoding="async" data-src="materials/${src}" alt="Slide from the class material"></button>`).join('')
+      }</div>`:'';
+      // Drop the lesson-section prefix and split the rest into title + subtitle
+      // so the card leads with what it teaches, not with a code.
+      const parts=c.label.replace(/^[^｜]*[0-9〜–-][^｜]*｜\s*/,'').split('｜').map(x=>x.trim());
+      const title=parts[0]||c.label;
+      const sub=parts.slice(1).join(' · ');
+      const head=`<div class="gram-fc-label"><span class="gc-t notranslate" translate="no">${title}</span>${sub?`<span class="gc-t-en">${sub}</span>`:''}</div>`;
+      const body=`${meaningHtml}${patternHtml}${rowsHtml?`<div class="gram-fc-rule notranslate">${rowsHtml}</div>`:''}${convoHtml}`;
+      return `<div class="gram-fc">${head}${body}<div class="gc-foot">${imgsHtml}${noteHtml}</div></div>`;
     }).join('');
     const goalHtml=sec.goal?`<div class="gram-goal"><span class="gram-goal-tag">ゴール</span>${sec.goal}</div>`:'';
     return `<div class="gram-section"><div class="gram-section-header" onclick="toggleGramSection(this)"><div style="display:flex;align-items:baseline;gap:6px;"><span class="gram-section-emoji">${sec.emoji}</span><span class="gram-section-title notranslate" translate="no">${sec.title}</span><span class="gram-section-en">${sec.en}</span></div><span class="gram-section-arrow">\u203a</span></div><div class="gram-section-body">${goalHtml}<div class="gram-fc-grid">${cardsHtml}</div></div></div>`;
