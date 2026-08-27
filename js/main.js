@@ -719,6 +719,17 @@ vocabData['S1'] = {
     {word:"〜について",def:"about ~, regarding ~",pos:"Expr",sub:"12·Reading",ex:"日本についておしえてください。"},
   ],
   "EXPR": [
+    {word:"おはようございます",reading:"",def:"Good morning (polite)",pos:"Expr",kind:"Greeting"},
+    {word:"こんにちは",reading:"",def:"Hello / Good afternoon",pos:"Expr",kind:"Greeting"},
+    {word:"こんばんは",reading:"",def:"Good evening",pos:"Expr",kind:"Greeting"},
+    {word:"おやすみなさい",reading:"",def:"Good night",pos:"Expr",kind:"Greeting"},
+    {word:"ありがとうございます",reading:"",def:"Thank you",pos:"Expr",kind:"Greeting"},
+    {word:"すみません",reading:"",def:"Excuse me / Sorry",pos:"Expr",kind:"Greeting"},
+    {word:"おめでとうございます",reading:"",def:"Congratulations",pos:"Expr",kind:"Greeting"},
+    {word:"いただきます",reading:"",def:"(said before eating)",pos:"Expr",kind:"Greeting"},
+    {word:"ごちそうさまでした",reading:"",def:"(said after eating)",pos:"Expr",kind:"Greeting"},
+    {word:"いってきます ／ いってらっしゃい",reading:"",def:"I’m off / See you (to the one leaving)",pos:"Expr",kind:"Greeting"},
+    {word:"ただいま ／ おかえりなさい",reading:"",def:"I’m home / Welcome back",pos:"Expr",kind:"Greeting"},
     {word:"どうして",reading:"どうして",def:"Why",pos:"Expr",sub:"Question",exprKey:"どうしてですか"},
     {word:"どうしましたか",reading:"どうしましたか",def:"What happened?",pos:"Expr",sub:"Question",exprKey:"どうしましたか"},
   ],
@@ -1873,8 +1884,10 @@ let currentSearch = '';
 let preSearchScrollPos = null; // scroll position saved before renderAll() takes over
 let activeFilter = null;
 let activeSubFilter = null;
-let kanjiShowRead = true;
-let kanjiShowWrite = true;
+// One kanji filter: show only the read-only (よみ) kanji.
+let kanjiReadOnly = false;
+let activeCounterOnly = false;   // show only words that have a counter table
+let activeKind = null;           // Greeting, … — the kind tag on a card
 const activeKanjiLevels = new Set(); // KL1–KL8 / SIGN filter chips in the Words tab
 
 // Per-tab state memory
@@ -1897,8 +1910,7 @@ function saveTabState(tab){
   tabState[tab].filter    = activeFilter;
   tabState[tab].subFilter = activeSubFilter;
   if(tab === 'words'){
-    tabState[tab].showRead  = kanjiShowRead;
-    tabState[tab].showWrite = kanjiShowWrite;
+    tabState[tab].readOnly  = kanjiReadOnly;
   }
   if(tab === 'sheets'){
     tabState[tab].sheetType  = currentSheetType;
@@ -1921,8 +1933,7 @@ function restoreTabState(tab){
   activeFilter    = tabState[tab].filter    || null;
   activeSubFilter = tabState[tab].subFilter || null;
   if(tab === 'words'){
-    kanjiShowRead  = tabState[tab].showRead  !== false;
-    kanjiShowWrite = tabState[tab].showWrite !== false;
+    kanjiReadOnly  = tabState[tab].readOnly === true;
   }
   if(tab === 'sheets'){
     currentSheetType = tabState[tab].sheetType  || 'verbs';
@@ -1962,18 +1973,17 @@ function applyFilterVisuals(){
     const sb = document.getElementById('flt-'+activeSubFilter);
     if(sb) sb.classList.add('active');
   }
-  // restore kanji read/write buttons
+  // restore the read-only chip
   const kr = document.getElementById('kflt-read');
-  const kw = document.getElementById('kflt-write');
-  if(kr) kr.classList.toggle('active', kanjiShowRead);
-  if(kw) kw.classList.toggle('active', kanjiShowWrite);
-  // kanji-level chips stand on their own — always available in the Words tab
-  const klRow = document.getElementById('sub-KanjiLvl');
-  if(klRow) klRow.classList.add('visible');
+  if(kr) kr.classList.toggle('active', kanjiReadOnly);
+  const cf = document.getElementById('flt-coun');
+  if(cf) cf.classList.toggle('active', activeCounterOnly);
+  document.querySelectorAll('[data-kindfilter]').forEach(b=>b.classList.toggle('active', b.dataset.kindfilter===activeKind));
   KANJI_LEVELS.forEach(kl=>{
     const b = document.getElementById('kflt-'+kl);
     if(b) b.classList.toggle('active', activeKanjiLevels.has(kl));
   });
+  _updateFilterBadge();
 }
 
 // Adj type lookup (い vs な)
@@ -2186,6 +2196,7 @@ function toggleFilter(pos, btn){
     if(pos==='Adj') setTimeout(()=>document.getElementById('sub-Adj').classList.add('visible'),60);
     if(pos==='Kanji') setTimeout(()=>document.getElementById('sub-Kanji').classList.add('visible'),60);
   }
+  _updateFilterBadge();
   render();
 }
 
@@ -2198,13 +2209,45 @@ function toggleSubFilter(sub, btn){
     document.querySelectorAll('#sub-Verb .float-btn, #sub-Adj .float-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
   }
+  _updateFilterBadge();
   render();
 }
 
+// The Words filters live in a menu; the badge shows how many are active.
+let _ffOpen = false;
+function toggleCounterFilter(btn){
+  activeCounterOnly = !activeCounterOnly;
+  btn.classList.toggle('active', activeCounterOnly);
+  _updateFilterBadge(); render();
+}
+function toggleKindFilter(kind, btn){
+  activeKind = (activeKind===kind) ? null : kind;
+  document.querySelectorAll('[data-kindfilter]').forEach(b=>b.classList.toggle('active', b.dataset.kindfilter===activeKind));
+  _updateFilterBadge(); render();
+}
+function toggleFilterMenu(){
+  _ffOpen = !_ffOpen;
+  const p=document.getElementById('ff-panel'), t=document.getElementById('ff-toggle');
+  if(p) p.classList.toggle('open', _ffOpen);
+  if(t) t.classList.toggle('open', _ffOpen);
+}
+function _activeFilterCount(){
+  return (activeFilter?1:0) + (activeSubFilter?1:0) + (kanjiReadOnly?1:0) + (activeCounterOnly?1:0) + (activeKind?1:0) + activeKanjiLevels.size;
+}
+function _updateFilterBadge(){
+  const b=document.getElementById('ff-count');
+  if(!b) return;
+  const n=_activeFilterCount();
+  b.textContent = n ? String(n) : '';
+  b.classList.toggle('on', n>0);
+}
+function clearAllFilters(){
+  activeFilter=null; activeSubFilter=null; kanjiReadOnly=false; activeCounterOnly=false; activeKind=null; activeKanjiLevels.clear();
+  applyFilterVisuals(); render();
+}
 function toggleKanjiMode(mode, btn){
-  if(mode==='read') kanjiShowRead = !kanjiShowRead;
-  else kanjiShowWrite = !kanjiShowWrite;
-  btn.classList.toggle('active');
+  kanjiReadOnly = !kanjiReadOnly;
+  btn.classList.toggle('active', kanjiReadOnly);
   render();
 }
 
@@ -2753,21 +2796,6 @@ function _sortKanjiLevel(arr){
   return out;
 }
 // ── Words tab (vocabulary + kanji merged) ────────────────────────────────────
-const LESSON_META = {
-  L1 :{jp:'だい1か',  en:'Lesson 1 · 〜は⚪︎⚪︎です'},
-  L2 :{jp:'だい2か',  en:'Lesson 2 · Numbers · これ・それ・あれ · Prices'},
-  L3 :{jp:'だい3か',  en:'Lesson 3 · Possession & Adjectives'},
-  L4 :{jp:'だい4か',  en:'Lesson 4 · Time, Schedule & Dates'},
-  L5 :{jp:'だい5か',  en:'Lesson 5 · ます-verbs & Daily Life'},
-  L6 :{jp:'だい6か',  en:'Lesson 6 · Past Tense'},
-  L7 :{jp:'だい7か',  en:'Lesson 7 · あります・います · Ordering · Position'},
-  L8 :{jp:'だい8か',  en:'Lesson 8 · は〜が · 好き · たい／ほしい · そうです'},
-  L9 :{jp:'だい9か',  en:'Lesson 9 · て-form · Requests & Offers'},
-  L10:{jp:'だい10か', en:'Lesson 10 · Permission · Rules · Linking Actions'},
-  L11:{jp:'だい11か', en:'Lesson 11 · Comparison · すぎます · やすい／にくい'},
-  L12:{jp:'だい12か', en:'Lesson 12 · Final Vocabulary Set'},
-  EXPR:{jp:'ひょうげん・サイン', en:'Expressions & signs', hint:'The two expressions the material never pins to a lesson, plus サインの漢字 — the kanji you read on doors, lifts, switches and station exits'},
-};
 const WORD_LEVELS = ['L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','EXPR'];
 
 // Every kanji character that appears anywhere in the class kanji list (L1–L8 + signs).
@@ -2807,21 +2835,18 @@ const KANJI_INDEX = (function(){
   }
   return m;
 })();
-// KL level → the vocabulary lesson whose section it belongs under.
-function _klHome(kl){ return kl==='SIGN' ? 'EXPR' : 'L'+kl.slice(2); }
 const KANJI_LEVELS = ['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8','SIGN'];
-// Kanji-list entries that are NOT also vocabulary, grouped by their home lesson.
-const KANJI_ONLY = (function(){
-  const byHome = {};
+// Kanji-list entries that are NOT also vocabulary, grouped by kanji level.
+const KANJI_BY_LEVEL = (function(){
+  const byLvl = {};
   const vocab = new Set();
   for(const lvl of Object.keys(vocabData[sem]||{})) for(const w of vocabData[sem][lvl]) vocab.add(w.word);
   const kd = kanjiData[sem] || {};
   for(const kl of Object.keys(kd)) for(const k of kd[kl]){
     if(vocab.has(k.kanji)) continue;
-    const home = _klHome(kl);
-    (byHome[home] = byHome[home] || []).push(k);
+    (byLvl[kl] = byLvl[kl] || []).push(k);
   }
-  return byHome;
+  return byLvl;
 })();
 // Merge every KL badge a term carries: 電話 sits on both the KL5 and KL7 lists.
 function _kanjiInfo(word){
@@ -2836,6 +2861,8 @@ function _kanjiInfo(word){
 }
 
 function _wordPasses(w){
+  if(activeCounterOnly && !(extraCounterMap[w.word]||extraCounterMap[w.reading]||(counTypeMap[w.word]||{}).key)) return false;
+  if(activeKind && w.kind!==activeKind) return false;
   if(activeFilter==='Kanji') return !!KANJI_INDEX.get(w.word);
   if(activeFilter && w.pos!==activeFilter) return false;
   if(activeSubFilter){
@@ -2851,17 +2878,17 @@ function _wordPasses(w){
   if(activeKanjiLevels.size){
     if(!ki || !ki.levels.some(l=>activeKanjiLevels.has(l))) return false;
   }
-  if(ki){
-    if(!kanjiShowRead  && ki.mode==='read')  return false;
-    if(!kanjiShowWrite && ki.mode==='write') return false;
-  }
+  // Read-only is a kanji filter: it hides anything that is not a read-only
+  // kanji, words that are not on the kanji list included.
+  if(kanjiReadOnly && (!ki || ki.mode!=='read')) return false;
   return true;
 }
 function _kanjiPasses(k, kl){
+  if(activeKind) return false;              // kanji carry no kind tag
+  if(activeCounterOnly && !(extraCounterMap[k.kanji]||extraCounterMap[k.reading]||(counTypeMap[k.kanji]||{}).key)) return false;
   if(activeFilter && activeFilter!=='Kanji') return false;
   if(activeKanjiLevels.size && !activeKanjiLevels.has(kl)) return false;
-  if(!kanjiShowRead  && k.mode==='read')  return false;
-  if(!kanjiShowWrite && k.mode==='write') return false;
+  if(kanjiReadOnly && k.mode!=='read') return false;
   return true;
 }
 function _counterBadge(word,reading){
@@ -2872,14 +2899,12 @@ function _counterBadge(word,reading){
 }
 const _EYE='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 const _PEN='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
-// Writing a kanji already implies reading it, so each one carries a single
-// indicator: the pen when you must write it, the eye when it is read-only.
-function _modeIcons(mode){
-  return mode==='write'
-    ? `<span class="vc-ind-dot dot-write" title="Write it — よみ＆かき">${_PEN}</span>`
-    : `<span class="vc-ind-dot dot-read" title="Read only — よみ">${_EYE}</span>`;
+// One indicator per kanji term: it is on the class kanji list. Writing implies
+// reading, so there is no separate write mark.
+function _kanjiDot(){
+  return `<span class="vc-ind-dot dot-read" title="On the kanji list">${_EYE}</span>`;
 }
-// KL badge: the kanji-list level only, KL1–KL8 (or サイン).
+// KL badge: the kanji-list level, KL1–KL8 (or サイン).
 function _klTag(ki){
   return ki.levels.map(kl=>{
     const label = kl==='SIGN' ? 'サイン' : kl;
@@ -2892,31 +2917,32 @@ function wordCardHTML(w, lvl){
   const adjTag = w.pos==='Adj' ? `<span class="vc-adj-tag adj-${at||'na'}">${at==='i'?'い':'な'}</span>` : '';
   const grpTag = w.grp ? `<span class="vc-grp-tag grp-${w.grp}">${w.grp}</span>` : '';
   const coun   = _counterBadge(w.word, w.reading);
-  const subTag = w.sub ? `<span class="vc-sub-tag" title="Class section ${_ea(w.sub)}">${_ea(w.sub)}</span>` : '';
+  const kindTag= w.kind ? `<span class="vc-kind-tag" title="${_ea(w.kind)}">${_ea(w.kind)}</span>` : '';
   const ki     = _kanjiInfo(w.word);
-  const kanjiBits = ki ? _modeIcons(ki.mode) + _klTag(ki) : '';
+  const kanjiBits = ki ? _kanjiDot() + _klTag(ki) : '';
   const disp   = displayForm(w);
   const rd     = (disp===w.reading) ? '' : (w.reading||'');
   const klData = ki ? ki.levels.join(' ') : '';
-  return `<div class="vocab-card${ki?' is-kanji':''}" onclick="openConjPopup('${_eq(disp)}','${_eq(w.reading||'')}','${_eq(w.def)}','${w.pos}','${_eq(w.exprKey||'')}','${ki?ki.mode:''}','${w.grp||''}','${at||''}')" data-grp="${w.grp||''}" data-adjt="${at||''}" data-kl="${_ea(klData)}" data-sw="${_ea(w.word)} ${_ea(disp)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(w.def)}">
+  return `<div class="vocab-card${ki?' is-kanji':''}" onclick="openConjPopup('${_eq(disp)}','${_eq(w.reading||'')}','${_eq(w.def)}','${w.pos}','${_eq(w.exprKey||'')}','${ki?ki.mode:''}','${w.grp||''}','${at||''}')" data-grp="${w.grp||''}" data-adjt="${at||''}" data-kl="${_ea(klData)}" data-kmode="${ki?ki.mode:''}" data-kind="${_ea(w.kind||'')}" data-coun="${coun?'1':''}" data-sw="${_ea(w.word)} ${_ea(disp)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(w.def)}">
     <div class="vc-left notranslate" translate="no">${rubyHTML(disp,rd)}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${w.def}</span></div>
     <div class="vc-badges">${adjTag}${grpTag}<span class="vc-badge pos-${w.pos}" style="position:static;">${w.pos}</span></div>
-    <div class="vc-indicators">${kanjiBits}${coun}${subTag}<span class="vc-lvl-tag" title="Vocabulary ${lvl}">${lvl}</span></div>
+    <div class="vc-indicators">${kanjiBits}${coun}${kindTag}<span class="vc-lvl-tag" title="Level ${lvl}">${lvl}</span></div>
   </div>`;
 }
 
+// Kanji that are not also vocabulary. The level badge IS the kanji level here,
+// so it is written once — no second copy of the same tag.
 function kanjiCardHTML(k, kl){
-  const mc = k.mode==='write' ? 'kanji-write' : 'kanji-read';
   const coun = _counterBadge(k.kanji, k.reading);
-  const ki = {levels:[kl], parts:[{kl, part:k.part}], mode:k.mode};
-  return `<div class="vocab-card kanji-card is-kanji ${mc}" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','Kanji','','${k.mode||''}')" data-kl="${kl}" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
+  const label = kl==='SIGN' ? 'サイン' : kl;
+  return `<div class="vocab-card kanji-card is-kanji" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','Kanji','','${k.mode||''}')" data-kl="${kl}" data-kmode="${k.mode||''}" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
     <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"")}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
     <div class="vc-badges"><span class="vc-badge pos-Kanji" style="position:static;">Kanji</span></div>
-    <div class="vc-indicators">${_modeIcons(k.mode)}${_klTag(ki)}${coun}<span class="vc-lvl-tag" title="Kanji list only">${kl==='SIGN'?'サイン':kl}</span></div>
+    <div class="vc-indicators">${_kanjiDot()}${coun}<span class="vc-lvl-tag" title="Kanji list ${label}">${label}</span></div>
   </div>`;
 }
 
@@ -2950,6 +2976,7 @@ function openAllWords(){
 function toggleKanjiLevel(kl, btn){
   if(activeKanjiLevels.has(kl)) activeKanjiLevels.delete(kl); else activeKanjiLevels.add(kl);
   btn.classList.toggle('active', activeKanjiLevels.has(kl));
+  _updateFilterBadge();
   render();
 }
 
@@ -2957,30 +2984,34 @@ function renderWords(){
   const vData = vocabData[sem]||{};
   const el = document.getElementById('content');
 
-  // Sections come from the vocabulary lessons only. Kanji-list entries that are
-  // not also vocabulary sit in the lesson their kanji level maps to.
+  // Word sections are the vocabulary levels, nothing else. Kanji is only ever
+  // an indicator on a word; the kanji that are not vocabulary collect in their
+  // own section at the end, grouped by kanji level.
   const groups = [];
   for(const lvl of WORD_LEVELS){
-    const allW = vData[lvl]||[];
-    const allK = KANJI_ONLY[lvl]||[];
-    const words = allW.filter(_wordPasses);
-    const kanji = _sortKanjiLevel(allK.filter(k=>{
-      const kl = (KANJI_INDEX.get(k.kanji)||[]).find(h=>_klHome(h.kl)===lvl);
-      return _kanjiPasses(k, kl ? kl.kl : (lvl==='EXPR'?'SIGN':'KL'+lvl.slice(1)));
-    }));
-    if(!words.length && !kanji.length) continue;
-    const meta = LESSON_META[lvl]||{jp:lvl,en:lvl};
-    const counts = [];
-    if(words.length) counts.push(words.length+' words');
-    if(kanji.length) counts.push(kanji.length+' kanji');
-    let cards = '';
-    for(const w of words) cards += wordCardHTML(w, lvl);
-    for(const k of kanji){
-      const hit = (KANJI_INDEX.get(k.kanji)||[]).find(h=>_klHome(h.kl)===lvl);
-      cards += kanjiCardHTML(k, hit ? hit.kl : (lvl==='EXPR'?'SIGN':'KL'+lvl.slice(1)));
-    }
-    groups.push({lvl, meta, counts:counts.join(' · '), cards, hint:meta.hint||''});
+    const words = (vData[lvl]||[]).filter(_wordPasses);
+    if(!words.length) continue;
+    groups.push({
+      key: lvl, label: lvl, sub: '',
+      count: words.length+' words',
+      cards: words.map(w=>wordCardHTML(w, lvl)).join(''),
+    });
   }
+  // Kanji with no vocabulary entry, KL1–KL8 then サイン.
+  const koCards = [];
+  let koCount = 0;
+  for(const kl of KANJI_LEVELS){
+    const list = _sortKanjiLevel((KANJI_BY_LEVEL[kl]||[]).filter(k=>_kanjiPasses(k, kl)));
+    if(!list.length) continue;
+    koCount += list.length;
+    koCards.push(`<div class="kanji-sub-tag">${kl==='SIGN'?'サイン':kl}</div><div class="vocab-grid">${
+      list.map(k=>kanjiCardHTML(k, kl)).join('')}</div>`);
+  }
+  if(koCards.length) groups.push({
+    key:'KANJI', label:'KANJI', sub:'漢字',
+    count: koCount+' kanji', cards: koCards.join(''), raw:true,
+  });
+
   if(!groups.length){
     el.innerHTML = `<div class="empty"><span class="empty-jp">語</span>No words found.</div>`;
     return;
@@ -2991,24 +3022,22 @@ function renderWords(){
   </div>`;
   el.innerHTML = bar + groups.map(g=>
     `<div class="words-sec">
-      <div class="words-sec-header" data-lvl="${g.lvl}" onclick="toggleWordSection(this)">
+      <div class="words-sec-header" data-lvl="${g.key}" onclick="toggleWordSection(this)">
         <div class="words-sec-head-l">
-          <span class="lt-key">${g.lvl}</span>
-          <span class="lt-sub notranslate" translate="no">${g.meta.jp}</span>
-          <span class="lt-en">${g.meta.en}</span>
+          <span class="lt-key">${g.label}</span>${g.sub?`<span class="lt-sub notranslate" translate="no">${g.sub}</span>`:''}
         </div>
-        <div class="words-sec-head-r"><span class="lt-count">${g.counts}</span><span class="gram-section-arrow">›</span></div>
+        <div class="words-sec-head-r"><span class="lt-count">${g.count}</span><span class="gram-section-arrow">›</span></div>
       </div>
-      <div class="words-sec-body">${g.hint?`<div class="lt-hint">${g.hint}</div>`:''}<div class="vocab-grid">${g.cards}</div></div>
+      <div class="words-sec-body">${g.raw?g.cards:`<div class="vocab-grid">${g.cards}</div>`}</div>
     </div>`
   ).join('');
 
   // Everything is open on arrival. A search, or a kanji-level filter, forces
   // the sections holding the hits open; otherwise the user's own state wins.
-  if(!_wordsTouched) groups.forEach(g=>_wordsOpenSections.add(g.lvl));
-  const openKeys = (currentSearch || activeKanjiLevels.size)
-    ? groups.map(g=>g.lvl)
-    : [..._wordsOpenSections];
+  if(!_wordsTouched) groups.forEach(g=>_wordsOpenSections.add(g.key));
+  const anyFilter = currentSearch || activeKanjiLevels.size || activeFilter ||
+                    activeSubFilter || kanjiReadOnly || activeCounterOnly || activeKind;
+  const openKeys = anyFilter ? groups.map(g=>g.key) : [..._wordsOpenSections];
   openKeys.forEach(k=>{
     const h = el.querySelector(`.words-sec-header[data-lvl="${k}"]`);
     if(h && !h.classList.contains('open')){
@@ -3099,26 +3128,6 @@ const _gicon = {
 };
 
 const grammarSections=[
-{id:"T-GREET",title:"あいさつ",en:"Greetings",goal:"The set greetings drilled with the picture cards — look at the scene, say the phrase.",emoji:_gicon.wave,cards:[
-  {label:"あいさつ ｜ Greetings",
-   meaning:"The set greetings drilled in the Greetings picture cards. Each picture is one situation — say the phrase that matches it.",
-   rows:[{jp:"おはようございます。",en:"Good morning. (polite)"},{jp:"こんにちは。",en:"Hello. / Good afternoon."},{jp:"こんばんは。",en:"Good evening."},{jp:"おやすみなさい。",en:"Good night."},{jp:"ありがとうございます。",en:"Thank you."},{jp:"すみません。",en:"Excuse me. / Sorry."},{jp:"おめでとうございます。",en:"Congratulations."},{jp:"いただきます。",en:"(said before eating)"},{jp:"ごちそうさまでした。",en:"(said after eating)"},{jp:"いってきます。／いってらっしゃい。",en:"I’m off. / See you (to the one leaving)."},{jp:"ただいま。／おかえりなさい。",en:"I’m home. / Welcome back."}],
-   note:"Picture cards below are the exact set used in class — look at the scene, then say the greeting.",
-   imgs:["ref-greet-1.webp","ref-greet-2.webp","ref-greet-3.webp","ref-greet-4.webp","ref-greet-5.webp","ref-greet-6.webp","ref-greet-7.webp","ref-greet-8.webp","ref-greet-9.webp","ref-greet-10.webp","ref-greet-11.webp","ref-greet-12.webp","ref-greet-13.webp"]},
-]},
-
-{id:"T-KANA",title:"かな・タイピング",en:"Kana, numbers & typing",goal:"Hiragana, katakana, the number readings and how to type Japanese on a normal keyboard.",emoji:_gicon.kana,cards:[
-  {label:"ひらがな・すうじ ｜ Hiragana & Numbers",
-   meaning:"WU Day 2 — hiragana review plus the number readings used from Lesson 2 onwards.",
-   imgs:["ref-hiragana-2.webp","ref-hiragana-3.webp","ref-hiragana-4.webp","ref-hiragana-5.webp"]},
-  {label:"カタカナ ｜ Katakana chart",
-   meaning:"The katakana gojūon chart from the Katakana あかさが／たなはばぱ／まやらわ decks.",
-   imgs:["ref-katakana-1.webp","ref-katakana-2.webp"]},
-  {label:"ローマじにゅうりょく ｜ Japanese typing",
-   meaning:"Japanese Typing 1–5 Revision — how to type each kana on a normal keyboard.",
-   imgs:["ref-typing-2.webp","ref-typing-3.webp","ref-typing-4.webp"]},
-]},
-
 {id:"T-DESU",title:"〜は〜です",en:"The basic sentence",goal:"は marks the topic, です closes the sentence, か turns it into a question.",emoji:_gicon.intro,cards:[
   {label:"1-2 ｜ 〜は ⚪︎⚪︎ です",
    meaning:"The basic Japanese sentence. は marks the topic (what you are talking about); です closes the sentence politely.",
@@ -3647,24 +3656,6 @@ const grammarSections=[
    rows:[{jp:"日本について おしえてください。",en:"Please tell me about Japan."},{jp:"私は 日本は おもしろいと こたえました。",en:"I answered that Japan is interesting."},{jp:"私は 道に まよいました。",en:"I got lost."}]},
 ]},
 
-{id:"T-L12",title:"だい12かの ことば",en:"Lesson 12 vocabulary",goal:"The final vocabulary set, each word inside a sentence.",emoji:_gicon.book,cards:[
-  {label:"12-1 ｜ ことばと れいぶん",
-   meaning:"Verbs of everyday action plus 〜が、〜 (but) contrast.",
-   rows:[{jp:"都会はべんりですが、あぶないです。",en:"The city is convenient, but dangerous."},{jp:"席に 座ります。",en:"I sit down in the seat."},{jp:"ゴミを すてます。",en:"I throw away the rubbish."},{jp:"彼は 犬を さわっています。",en:"He is touching the dog."},{jp:"田中さんは クラスに おくれます。",en:"Mr. Tanaka is late for class."},{jp:"私は とても はずかしかったです。",en:"I was very embarrassed."}]},
-  {label:"12-2 ｜ ことばと れいぶん",
-   meaning:"〜ています for a continuing state, plus everyday household verbs.",
-   rows:[{jp:"田中さんは じっと すわっています。",en:"Mr. Tanaka is sitting still."},{jp:"へやを かたづけます。",en:"I tidy the room."},{jp:"コーヒーに ミルクを いれます。",en:"I put milk in the coffee."},{jp:"さっき 田中さんに 会いました。",en:"I met Mr. Tanaka a little while ago."},{jp:"見て！あそこに 変な人が いるよ。",en:"Look! There is a strange person over there."}]},
-  {label:"12-3 ｜ ことばと れいぶん",
-   meaning:"Weather and first-time experiences.",
-   rows:[{jp:"きのう 雨が ふりました。",en:"It rained yesterday."},{jp:"きのう、はじめて 彼に 会いました。",en:"Yesterday I met him for the first time."},{jp:"このコートは ちょっと たかいです。",en:"This coat is a little expensive."}]},
-  {label:"12-4 ｜ ことばと れいぶん",
-   meaning:"Describing people and habits.",
-   rows:[{jp:"あした 出かけます。",en:"I am going out tomorrow."},{jp:"山田さんは やさしいです。",en:"Mr. Yamada is kind."},{jp:"時間通りに 来ます。",en:"It comes on time."}]},
-  {label:"12-5 ｜ ことばと れいぶん",
-   meaning:"Lifestyle vocabulary and impressions.",
-   rows:[{jp:"すてきな セーターですね。",en:"What a lovely sweater."},{jp:"山本さんは 美しいです。",en:"Ms. Yamamoto is beautiful."},{jp:"水泳は とても つかれます。",en:"Swimming is very tiring."},{jp:"アルバイトを やめます。",en:"I am quitting my part-time job."}]},
-]},
-
 {id:"T-CTR",title:"じょすうし",en:"Counters",goal:"助数詞 — which counter goes with which kind of thing, and where the sound changes are.",emoji:_gicon.count,cards:[
   {label:"つ ｜ 1つ、2つ — small & round things",
    meaning:"The native counter used for most small objects when no special counter fits.",
@@ -3695,80 +3686,6 @@ const grammarSections=[
    rows:[{jp:"いっさつ・にさつ・さんさつ・よんさつ・ごさつ",en:"1–5"},{jp:"ろくさつ・ななさつ・はっさつ・きゅうさつ・じゅっさつ",en:"6–10"},{jp:"Q：なんさつですか。",en:"How many?"}],
    note:"オーダーは「つ」でOK！ — ordering at a shop, つ always works: ビール3つ、ラーメン1つ ください。 Tap any number word in the Words tab to open the full counter tables.",
    imgs:["ref-counter-4.webp"]},
-]},
-
-{id:"T-Q",title:"ぎもんし",en:"Question words",goal:"Every question word from Lesson 1 to 11, with the pattern each one sits in.",emoji:_gicon.question,cards:[
-  {label:"ぎもんし いちらん ｜ All question words",
-   meaning:"なに・だれ・どこ・いつ・どう・いくら・どれ・どんな・どうやって・どのぐらい.",
-   rows:[{jp:"なに / なん",en:"what"},{jp:"だれ",en:"who"},{jp:"どこ",en:"where"},{jp:"いつ",en:"when"},{jp:"どう",en:"how / what is it like"},{jp:"どうして",en:"why"},{jp:"いくら",en:"how much (cost)"},{jp:"どれ",en:"which one (3+)"},{jp:"どちら",en:"which (of two)"},{jp:"どんな",en:"what kind of"},{jp:"どうやって",en:"how / by what route"},{jp:"どのぐらい",en:"how long / how much"}],
-   imgs:["ref-qwords-1.webp"]},
-  {label:"どこ ｜ Where",
-   meaning:"Four patterns: どこですか／どこで Vますか／どこへ Vますか／どこの N.",
-   rows:[{jp:"Q：トイレは どこですか。 A：あそこです。",en:"Where is the toilet? — Over there."},{jp:"Q：どこで たべますか。 A：新大久保です。",en:"Where do you eat? — In Shin-Okubo."},{jp:"Q：それは どこのかばんですか。 A：日本のかばんです。",en:"Where is that bag from? — It is Japanese."},{jp:"Q：しゅくだいは どこからですか。 A：14ページからです。",en:"From where is the homework? — From page 14."}],
-   imgs:["ref-qwords-2.webp"]},
-  {label:"だれ ｜ Who",
-   meaning:"だれですか／だれの N／だれと Vますか.",
-   rows:[{jp:"Q：あの人は だれですか。 A：まさこさんです。",en:"Who is that person? — Masako."},{jp:"Q：これは だれのペンですか。 A：私のです。",en:"Whose pen is this? — Mine."},{jp:"Q：だれと しゅくだいを しますか。 A：クラスメートとします。",en:"With whom do you do homework? — With a classmate."}],
-   imgs:["ref-qwords-3.webp"]},
-  {label:"なに・いくら・どんな ｜ What, how much, what kind",
-   meaning:"なに + particle changes shape: なにを・なにが・なにで・なんじ・なんにん.",
-   rows:[{jp:"Q：テストは 何曜日ですか。 A：水曜日です。",en:"What day is the test? — Wednesday."},{jp:"Q：何を たべましたか。 A：何もたべませんでした。",en:"What did you eat? — Nothing."},{jp:"Q：これは いくらですか。 A：1500円です。",en:"How much is this? — 1,500 yen."},{jp:"Q：どんな くるまですか。 A：大きいくるまです。",en:"What kind of car? — A big car."}],
-   imgs:["ref-qwords-4.webp","ref-qwords-1.webp"]},
-]},
-
-{id:"T-WRITE",title:"かきかた・よみかた",en:"Writing & reading rules",goal:"Composition layout, the 「゛」and 「っ」 reading rules, and とめ・はね・はらい.",emoji:_gicon.pen,cards:[
-  {label:"さくぶんのルール ｜ Composition rules",
-   meaning:"How to lay out a written composition in Japanese.",
-   rows:[{jp:"① あたらしいだんらく（paragraph）→ スペース（1つ）",en:"Start a new paragraph with one space."},{jp:"② sentenceのおわり → 「。」 ／ ながいsentence → 「、」",en:"End with 。 ; use 、 inside long sentences."},{jp:"※ paragraphとparagraphのあいだ → ✗スペース",en:"No blank line between paragraphs."}],
-   imgs:["ref-writing-1.webp","ref-writing-2.webp"]},
-  {label:"よみかたのルール① ｜ 「゛」",
-   meaning:"When the second word of a compound starts with か・さ・た・は行, it often becomes voiced.",
-   rows:[{jp:"ゴミ ＋ 箱（はこ）→ ゴミ箱（ゴミばこ）",en:"hako → bako"},{jp:"うで ＋ 時計（とけい）→ うで時計（うでどけい）",en:"tokei → dokei"},{jp:"文（ぶん）＋ 法（ほう）→ 文法（ぶんぽう）",en:"は行 becomes ぱ or ば"}],
-   imgs:["ref-reading-2.webp"]},
-  {label:"よみかたのルール② ｜ 「っ」",
-   meaning:"A small っ appears where two compound parts meet.",
-   rows:[{jp:"学（がく）＋ 校（こう）→ 学校（がっこう）",en:"gaku + kou → gakkou"},{jp:"一（いち）＋ 分（ふん）→ 一分（いっぷん）",en:"ichi + fun → ippun"},{jp:"出（しゅつ）＋ 席（せき）→ 出席（しゅっせき）",en:"shutsu + seki → shusseki"}],
-   note:"※ルール①もいっしょにつかう時があります。",
-   imgs:["ref-reading-3.webp"]},
-  {label:"とめ・はね・はらい ｜ Stroke endings",
-   meaning:"Every kanji stroke ends in one of three ways — stop, hook or sweep. Marked in the kanji test.",
-   rows:[{jp:"とめ",en:"stop — the brush stops firmly"},{jp:"はね",en:"hook — the stroke flicks up at the end"},{jp:"はらい",en:"sweep — the stroke tapers away"}],
-   note:"Every kanji card in the Words tab plays the stroke order animation — watch where each stroke starts and stops."},
-]},
-
-{id:"T-SIGN",title:"サインの漢字",en:"Kanji on signs",goal:"The kanji you read on doors, lift buttons, switches and station exits.",emoji:_gicon.sign,cards:[
-  {label:"サインの漢字① ｜ 押・引 ｜ Push & Pull",
-   meaning:"The two signs on almost every Japanese door. 押 = push, 引 = pull. The English is printed under it, but learn to read the kanji alone.",
-   pattern:"押 → PUSH　／　引 → PULL",
-   rows:[{jp:"押（おす）",en:"push — push the door away from you"},{jp:"引（ひく）",en:"pull — pull the door towards you"}],
-   imgs:["sign1-1.webp","sign1-2.webp","sign1-3.webp","sign1-4.webp"]},
-  {label:"サインの漢字① ｜ 開・閉 ｜ Open & Close (lift buttons)",
-   meaning:"The two buttons inside a lift. 開 holds the doors open, 閉 closes them. Same kanji appear on shop doors as 開店 / 閉店.",
-   pattern:"開 → OPEN（あく・ひらく）　／　閉 → CLOSE（しまる・しめる）",
-   rows:[{jp:"開（あく／ひらく）",en:"open — hold the doors open"},{jp:"閉（しまる／しめる）",en:"close — close the doors"}],
-   imgs:["sign1-5.webp","sign1-6.webp","sign1-7.webp"]},
-  {label:"サインの漢字① ｜ 自動ドア ｜ Automatic door",
-   meaning:"自動 = automatic. On a door it means it opens by itself — do not push or pull.",
-   pattern:"自動（じどう）＋ ドア → 自動ドア",
-   rows:[{jp:"自動（じどう）",en:"automatic"},{jp:"自動ドア",en:"automatic door — it opens by itself"}],
-   imgs:["sign1-8.webp","sign1-9.webp"]},
-  {label:"サインの漢字② ｜ 入・切 ｜ ON & OFF (switches)",
-   meaning:"On a switch panel 運転 (operation) is labelled 入 and 切. 入 = ON, 切 = OFF — the opposite of what the everyday meanings suggest.",
-   pattern:"運転 切／入　→　切 = OFF　／　入 = ON",
-   rows:[{jp:"入（いり）",en:"ON"},{jp:"切（きり）",en:"OFF"},{jp:"運転（うんてん）",en:"operation / running"}],
-   note:"Careful: 入 here is not はいる and 切 is not きる — on a switch they are simply ON and OFF.",
-   imgs:["sign2-1.webp","sign2-2.webp"]},
-  {label:"サインの漢字② ｜ 入口・出口 ｜ Entrance & Exit",
-   meaning:"The two signs on every station, shop and car park. 入口 = way in, 出口 = way out.",
-   pattern:"入口（いりぐち）→ ENTRANCE　／　出口（でぐち）→ EXIT",
-   rows:[{jp:"入口（いりぐち）",en:"entrance"},{jp:"出口（でぐち）",en:"exit"}],
-   imgs:["sign2-3.webp","sign2-4.webp","sign2-5.webp"]},
-  {label:"サインの漢字② ｜ 東西南北 ｜ Compass points on exits",
-   meaning:"Station exits are named by direction: 東口・西口・南口・北口. Learn the four kanji and the exits read themselves.",
-   pattern:"東口 ／ 西口 ／ 南口 ／ 北口",
-   rows:[{jp:"東（ひがし）",en:"east — 東口 east exit"},{jp:"西（にし）",en:"west — 西口 west exit"},{jp:"南（みなみ）",en:"south — 南口 south exit"},{jp:"北（きた）",en:"north — 北口 north exit"}],
-   note:"In Japanese the compass is read 東西南北 (east, west, south, north) — not the English N-E-S-W order.",
-   imgs:["sign2-6.webp"]},
 ]},
 
 ];
@@ -4783,7 +4700,7 @@ function restoreState(){
         if(hs) hs.style.display='none';
         if(ct) ct.style.display='block';
         document.getElementById('words-floats').classList.toggle('ff-visible', tab==='words');
-        if(tab==='words'){document.getElementById('kflt-read').classList.add('active');document.getElementById('kflt-write').classList.add('active');}
+        
         render();
         if(scroll>0) requestAnimationFrame(()=>{document.getElementById('main').scrollTop=scroll;});
       }
