@@ -3641,7 +3641,7 @@ const grammarSections=[
 ]},
 ];function renderSheets(){
   const el = document.getElementById('content');
-  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="switchSheet(\'expr\',this)">Expr</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="switchSheet(\'expr\',this)">Expr</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div id="copy-cols" class="copy-cols"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
   // Migrate legacy 'questions' type to 'expr'
   if(currentSheetType === 'questions') currentSheetType = 'expr';
   switchSheet(currentSheetType, document.getElementById('stab-'+currentSheetType) || document.getElementById('stab-verbs'), true);
@@ -3710,7 +3710,8 @@ function switchSheet(type, btn, preserveState){
   } else if(!preserveState){
     activeSheetLvls = new Set();
   }
-  renderLvlFilters(type); renderSheetTable(type);
+  renderLvlFilters(type); renderCopyCols();
+  renderSheetTable(type);
 }
 
 function _lvlLabel(l){ return String(l)==='EXPR' ? 'EXPR' : 'L'+l; }
@@ -3743,33 +3744,71 @@ function renderSheetTable(type){
   }
   el.innerHTML='<div class="sheet-wrap"><table class="sheet-table" id="main-sheet-table"><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
 }
-function copySheet(){
-  const btn=document.getElementById('copy-btn');
-  let rows=[];
-  if(currentSheetType==='verbs'){
+// Which columns the Copy button puts on the clipboard, per sheet. Everything
+// is on by default; untick a column to copy, say, just the word and its
+// て-form into Quizlet.
+const SHEET_COLS = {
+  verbs: [['word','Word'],['eng','English'],['dict','Dictionary'],['te','て-form'],['nai','ない form'],['grp','Group'],['lvl','Level']],
+  adj:   [['word','Word'],['eng','English'],['type','い / な'],['lvl','Level']],
+  nouns: [['word','Word'],['eng','English'],['lvl','Level']],
+  kanji: [['word','Kanji'],['reading','Reading'],['eng','Meaning'],['lvl','Level']],
+  expr:  [['word','Expression'],['eng','English'],['cat','Category']],
+};
+const _copyCols = {};
+function _cols(type){
+  if(!_copyCols[type]) _copyCols[type] = new Set((SHEET_COLS[type]||[]).map(c=>c[0]));
+  return _copyCols[type];
+}
+function toggleCopyCol(key, btn){
+  const set=_cols(currentSheetType);
+  if(set.has(key)) set.delete(key); else set.add(key);
+  btn.classList.toggle('active', set.has(key));
+}
+function renderCopyCols(){
+  const el=document.getElementById('copy-cols');
+  if(!el) return;
+  const defs=SHEET_COLS[currentSheetType]||[];
+  const set=_cols(currentSheetType);
+  el.innerHTML='<span class="cc-label">Copy</span>'+defs.map(([k,label])=>
+    `<button class="cc-chip${set.has(k)?' active':''}" onclick="toggleCopyCol('${k}',this)">${label}</button>`).join('');
+}
+// One record per row, then the selected columns are picked off it.
+function _sheetRecords(){
+  const t=currentSheetType;
+  if(t==='verbs'){
     let src=sheetData.verbs; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
-    rows=src.map(r=>{
+    return src.map(r=>{
       const conj=conjLookup[r.word+'#G'+r.grp]||conjLookup[r.reading+'#G'+r.grp]||conjLookup[r.word]||conjLookup[r.reading]||[];
       const nai=(conj.find(f=>f.label==='ない form')||{jp:''}).jp;
-      return [r.reading||r.word, r.eng, '/ '+r.dict, '/ '+r.te, '/ '+nai, '('+r.grp+')'];
+      return {word:r.reading||r.word, eng:r.eng, dict:r.dict, te:r.te, nai, grp:'G'+r.grp, lvl:_lvlLabel(r.lvl)};
     });
-  } else if(currentSheetType==='adj'){
-    let src=sheetData.adj; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
-    rows=src.map(r=>[r.reading||r.word, '/ '+r.eng, r.adj==='i'?'い':'な']);
-  } else if(currentSheetType==='nouns'){
-    let src=sheetData.nouns; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
-    rows=src.map(r=>[r.reading||r.word, r.eng]);
-  } else if(currentSheetType==='kanji'){
-    let src=sheetData.kanji; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(r.kl)); if(activeKanjiModes.size>0&&activeKanjiModes.size<2) src=src.filter(r=>activeKanjiModes.has(r.mode));
-    rows=src.map(r=>[r.kanji, r.reading, '/ '+r.meaning]);
-  } else {
-    rows=questionsData.map(r=>[(r.reading||r.jp), r.eng, r.cat||'']);
   }
-  const tsv=rows.map(r=>r.join('\t')).join('\n');
+  if(t==='adj'){
+    let src=sheetData.adj; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
+    return src.map(r=>({word:r.reading||r.word, eng:r.eng, type:r.adj==='i'?'い':'な', lvl:_lvlLabel(r.lvl)}));
+  }
+  if(t==='nouns'){
+    let src=sheetData.nouns; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
+    return src.map(r=>({word:r.reading||r.word, eng:r.eng, lvl:_lvlLabel(r.lvl)}));
+  }
+  if(t==='kanji'){
+    let src=sheetData.kanji;
+    if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(r.kl));
+    if(activeKanjiModes.size>0&&activeKanjiModes.size<2) src=src.filter(r=>activeKanjiModes.has(r.mode));
+    return src.map(r=>({word:r.kanji, reading:r.reading, eng:r.meaning, lvl:r.kl}));
+  }
+  return questionsData.map(r=>({word:r.reading||r.jp, eng:r.eng, cat:r.cat||''}));
+}
+function copySheet(){
+  const btn=document.getElementById('copy-btn');
+  const keys=(SHEET_COLS[currentSheetType]||[]).map(c=>c[0]).filter(k=>_cols(currentSheetType).has(k));
+  const tsv=_sheetRecords().map(rec=>keys.map(k=>rec[k]||'').join('\t')).join('\n');
   const restore=()=>{btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy';btn.style.opacity='1';};
   const done=()=>{btn.innerHTML='&#10003; Copied';btn.style.opacity='.7';setTimeout(restore,2000);};
+  if(!keys.length){ btn.innerHTML='Pick a column'; setTimeout(restore,1600); return; }
   navigator.clipboard.writeText(tsv).then(done).catch(()=>{const ta=document.createElement('textarea');ta.value=tsv;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);done();});
 }
+
 function renderGrammar(){
   const q = currentSearch;
   const el = document.getElementById('content');

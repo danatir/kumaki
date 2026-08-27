@@ -1051,3 +1051,11 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
   max-width:330px;max-height:0;opacity:0;overflow:hidden;pointer-events:none;
   transition:opacity .18s ease,max-height .22s ease;}
 .ff-subs.visible{max-height:120px;opacity:1;pointer-events:auto;overflow:visible;}
+
+/* Sheets: pick which columns the Copy button puts on the clipboard */
+.copy-cols{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:10px 0 0;}
+.cc-label{font:700 8.5px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-right:2px;}
+.cc-chip{height:26px;padding:0 10px;border-radius:13px;border:1.5px solid var(--dot);background:var(--white);
+  color:var(--mid);font:700 10.5px/1 Arial,sans-serif;cursor:pointer;transition:all .12s;}
+.cc-chip:hover{border-color:var(--mid);background:var(--rose);}
+.cc-chip.active{background:var(--red);color:var(--white);border-color:var(--red);}
