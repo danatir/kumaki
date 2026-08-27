@@ -3163,13 +3163,13 @@ const grammarSections=[
    pattern:"Q: これ / それ / あれ は なんですか。　A: [Noun] です。",
    rows:[{jp:"Q：それは なんですか。",en:"What is that?"},{jp:"A：（これは）りんごです。",en:"It is an apple."},{jp:"Q：にほんごで なんですか。",en:"What is it in Japanese?"}],
    note:"In the answer you can drop これは and just say りんごです。",
-   imgs:["2-2-3.webp","2-2-4.webp"]},
+   imgs:["2-2-3.webp"]},
   {label:"2-4 ｜ この・その・あの ＋ Noun",
    meaning:"Same three distances as これ・それ・あれ, but these must be followed by a noun.",
    pattern:"この / その / あの ＋ [Noun] は ⚪︎⚪︎ えんです。",
    rows:[{jp:"このかさは 1200えんです。",en:"This umbrella is 1,200 yen."},{jp:"Q：このゆびわは いくらですか。",en:"How much is this ring?"},{jp:"A：30000えんです。",en:"It is 30,000 yen."}],
    note:"これ = a pronoun (stands alone). この = a modifier (always + noun). Never say ×これかさ.",
-   imgs:["2-4-2.webp","2-4-3.webp","2-4-1.webp","3-1-1.webp"]},
+   imgs:["2-4-2.webp","3-1-1.webp"]},
 ]},
 
 {id:"T-SHOP",title:"かいもの・オーダー",en:"Shopping & ordering",goal:"Everything you need in a shop or a restaurant: ask the price, ask for things, count them, pay.",emoji:_gicon.shop,cards:[
@@ -3210,7 +3210,7 @@ const grammarSections=[
    pattern:"[Noun] は [Person] の [Noun] です。　Q: 〜は だれの [Noun] ですか。",
    rows:[{jp:"これは さとうさんの ぼうしです。",en:"This is Mr./Ms. Sato’s hat."},{jp:"Q：それは だれの ぼうしですか。",en:"Whose hat is that?"},{jp:"A：さとうさんの（ぼうし）です。",en:"It is Sato’s."}],
    note:"You can drop the repeated noun: さとうさんのです。",
-   imgs:["3-1-3.webp","3-1-4.webp","3-1-2.webp"]},
+   imgs:["3-1-3.webp"]},
 ]},
 
 {id:"T-NUM",title:"すうじ・でんわばんごう",en:"Numbers & phone numbers",goal:"Read numbers aloud digit by digit, and ask for a phone number.",emoji:_gicon.hash,cards:[
@@ -3219,7 +3219,7 @@ const grammarSections=[
    pattern:"[Person] の でんわばんごうは ＿＿ です。　Q: でんわばんごうは なんばんですか。",
    rows:[{jp:"080 の 3462 の 9751 です。",en:"080-3462-9751."},{jp:"Q：でんわばんごうは なんばんですか。",en:"What is your phone number?"},{jp:"A：03 の 3328 の 9543 です。",en:"It is 03-3328-9543."}],
    note:"0＝ゼロ／れい、4＝よん、7＝なな、9＝きゅう when reading numbers aloud. If you miss it: すみません、もういちどおねがいします。／ すみません、ゆっくりおねがいします。",
-   imgs:["2-1-1.webp","2-1-2.webp","2-1-3.webp"]},
+   imgs:["2-1-2.webp","2-1-3.webp"]},
 ]},
 
 {id:"T-ADJ",title:"い形容詞・な形容詞",en:"Adjectives",goal:"The two adjective families, how each attaches to a noun, and how to ask what something is like.",emoji:_gicon.adj,cards:[
@@ -3234,7 +3234,7 @@ const grammarSections=[
    pattern:"[Noun] は [な-adj] です。／ [な-adj] じゃありません。",
    rows:[{jp:"このこうえんは しずかです。",en:"This park is quiet."},{jp:"このこうえんは しずかじゃありません。",en:"This park is not quiet."},{jp:"かれは しんせつです。",en:"He is kind."}],
    note:"とても = very. Put it before the adjective: とても大きいです。",
-   imgs:["3-3-1.webp","3-3-3.webp","3-3-4.webp"]},
+   imgs:["3-3-1.webp","3-3-4.webp"]},
   {label:"3-4 ｜ Adj ＋ Noun ｜ Describing a noun",
    meaning:"Put the adjective in front of the noun. い-adjectives attach directly; な-adjectives need な.",
    pattern:"[い-adj] ＋ [Noun]　／　[な-adj] ＋ な ＋ [Noun]",
@@ -3300,7 +3300,7 @@ const grammarSections=[
    meaning:"Combine なんじから／なんじまで to ask about work, class or a film, then make a plan.",
    rows:[{jp:"Q：えいがは なんじからですか。",en:"What time does the film start?"},{jp:"Q：ゆうびんきょくは なんじから なんじまでですか。",en:"From what time to what time is the post office open?"}],
    convo:{title:"さそう ｜ Inviting someone",lines:[["A","しごとは、なんじまでですか。","Until what time is your work?"],["B","19じまでです。","Until 7 p.m."],["A","にちようび、えいがを みませんか。","Would you like to see a film on Sunday?"],["B","にちようびは、しごとです…。","Sunday I have work…"],["A","じゃあ、どようびは？","Then how about Saturday?"],["B","どようびは、だいじょうぶです。","Saturday is fine."]]},
-   imgs:["4-3-1.webp","4-3-2.webp","4-3-3.webp","4-3-4.webp"]},
+   imgs:["4-3-1.webp","4-3-2.webp","4-3-3.webp"]},
 ]},
 
 {id:"T-VERB",title:"どうし ｜ ますけい",en:"Verbs: ます-form",goal:"The three verb groups, the polite ます-form, and the を that marks the object.",emoji:_gicon.verb,cards:[
@@ -3308,8 +3308,7 @@ const grammarSections=[
    meaning:"Every verb belongs to Group 1, 2 or 3. The group decides every later form (て-form, dictionary form, ない-form).",
    pattern:"①Group 1 ｜ ②Group 2 ｜ ③Group 3 (します・きます)",
    rows:[{jp:"①のみます → のむ ／ のんで",en:"Group 1"},{jp:"②たべます → たべる ／ たべて",en:"Group 2"},{jp:"③します → する ／ して　きます → くる ／ きて",en:"Group 3 (irregular)"}],
-   note:"Every verb card in the Words tab shows its group; tap it for the full conjugation table.",
-   imgs:["5-2-1.webp","5-3-1.webp","5-4-1.webp","5-4-3.webp"]},
+   note:"Every verb card in the Words tab shows its group; tap it for the full conjugation table."},
   {label:"5-1 ｜ 〜を [Verb]ます ｜ Object + verb",
    meaning:"を marks the object the action is done to. The verb comes last.",
    pattern:"[Topic] は [Object] を [Verb]ます。",
@@ -3339,7 +3338,7 @@ const grammarSections=[
    pattern:"[Place] へ いきます / きます / かえります。",
    rows:[{jp:"私は レストランへ 行きます。",en:"I go to a restaurant."},{jp:"私は 学校へ 来ます。",en:"I come to school."},{jp:"彼は うちへ かえります。",en:"He returns home."},{jp:"北海道へ ひこうきで 行きます。",en:"I go to Hokkaido by plane."}],
    note:"へ as a particle is written へ but pronounced え. に can replace it for movement.",
-   imgs:["5-3-2.webp","5-3-4.webp"]},
+   imgs:["5-3-4.webp"]},
   {label:"5-4 ｜ 〜に [Verb]ます ｜ Time + それから",
    meaning:"に marks a specific clock time or date. それから links the next action (\"after that\").",
    pattern:"[Time] に [Verb]ます。　[Sentence]。それから、[Sentence]。",
@@ -3505,7 +3504,7 @@ const grammarSections=[
    meaning:"Take the ます-stem and add たいです. The object may be marked with を or が.",
    pattern:"[Verb ます-stem] ＋ たいです。",
    rows:[{jp:"私は 日本へ 行きたいです。",en:"I want to go to Japan."},{jp:"Q1：どこへ いきたいですか。",en:"Where do you want to go?"},{jp:"Q2：＿＿で なにが たべたいですか。",en:"What do you want to eat in ＿＿?"},{jp:"お母さんのシチューが 食べたい…。",en:"I want to eat my mother’s stew…"}],
-   imgs:["8-4-1.webp","8-4-3.webp"]},
+   imgs:["8-4-3.webp"]},
   {label:"8-4 ｜ 〜が ほしいです ｜ Want a thing",
    meaning:"ほしい is an い-adjective. The thing you want is marked with が.",
    pattern:"[Noun] が ほしいです。",
@@ -3527,8 +3526,7 @@ const grammarSections=[
   {label:"9-2 ｜ てけい ｜ The て-form",
    meaning:"The て-form is built from the verb group. It is the base for てください, ています, てもいいですか and more.",
    pattern:"①き→いて、ぎ→いで、し→して、ち・り・い→って、に・び・み→んで ｜ ②ます→て ｜ ③きます→きて、します→して",
-   rows:[{jp:"かきます→かいて、およぎます→およいで、はなします→はなして",en:"Group 1"},{jp:"まちます→まって、とります→とって、かいます→かって",en:"Group 1 (っ)"},{jp:"のみます→のんで、よびます→よんで、しにます→しんで",en:"Group 1 (ん)"},{jp:"たべます→たべて、みます→みて",en:"Group 2"},{jp:"※いきます→いって",en:"Irregular"}],
-   imgs:["9-2-1.webp"]},
+   rows:[{jp:"かきます→かいて、およぎます→およいで、はなします→はなして",en:"Group 1"},{jp:"まちます→まって、とります→とって、かいます→かって",en:"Group 1 (っ)"},{jp:"のみます→のんで、よびます→よんで、しにます→しんで",en:"Group 1 (ん)"},{jp:"たべます→たべて、みます→みて",en:"Group 2"},{jp:"※いきます→いって",en:"Irregular"}]},
 ]},
 
 {id:"T-REQ",title:"いらい・もうしで",en:"Requests & offers",goal:"Ask someone to do it, offer to do it yourself, and know which of you acts.",emoji:_gicon.hand,cards:[
@@ -3547,7 +3545,7 @@ const grammarSections=[
    pattern:"[Verb て-form] ＋ ください。",
    rows:[{jp:"たべてください。",en:"Please eat."},{jp:"そのカメラを みせてください。",en:"Please show me that camera."},{jp:"でんわばんごうを おしえてください。",en:"Please tell me your phone number."},{jp:"もういちど 言ってください。",en:"Please say it once more."}],
    note:"Three uses drilled in class: ①「どうぞ」inviting ②「おねがいします」requesting ③ instruction.",
-   imgs:["9-2-2.webp","9-2-3.webp","9-2-4.webp"]},
+   imgs:["9-2-2.webp","9-2-4.webp"]},
   {label:"10-1 ｜ Vましょうか・Vてください・Vてもいいですか まとめ",
    meaning:"The three て-form patterns side by side — who does the action changes each time.",
    pattern:"「Vましょうか」= I do it for you ｜「Vてください」= you do it for me ｜「Vてもいいですか」= I want to do it",
@@ -3574,7 +3572,7 @@ const grammarSections=[
    pattern:"[Verb て-form] ＋ はいけません。",
    rows:[{jp:"じてんしゃに のってはいけません。",en:"You must not ride a bicycle (here)."},{jp:"ここに 車を とめてはいけません。",en:"You must not park a car here."},{jp:"ここに ゴミを だしてはいけません。",en:"You must not put out rubbish here."}],
    note:"Used with class rules: カンニング・ペット・ゴミ・たちいりきんし。",
-   imgs:["10-2-1.webp","10-2-2.webp","10-2-3.webp","10-2-4.webp"]},
+   imgs:["10-2-2.webp","10-2-3.webp","10-2-4.webp"]},
 ]},
 
 {id:"T-ING",title:"〜ています",en:"Happening right now",goal:"An action in progress at this moment.",emoji:_gicon.progress,cards:[
@@ -3597,7 +3595,7 @@ const grammarSections=[
    pattern:"[Verb て-form] ＋ いきます／きます／かえります。",
    rows:[{jp:"学校に 本を 持って行きます。",en:"I take a book to school."},{jp:"切符を 買って行きます。",en:"I buy a ticket and go."},{jp:"たばこを 買って来ます。",en:"I’ll go buy cigarettes and come back."},{jp:"ケーキを 持って帰ります。",en:"I’ll take the cake home."},{jp:"郵便局へ 行って来ます。",en:"I’ll go to the post office and come back."}],
    note:"アレンジ：（て形）て 行きたいです／行きましょうか／行ってください／行ってもいいですか。",
-   imgs:["10-5-1.webp","10-5-3.webp"]},
+   imgs:["10-5-3.webp"]},
 ]},
 
 {id:"T-TRANS",title:"こうつう",en:"Transport & routes",goal:"のります・おります・のりかえます, and how to ask the way there.",emoji:_gicon.train,cards:[
@@ -3641,7 +3639,7 @@ const grammarSections=[
    meaning:"Attach すぎます to a ます-stem or to an adjective stem to say it is excessive.",
    pattern:"[Verb ます-stem] ＋ すぎます　／　[Adj stem] ＋ すぎます",
    rows:[{jp:"ごぜん7:00の しんじゅくは はやすぎます。",en:"7 a.m. in Shinjuku is too early."},{jp:"このくつは 小さすぎます。",en:"These shoes are too small."},{jp:"ゆうべパーティで のみすぎました。",en:"I drank too much at the party last night."},{jp:"ヒールが 高すぎて、あるきにくいです。",en:"The heels are too high, so they are hard to walk in."}],
-   imgs:["11-4-1.webp","11-4-2.webp","11-4-3.webp","11-4-4.webp"]},
+   imgs:["11-4-2.webp","11-4-3.webp","11-4-4.webp"]},
   {label:"11-5 ｜ 〜やすいです／〜にくいです ｜ Easy / hard to do",
    meaning:"ます-stem + やすい = easy to do; + にくい = hard to do. Both behave like い-adjectives.",
    pattern:"[Verb ます-stem] ＋ やすいです／にくいです。",
