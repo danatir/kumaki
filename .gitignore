@@ -7,3 +7,5 @@ _sync_preview_to_prod.py
 
 # local dev
 .claude/
+
+node_modules/
