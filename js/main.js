@@ -2889,15 +2889,34 @@ const KANJI_BY_LEVEL = (function(){
   return byLvl;
 })();
 // Merge every KL badge a term carries: 電話 sits on both the KL5 and KL7 lists.
+const _klNum = kl => kl==='SIGN' ? 99 : parseInt(kl.slice(2),10);
 function _kanjiInfo(word){
   const hits = KANJI_INDEX.get(word);
   if(!hits) return null;
+  const byLvl = new Map();
+  for(const h of hits) if(!byLvl.has(h.kl)) byLvl.set(h.kl, h.mode);
+  const entries = [...byLvl.entries()].map(([kl,mode])=>({kl,mode}))
+                    .sort((a,b)=>_klNum(a.kl)-_klNum(b.kl));
   return {
-    levels: [...new Set(hits.map(h=>h.kl))],
-    parts:  hits,
-    // "write" wins: if any list asks you to write it, you must write it.
-    mode:   hits.some(h=>h.mode==='write') ? 'write' : 'read',
+    entries,
+    levels: entries.map(e=>e.kl),
+    // Shown by default: the level you first meet it at, and the final thing
+    // asked of you — writing, if any level asks for writing.
+    mode: entries.some(e=>e.mode==='write') ? 'write' : 'read',
   };
+}
+// Which level/mode a card shows: the one you picked, else the earliest.
+function _klShown(entries){
+  if(activeKanjiLevels.size){
+    const pick = entries.find(e=>activeKanjiLevels.has(e.kl));
+    if(pick) return pick;
+  }
+  const final = entries.some(e=>e.mode==='write') ? 'write' : 'read';
+  return {kl: entries[0].kl, mode: final};
+}
+function _klBadge(kl){
+  const label = kl==='SIGN' ? 'サイン' : kl;
+  return `<span class="vc-kl-tag" title="Kanji list ${label}">${label}</span>`;
 }
 
 function _wordPasses(w){
@@ -2949,13 +2968,7 @@ function _kanjiDot(mode){
     ? `<span class="vc-ind-dot dot-read" title="Read only — よみ, no writing">${_EYE}</span>`
     : '';
 }
-// KL badge: the kanji-list level, KL1–KL8 (or サイン).
-function _klTag(ki){
-  return ki.levels.map(kl=>{
-    const label = kl==='SIGN' ? 'サイン' : kl;
-    return `<span class="vc-kl-tag" title="Kanji list ${label}">${label}</span>`;
-  }).join('');
-}
+
 
 // A card's Japanese must fit the card. Long words step the type down, and
 // kana-only ones may wrap, so nothing can spill past the border.
@@ -2971,16 +2984,20 @@ function wordCardHTML(w, lvl){
   const coun   = _counterBadge(w.word, w.reading);
   const kindTag= w.kind ? `<span class="vc-kind-tag" title="${_ea(w.kind)}">${_ea(w.kind)}</span>` : '';
   const ki     = _kanjiInfo(w.word);
-  const kanjiBits = ki ? _kanjiDot(ki.mode) + _klTag(ki) : '';
+  const shown  = ki ? _klShown(ki.entries) : null;
+  const modeDot = shown ? _kanjiDot(shown.mode) : '';
+  const klTag   = shown ? _klBadge(shown.kl) : '';
+  const klModes = (ki && ki.entries.length>1)
+    ? ' data-klmodes="'+ki.entries.map(e=>e.kl+':'+e.mode).join('|')+'"' : '';
   const disp   = displayForm(w);
   const rd     = (disp===w.reading) ? '' : (w.reading||'');
   const klData = ki ? ki.levels.join(' ') : '';
-  return `<div class="vocab-card${ki?' is-kanji':''}" onclick="openConjPopup('${_eq(disp)}','${_eq(w.reading||'')}','${_eq(w.def)}','${w.pos}','${_eq(w.exprKey||'')}','${ki?ki.mode:''}','${w.grp||''}','${at||''}')" data-pos="${w.pos}" data-grp="${w.grp||''}" data-adjt="${at||''}" data-kl="${_ea(klData)}" data-kmode="${ki?ki.mode:''}" data-kind="${_ea(w.kind||'')}" data-coun="${coun?'1':''}" data-sw="${_ea(w.word)} ${_ea(disp)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(w.def)}">
+  return `<div class="vocab-card${ki?' is-kanji':''}" onclick="openConjPopup('${_eq(disp)}','${_eq(w.reading||'')}','${_eq(w.def)}','${w.pos}','${_eq(w.exprKey||'')}','${ki?ki.mode:''}','${w.grp||''}','${at||''}')" data-pos="${w.pos}" data-grp="${w.grp||''}" data-adjt="${at||''}" data-kl="${_ea(klData)}"${klModes} data-kmode="${shown?shown.mode:''}" data-kind="${_ea(w.kind||'')}" data-coun="${coun?'1':''}" data-sw="${_ea(w.word)} ${_ea(disp)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(w.def)}">
     <div class="vc-left${rd?'':' vc-left-wrap'} notranslate" translate="no">${rubyHTML(disp,rd,_jpStyle(disp))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${w.def}</span></div>
     <div class="vc-badges">${adjTag}${grpTag}<span class="vc-badge pos-${w.pos}" style="position:static;">${w.pos}</span></div>
-    <div class="vc-indicators">${kanjiBits}${coun}${kindTag}<span class="vc-lvl-tag" title="Level ${lvl}">${lvl}</span></div>
+    <div class="vc-indicators">${modeDot}${coun}${kindTag}${klTag}<span class="vc-lvl-tag" title="Level ${lvl}">${lvl}</span></div>
   </div>`;
 }
 
@@ -3063,6 +3080,29 @@ function applyWordFilters(){
   const q = currentSearch;
   const anyFilter = !!(q || activeFilter || activeSubFilter || kanjiReadOnly ||
                        activeCounterOnly || activeKind || activeKanjiLevels.size);
+  // A term taught over two levels shows the level you filtered to, with that
+  // level's own requirement: 新聞 is KL5 + read-only under a KL5 filter and
+  // KL6 with no mark under KL6. With no filter it shows the level you first
+  // meet it at and the final requirement.
+  el.querySelectorAll('.vocab-card[data-klmodes]').forEach(card => {
+    if(!card.dataset.klmodes) return;
+    const entries = card.dataset.klmodes.split('|').map(x=>{
+      const [kl,mode] = x.split(':'); return {kl,mode};
+    });
+    const shown = _klShown(entries);
+    const tag = card.querySelector('.vc-kl-tag');
+    if(tag){
+      const label = shown.kl==='SIGN' ? 'サイン' : shown.kl;
+      if(tag.textContent !== label){ tag.textContent = label; tag.title = 'Kanji list '+label; }
+    }
+    const dot = card.querySelector('.dot-read');
+    const wantsDot = shown.mode === 'read';
+    if(wantsDot && !dot){
+      card.querySelector('.vc-indicators').insertAdjacentHTML('afterbegin', _kanjiDot('read'));
+    } else if(!wantsDot && dot){ dot.remove(); }
+    card.dataset.kmode = shown.mode;
+  });
+
   let anyVisible = false;
   el.querySelectorAll('.vocab-card').forEach(card => {
     const show = _cardPasses(card) &&

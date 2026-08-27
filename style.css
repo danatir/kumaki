@@ -1124,3 +1124,7 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 
 /* Grammar cards sit on the page now, so they keep their own outline */
 .gram-fc{box-shadow:0 1px 3px rgba(0,0,0,.04);}
+
+/* Level chips always close the row: kanji level, then vocabulary level */
+.vc-indicators .vc-kl-tag{margin-left:auto;}
+.vc-indicators .vc-kl-tag + .vc-lvl-tag{margin-left:0;}
