@@ -319,7 +319,7 @@ vocabData['S1'] = {
     {word:"楽しい",reading:"たのしい",def:"fun; enjoyable",pos:"Adj",sub:"6-2",ex:"パーティは楽しかったですか。"},
     {word:"上手",reading:"じょうず",def:"good at; skilled",pos:"Adj",sub:"6-2",ex:"田中さんは歌がじょうずです。"},
     {word:"にぎやか",def:"lively, bustling",pos:"Adj",sub:"6-2",ex:"渋谷はにぎやかです。"},
-    {word:"暖かい/温かい",reading:"あたたかい",def:"warm",pos:"Adj",sub:"6-2",ex:"はるはあたたかいです。"},
+    {word:"暖かい",reading:"あたたかい",def:"warm (also written 温かい)",pos:"Adj",sub:"6-2",ex:"はるはあたたかいです。"},
     {word:"会います",reading:"あいます",def:"to meet",pos:"Verb",grp:"G1",sub:"6-2",ex:"私は彼に会いました。"},
     {word:"チケット",def:"ticket",pos:"Noun",sub:"6-2"},
     {word:"サンドイッチ",def:"sandwich",pos:"Noun",sub:"6-2"},
@@ -627,7 +627,7 @@ vocabData['S1'] = {
     {word:"最近",reading:"さいきん",def:"recently, lately",pos:"Noun",sub:"11-2"},
     {word:"甘い",reading:"あまい",def:"sweet",pos:"Adj",sub:"11-2",ex:"あまいお菓子を食べます。"},
     {word:"足ります",reading:"たります",def:"to be enough; to suffice",pos:"Verb",grp:"G2",sub:"11-2",ex:"お金が足りません。"},
-    {word:"街 / 町",reading:"まち",def:"town, city, street",pos:"Noun",sub:"11-3"},
+    {word:"町",reading:"まち",def:"town, city (also written 街)",pos:"Noun",sub:"11-3"},
     {word:"すきやき",def:"sukiyaki",pos:"Noun",sub:"11-3"},
     {word:"野球",reading:"やきゅう",def:"baseball",pos:"Noun",sub:"11-3"},
     {word:"どれ",reading:"どれ",def:"Which one (3+ options)",pos:"Expr",sub:"11-3",exprKey:"どれが いちばん 好きですか"},
@@ -728,8 +728,10 @@ vocabData['S1'] = {
     {word:"おめでとうございます",reading:"",def:"Congratulations",pos:"Expr",kind:"Greeting"},
     {word:"いただきます",reading:"",def:"(said before eating)",pos:"Expr",kind:"Greeting"},
     {word:"ごちそうさまでした",reading:"",def:"(said after eating)",pos:"Expr",kind:"Greeting"},
-    {word:"いってきます ／ いってらっしゃい",reading:"",def:"I’m off / See you (to the one leaving)",pos:"Expr",kind:"Greeting"},
-    {word:"ただいま ／ おかえりなさい",reading:"",def:"I’m home / Welcome back",pos:"Expr",kind:"Greeting"},
+    {word:"いってきます",reading:"",def:"I’m off (said by the one leaving)",pos:"Expr",kind:"Greeting"},
+    {word:"いってらっしゃい",reading:"",def:"See you (said to the one leaving)",pos:"Expr",kind:"Greeting"},
+    {word:"ただいま",reading:"",def:"I’m home (said by the one arriving)",pos:"Expr",kind:"Greeting"},
+    {word:"おかえりなさい",reading:"",def:"Welcome back (said to the one arriving)",pos:"Expr",kind:"Greeting"},
     {word:"どうして",reading:"どうして",def:"Why",pos:"Expr",sub:"Question",exprKey:"どうしてですか"},
     {word:"どうしましたか",reading:"どうしましたか",def:"What happened?",pos:"Expr",sub:"Question",exprKey:"どうしましたか"},
   ],
@@ -1976,6 +1978,9 @@ function applyFilterVisuals(){
   // restore the read-only chip
   const kr = document.getElementById('kflt-read');
   if(kr) kr.classList.toggle('active', kanjiReadOnly);
+  if(activeFilter==='Kanji' || activeKanjiLevels.size || kanjiReadOnly){
+    const sk=document.getElementById('sub-Kanji'); if(sk) sk.classList.add('visible');
+  }
   const cf = document.getElementById('flt-coun');
   if(cf) cf.classList.toggle('active', activeCounterOnly);
   document.querySelectorAll('[data-kindfilter]').forEach(b=>b.classList.toggle('active', b.dataset.kindfilter===activeKind));
@@ -2863,8 +2868,10 @@ function _kanjiInfo(word){
 function _wordPasses(w){
   if(activeCounterOnly && !(extraCounterMap[w.word]||extraCounterMap[w.reading]||(counTypeMap[w.word]||{}).key)) return false;
   if(activeKind && w.kind!==activeKind) return false;
-  if(activeFilter==='Kanji') return !!KANJI_INDEX.get(w.word);
-  if(activeFilter && w.pos!==activeFilter) return false;
+  // "Kanji" means "on the kanji list" — it must not short-circuit the level
+  // and read-only chips that sit under it.
+  if(activeFilter==='Kanji'){ if(!KANJI_INDEX.get(w.word)) return false; }
+  else if(activeFilter && w.pos!==activeFilter) return false;
   if(activeSubFilter){
     if(w.pos==='Verb' && w.grp!==activeSubFilter) return false;
     if(w.pos==='Adj'){
@@ -2912,6 +2919,13 @@ function _klTag(ki){
   }).join('');
 }
 
+// A card's Japanese must fit the card. Long words step the type down, and
+// kana-only ones may wrap, so nothing can spill past the border.
+function _jpStyle(text){
+  const n=[...String(text||'')].length;
+  const fs = n<=4 ? 36 : n<=6 ? 29 : n<=8 ? 23 : n<=11 ? 19 : 16;
+  return 'font-size:'+fs+'px';
+}
 function wordCardHTML(w, lvl){
   const at = adjType[w.word];
   const adjTag = w.pos==='Adj' ? `<span class="vc-adj-tag adj-${at||'na'}">${at==='i'?'い':'な'}</span>` : '';
@@ -2924,7 +2938,7 @@ function wordCardHTML(w, lvl){
   const rd     = (disp===w.reading) ? '' : (w.reading||'');
   const klData = ki ? ki.levels.join(' ') : '';
   return `<div class="vocab-card${ki?' is-kanji':''}" onclick="openConjPopup('${_eq(disp)}','${_eq(w.reading||'')}','${_eq(w.def)}','${w.pos}','${_eq(w.exprKey||'')}','${ki?ki.mode:''}','${w.grp||''}','${at||''}')" data-grp="${w.grp||''}" data-adjt="${at||''}" data-kl="${_ea(klData)}" data-kmode="${ki?ki.mode:''}" data-kind="${_ea(w.kind||'')}" data-coun="${coun?'1':''}" data-sw="${_ea(w.word)} ${_ea(disp)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(w.def)}">
-    <div class="vc-left notranslate" translate="no">${rubyHTML(disp,rd)}</div>
+    <div class="vc-left${rd?'':' vc-left-wrap'} notranslate" translate="no">${rubyHTML(disp,rd,_jpStyle(disp))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${w.def}</span></div>
     <div class="vc-badges">${adjTag}${grpTag}<span class="vc-badge pos-${w.pos}" style="position:static;">${w.pos}</span></div>
@@ -2938,7 +2952,7 @@ function kanjiCardHTML(k, kl){
   const coun = _counterBadge(k.kanji, k.reading);
   const label = kl==='SIGN' ? 'サイン' : kl;
   return `<div class="vocab-card kanji-card is-kanji" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','Kanji','','${k.mode||''}')" data-kl="${kl}" data-kmode="${k.mode||''}" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
-    <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"")}</div>
+    <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"",_jpStyle(k.kanji))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
     <div class="vc-badges"><span class="vc-badge pos-Kanji" style="position:static;">Kanji</span></div>

@@ -116,7 +116,7 @@ main{overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;positi
 .vocab-card{background:var(--rose);border:1px solid var(--dot);border-radius:12px;padding:14px 60px 22px 16px;min-width:0;position:relative;display:flex;align-items:center;gap:12px;min-height:72px;cursor:pointer;transition:border-color .12s;}
 .vocab-card:hover{border-color:var(--mid);}
 .vocab-card.hidden{display:none;}
-.vc-left{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.vc-left{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:1;min-width:0;}
 .vc-reading{font-size:9px;color:var(--sub);letter-spacing:.06em;font-family:Arial,sans-serif;line-height:1.4;display:block;text-align:center;width:100%;}
 .vc-word{font-family:'Chihaya','Noto Serif JP',serif;font-size:36px;line-height:1.1;color:var(--ink);}
 .vc-sep{width:1px;height:44px;background:var(--mid);opacity:.3;flex-shrink:0;}
@@ -977,7 +977,7 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 .vocab-card.is-kanji .vc-lvl-tag{color:var(--mid);}
 
 /* Kanji-level filter chips wrap onto a second line on narrow screens */
-.float-sub-wrap{flex-wrap:wrap;max-width:210px;justify-content:flex-end;}
+.float-sub-wrap{flex-wrap:wrap;max-width:212px;justify-content:flex-end;}
 .float-btn-wide{padding-left:9px;padding-right:9px;width:auto;border-radius:12px;font-size:10px;}
 
 /* ── Words filters: one menu button, everything else inside the panel ───── */
@@ -990,7 +990,7 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
   background:var(--red);color:var(--white);font:700 9px/16px Arial,sans-serif;display:none;text-align:center;}
 .ff-count.on{display:block;}
 .ff-toggle.open .ff-count{background:var(--white);color:var(--red);}
-.ff-panel{display:flex;flex-direction:column;gap:12px;align-items:flex-end;background:var(--white);
+.ff-panel{display:flex;flex-direction:column;gap:8px;align-items:flex-end;background:var(--white);
   border:1px solid var(--dot);border-radius:14px;padding:0 14px;box-shadow:0 8px 26px rgba(0,0,0,.13);
   max-height:0;overflow:hidden;opacity:0;pointer-events:none;
   transition:max-height .26s cubic-bezier(.4,0,.2,1),padding .26s cubic-bezier(.4,0,.2,1),opacity .2s ease;}
@@ -1017,3 +1017,10 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 /* "what it is" tag for words that belong to no level */
 .vc-kind-tag{font:700 8px/17px Arial,sans-serif;letter-spacing:.04em;color:#6a5a86;
   background:rgba(120,100,160,.14);border-radius:9px;padding:0 6px;white-space:nowrap;}
+
+/* A card's Japanese can never push past the card edge */
+.vc-left{flex-shrink:1;min-width:0;max-width:100%;overflow:hidden;}
+.card-ruby{max-width:100%;}
+.vc-left-wrap .card-ruby{white-space:normal;word-break:break-word;text-align:center;}
+
+.float-sub-wrap.visible{max-height:120px;}

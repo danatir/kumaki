@@ -6,7 +6,7 @@
 <title>くまキィ</title>
 <link rel="icon" type="image/png" href="images/favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=20260827f">
+<link rel="stylesheet" href="style.css?v=20260827j">
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
 <script>
   // ── Service Worker (rate-limit interceptor) ──────────────────────────────
@@ -290,50 +290,37 @@
       <span class="ff-count" id="ff-count"></span>
     </button>
     <div class="ff-panel" id="ff-panel">
-      <div class="ff-group">
-        <div class="ff-label">Type</div>
-        <div class="float-row">
-          <button class="float-btn" id="flt-Noun" onclick="toggleFilter('Noun',this)">Noun</button>
-          <button class="float-btn" id="flt-Verb" onclick="toggleFilter('Verb',this)">Verb</button>
-          <button class="float-btn" id="flt-Adj"  onclick="toggleFilter('Adj',this)">Adj</button>
-          <button class="float-btn" id="flt-Adv"  onclick="toggleFilter('Adv',this)">Adv</button>
-          <button class="float-btn" id="flt-Conj" onclick="toggleFilter('Conj',this)">Conj</button>
-          <button class="float-btn" id="flt-Expr" onclick="toggleFilter('Expr',this)">Expr</button>
-          <button class="float-btn" id="flt-Kanji" onclick="toggleFilter('Kanji',this)">Kanji</button>
-        </div>
-        <div class="float-sub" id="sub-Verb">
-          <button class="float-btn float-btn-circle" id="flt-G1" onclick="toggleSubFilter('G1',this)" title="Group 1">1</button>
-          <button class="float-btn float-btn-circle" id="flt-G2" onclick="toggleSubFilter('G2',this)" title="Group 2">2</button>
-          <button class="float-btn float-btn-circle" id="flt-G3" onclick="toggleSubFilter('G3',this)" title="Group 3">3</button>
-        </div>
-        <div class="float-sub" id="sub-Adj">
-          <button class="float-btn float-btn-circle notranslate" translate="no" id="flt-i" onclick="toggleSubFilter('i',this)" title="い-adjective">い</button>
-          <button class="float-btn float-btn-circle notranslate" translate="no" id="flt-na" onclick="toggleSubFilter('na',this)" title="な-adjective">な</button>
-        </div>
-        <div class="float-sub" id="sub-Kanji">
-          <button class="float-btn float-btn-circle" id="kflt-read" onclick="toggleKanjiMode('read',this)" title="Read-only kanji (よみ)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-        </div>
+      <div class="float-row float-row-wrap">
+        <button class="float-btn" id="flt-Noun" onclick="toggleFilter('Noun',this)">Noun</button>
+        <button class="float-btn" id="flt-Verb" onclick="toggleFilter('Verb',this)">Verb</button>
+        <button class="float-btn" id="flt-Adj"  onclick="toggleFilter('Adj',this)">Adj</button>
+        <button class="float-btn" id="flt-Adv"  onclick="toggleFilter('Adv',this)">Adv</button>
+        <button class="float-btn" id="flt-Conj" onclick="toggleFilter('Conj',this)">Conj</button>
+        <button class="float-btn" id="flt-Expr" onclick="toggleFilter('Expr',this)">Expr</button>
+        <button class="float-btn" id="flt-Kanji" onclick="toggleFilter('Kanji',this)">Kanji</button>
+        <button class="float-btn float-btn-wide" id="flt-coun" onclick="toggleCounterFilter(this)" title="Words that have a counter table">Counters</button>
+        <button class="float-btn float-btn-wide" data-kindfilter="Greeting" onclick="toggleKindFilter('Greeting',this)" title="Greetings">Greeting</button>
       </div>
-      <div class="ff-group">
-        <div class="ff-label">Marks</div>
-        <div class="float-row">
-          <button class="float-btn float-btn-circle" id="flt-coun" onclick="toggleCounterFilter(this)" title="Words with a counter table"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg></button>
-          <button class="float-btn float-btn-wide" data-kindfilter="Greeting" onclick="toggleKindFilter('Greeting',this)" title="Greetings">Greeting</button>
-        </div>
+      <div class="float-sub" id="sub-Verb">
+        <button class="float-btn float-btn-circle" id="flt-G1" onclick="toggleSubFilter('G1',this)" title="Group 1">1</button>
+        <button class="float-btn float-btn-circle" id="flt-G2" onclick="toggleSubFilter('G2',this)" title="Group 2">2</button>
+        <button class="float-btn float-btn-circle" id="flt-G3" onclick="toggleSubFilter('G3',this)" title="Group 3">3</button>
       </div>
-      <div class="ff-group">
-        <div class="ff-label">Kanji level</div>
-        <div class="float-row float-row-wrap" id="sub-KanjiLvl">
-          <button class="float-btn float-btn-circle" id="kflt-KL1" onclick="toggleKanjiLevel('KL1',this)" title="Kanji level 1">1</button>
-          <button class="float-btn float-btn-circle" id="kflt-KL2" onclick="toggleKanjiLevel('KL2',this)" title="Kanji level 2">2</button>
-          <button class="float-btn float-btn-circle" id="kflt-KL3" onclick="toggleKanjiLevel('KL3',this)" title="Kanji level 3">3</button>
-          <button class="float-btn float-btn-circle" id="kflt-KL4" onclick="toggleKanjiLevel('KL4',this)" title="Kanji level 4">4</button>
-          <button class="float-btn float-btn-circle" id="kflt-KL5" onclick="toggleKanjiLevel('KL5',this)" title="Kanji level 5">5</button>
-          <button class="float-btn float-btn-circle" id="kflt-KL6" onclick="toggleKanjiLevel('KL6',this)" title="Kanji level 6">6</button>
-          <button class="float-btn float-btn-circle" id="kflt-KL7" onclick="toggleKanjiLevel('KL7',this)" title="Kanji level 7">7</button>
-          <button class="float-btn float-btn-circle" id="kflt-KL8" onclick="toggleKanjiLevel('KL8',this)" title="Kanji level 8">8</button>
-          <button class="float-btn float-btn-wide notranslate" translate="no" id="kflt-SIGN" onclick="toggleKanjiLevel('SIGN',this)" title="Kanji on signs">サイン</button>
-        </div>
+      <div class="float-sub" id="sub-Adj">
+        <button class="float-btn float-btn-circle notranslate" translate="no" id="flt-i" onclick="toggleSubFilter('i',this)" title="い-adjective">い</button>
+        <button class="float-btn float-btn-circle notranslate" translate="no" id="flt-na" onclick="toggleSubFilter('na',this)" title="な-adjective">な</button>
+      </div>
+      <div class="float-sub float-sub-wrap" id="sub-Kanji">
+        <button class="float-btn float-btn-circle" id="kflt-read" onclick="toggleKanjiMode('read',this)" title="Read-only kanji (よみ)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <button class="float-btn float-btn-circle" id="kflt-KL1" onclick="toggleKanjiLevel('KL1',this)" title="Kanji level 1">1</button>
+        <button class="float-btn float-btn-circle" id="kflt-KL2" onclick="toggleKanjiLevel('KL2',this)" title="Kanji level 2">2</button>
+        <button class="float-btn float-btn-circle" id="kflt-KL3" onclick="toggleKanjiLevel('KL3',this)" title="Kanji level 3">3</button>
+        <button class="float-btn float-btn-circle" id="kflt-KL4" onclick="toggleKanjiLevel('KL4',this)" title="Kanji level 4">4</button>
+        <button class="float-btn float-btn-circle" id="kflt-KL5" onclick="toggleKanjiLevel('KL5',this)" title="Kanji level 5">5</button>
+        <button class="float-btn float-btn-circle" id="kflt-KL6" onclick="toggleKanjiLevel('KL6',this)" title="Kanji level 6">6</button>
+        <button class="float-btn float-btn-circle" id="kflt-KL7" onclick="toggleKanjiLevel('KL7',this)" title="Kanji level 7">7</button>
+        <button class="float-btn float-btn-circle" id="kflt-KL8" onclick="toggleKanjiLevel('KL8',this)" title="Kanji level 8">8</button>
+        <button class="float-btn float-btn-wide notranslate" translate="no" id="kflt-SIGN" onclick="toggleKanjiLevel('SIGN',this)" title="Kanji on signs">サイン</button>
       </div>
       <button class="ff-clear" onclick="clearAllFilters()">Clear all</button>
     </div>
@@ -376,7 +363,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
 <script src="dmak-master/dist/dmak.js"></script>
-<script src="js/main.js?v=20260827f"></script>
+<script src="js/main.js?v=20260827j"></script>
 
 
 
@@ -386,8 +373,8 @@
 
 
 
-<script src="js/utils.js?v=20260827f"></script>
-<script src="js/app.js?v=20260827f"></script>
+<script src="js/utils.js?v=20260827j"></script>
+<script src="js/app.js?v=20260827j"></script>
 <script>
 (function(){
   var _ppUser = null;
