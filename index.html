@@ -6,7 +6,7 @@
 <title>くまキィ</title>
 <link rel="icon" type="image/png" href="images/favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=20260828q">
+<link rel="stylesheet" href="style.css?v=20260828t">
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
 <script>
   // ── Service Worker (rate-limit interceptor) ──────────────────────────────
@@ -308,9 +308,18 @@
       </div>
       <div class="ff-line"><button class="float-btn" id="flt-Adv"  onclick="toggleFilter('Adv',this)">Adv</button></div>
       <div class="ff-line"><button class="float-btn" id="flt-Conj" onclick="toggleFilter('Conj',this)">Conj</button></div>
-      <div class="ff-line"><button class="float-btn" id="flt-Expr" onclick="toggleFilter('Expr',this)">Expr</button></div>
+      <div class="ff-line">
+        <span class="ff-subs" id="sub-Expr">
+          <button class="float-btn ff-sub-btn ff-wide" data-kindfilter="Question" onclick="toggleKindFilter('Question',this)" title="Question words">Question</button>
+          <button class="float-btn ff-sub-btn ff-wide" data-kindfilter="Counter" onclick="toggleKindFilter('Counter',this)" title="How-many questions">Counter</button>
+          <button class="float-btn ff-sub-btn ff-wide" data-kindfilter="Greeting" onclick="toggleKindFilter('Greeting',this)" title="Greetings">Greeting</button>
+          <button class="float-btn ff-sub-btn ff-wide" data-kindfilter="Pattern" onclick="toggleKindFilter('Pattern',this)" title="Sentence patterns">Pattern</button>
+          <button class="float-btn ff-sub-btn ff-wide" data-kindfilter="Amount" onclick="toggleKindFilter('Amount',this)" title="Amount and degree">Amount</button>
+          <button class="float-btn ff-sub-btn ff-wide" data-kindfilter="Time" onclick="toggleKindFilter('Time',this)" title="Time expressions">Time</button>
+        </span>
+        <button class="float-btn" id="flt-Expr" onclick="toggleFilter('Expr',this)">Expr</button>
+      </div>
       <div class="ff-line"><button class="float-btn" id="flt-coun" onclick="toggleCounterFilter(this)" title="Words that have a counter table">Counters</button></div>
-      <div class="ff-line"><button class="float-btn" data-kindfilter="Greeting" onclick="toggleKindFilter('Greeting',this)" title="Greetings">Greeting</button></div>
       <div class="ff-line">
         <span class="ff-subs" id="sub-Kanji">
           <button class="float-btn ff-sub-btn" id="kflt-read" onclick="toggleKanjiMode('read',this)" title="Read-only kanji (よみ)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
@@ -393,7 +402,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
 <script src="dmak-master/dist/dmak.js"></script>
-<script src="js/main.js?v=20260828q"></script>
+<script src="js/main.js?v=20260828t"></script>
 
 
 
@@ -403,8 +412,8 @@
 
 
 
-<script src="js/utils.js?v=20260828q"></script>
-<script src="js/app.js?v=20260828q"></script>
+<script src="js/utils.js?v=20260828t"></script>
+<script src="js/app.js?v=20260828t"></script>
 <script>
 (function(){
   var _ppUser = null;

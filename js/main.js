@@ -1970,6 +1970,7 @@ function applyFilterVisuals(){
     if(activeFilter==='Verb'){ const sp=document.getElementById('sub-Verb'); if(sp) sp.classList.add('visible'); }
     if(activeFilter==='Adj') { const sp=document.getElementById('sub-Adj');  if(sp) sp.classList.add('visible'); }
     if(activeFilter==='Kanji'){ const sp=document.getElementById('sub-Kanji');if(sp) sp.classList.add('visible'); }
+    if(activeFilter==='Expr'){ const sp=document.getElementById('sub-Expr'); if(sp) sp.classList.add('visible'); }
   }
   // restore sub-filter button
   if(activeSubFilter){
@@ -1984,12 +1985,56 @@ function applyFilterVisuals(){
   const cf = document.getElementById('flt-coun');
   if(cf) cf.classList.toggle('active', activeCounterOnly);
   document.querySelectorAll('[data-kindfilter]').forEach(b=>b.classList.toggle('active', b.dataset.kindfilter===activeKind));
+  // a chosen kind keeps its row out, the way a kanji level keeps sub-Kanji out
+  if(activeKind){ const se=document.getElementById('sub-Expr'); if(se) se.classList.add('visible'); }
   KANJI_LEVELS.forEach(kl=>{
     const b = document.getElementById('kflt-'+kl);
     if(b) b.classList.toggle('active', activeKanjiLevels.has(kl));
   });
   _updateFilterBadge();
 }
+
+// What an expression actually does. Without it the Expr pile is one flat
+// heap of 45 unrelated things: a greeting, a question word and a sentence
+// pattern all read the same. Greetings already carried a kind; the rest are
+// named here so every expression can be told apart and filtered.
+const EXPR_KIND = {
+  "何":"Question",
+  "いくら":"Question",
+  "どこの":"Question",
+  "だれ":"Question",
+  "どう":"Question",
+  "どんな":"Question",
+  "どのぐらい":"Question",
+  "いつ":"Question",
+  "どこ":"Question",
+  "なにで":"Question",
+  "どうやって":"Question",
+  "どちら":"Question",
+  "どれ":"Question",
+  "どうして":"Question",
+  "どうしましたか":"Question",
+  "何番":"Counter",
+  "何時":"Counter",
+  "何時間":"Counter",
+  "何日間":"Counter",
+  "何曜日":"Counter",
+  "何月":"Counter",
+  "何日":"Counter",
+  "何人":"Counter",
+  "ましょうか":"Pattern",
+  "てもいいですか":"Pattern",
+  "〜について":"Pattern",
+  "下さい":"Pattern",
+  "クラスの後":"Time",
+  "だけ":"Amount",
+  "たくさん":"Amount",
+  "何か":"Amount",
+  "あとで":"Time",
+  "時間通り":"Time",
+};
+const _exprKind = w => w.kind || (w.pos==='Expr' ? (EXPR_KIND[w.word] || EXPR_KIND[w.reading] || '') : '');
+const EXPR_KINDS = ['Question','Counter','Greeting','Pattern','Amount','Time'];
 
 // Adj type lookup (い vs な)
 const adjType = {};
@@ -2204,6 +2249,12 @@ function toggleFilter(pos, btn){
     document.querySelectorAll('.float-btn[id^="flt-G"], .float-btn[id^="flt-i"], .float-btn[id^="flt-na"]').forEach(b=>b.classList.remove('active'));
   } else {
     activeFilter = pos; activeSubFilter = null;
+    // a kind belongs to Expr, so choosing another part of speech clears it
+    // rather than leaving a filter on that can match nothing.
+    if(pos!=='Expr' && activeKind){
+      activeKind = null;
+      document.querySelectorAll('[data-kindfilter]').forEach(b=>b.classList.remove('active'));
+    }
     document.querySelectorAll('.float-btn').forEach(b=>{ if(!b.id.startsWith('kflt')) b.classList.remove('active'); });
     btn.classList.add('active');
     document.querySelectorAll('.ff-subs').forEach(s=>s.classList.remove('visible'));
@@ -2211,6 +2262,7 @@ function toggleFilter(pos, btn){
     if(pos==='Verb') setTimeout(()=>document.getElementById('sub-Verb').classList.add('visible'),60);
     if(pos==='Adj') setTimeout(()=>document.getElementById('sub-Adj').classList.add('visible'),60);
     if(pos==='Kanji') setTimeout(()=>document.getElementById('sub-Kanji').classList.add('visible'),60);
+    if(pos==='Expr') setTimeout(()=>document.getElementById('sub-Expr').classList.add('visible'),60);
   }
   _updateFilterBadge();
   _refilter();
@@ -2995,7 +3047,7 @@ function _klBadge(kl){
 
 function _wordPasses(w){
   if(activeCounterOnly && !(extraCounterMap[w.word]||extraCounterMap[w.reading]||(counTypeMap[w.word]||{}).key)) return false;
-  if(activeKind && w.kind!==activeKind) return false;
+  if(activeKind && _exprKind(w)!==activeKind) return false;
   // "Kanji" means "on the kanji list" — it must not short-circuit the level
   // and read-only chips that sit under it.
   if(activeFilter==='Kanji'){ if(!KANJI_INDEX.get(w.word)) return false; }
@@ -3019,7 +3071,7 @@ function _wordPasses(w){
   return true;
 }
 function _kanjiPasses(k, kl){
-  if(activeKind) return false;              // kanji carry no kind tag
+  if(activeKind && (_kpos(k.kanji).pos!=='Expr' || EXPR_KIND[k.kanji]!==activeKind)) return false;
   if(activeCounterOnly && !(extraCounterMap[k.kanji]||extraCounterMap[k.reading]||(counTypeMap[k.kanji]||{}).key)) return false;
   // A kanji entry now states its real part of speech, so Noun or Verb must
   // reach it the same way it reaches a word. "Kanji" stays list membership.
@@ -3063,7 +3115,8 @@ function wordCardHTML(w, lvl){
   const adjTag = w.pos==='Adj' ? `<span class="vc-adj-tag adj-${at||'na'}">${at==='i'?'い':'な'}</span>` : '';
   const grpTag = w.grp ? `<span class="vc-grp-tag grp-${w.grp}">${w.grp}</span>` : '';
   const coun   = _counterBadge(w.word, w.reading);
-  const kindTag= w.kind ? `<span class="vc-kind-tag" title="${_ea(w.kind)}">${_ea(w.kind)}</span>` : '';
+  const kind   = _exprKind(w);
+  const kindTag= kind ? `<span class="vc-kind-tag" title="${_ea(kind)}">${_ea(kind)}</span>` : '';
   const ki     = _kanjiInfo(w.word);
   const shown  = ki ? _klShown(ki.entries) : null;
   const modeDot = shown ? _kanjiDot(shown.mode) : '';
@@ -3073,7 +3126,7 @@ function wordCardHTML(w, lvl){
   const disp   = displayForm(w);
   const rd     = (disp===w.reading) ? '' : (w.reading||'');
   const klData = ki ? ki.levels.join(' ') : '';
-  return `<div class="vocab-card${ki?' is-kanji':''}" onclick="openConjPopup('${_eq(disp)}','${_eq(w.reading||'')}','${_eq(w.def)}','${w.pos}','${_eq(w.exprKey||'')}','${ki?ki.mode:''}','${w.grp||''}','${at||''}')" data-pos="${w.pos}" data-grp="${w.grp||''}" data-adjt="${at||''}" data-kl="${_ea(klData)}"${klModes} data-kmode="${shown?shown.mode:''}" data-kind="${_ea(w.kind||'')}" data-coun="${coun?'1':''}" data-sw="${_ea(w.word)} ${_ea(disp)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(w.def)}">
+  return `<div class="vocab-card${ki?' is-kanji':''}" onclick="openConjPopup('${_eq(disp)}','${_eq(w.reading||'')}','${_eq(w.def)}','${w.pos}','${_eq(w.exprKey||'')}','${ki?ki.mode:''}','${w.grp||''}','${at||''}')" data-pos="${w.pos}" data-grp="${w.grp||''}" data-adjt="${at||''}" data-kl="${_ea(klData)}"${klModes} data-kmode="${shown?shown.mode:''}" data-kind="${_ea(kind||'')}" data-coun="${coun?'1':''}" data-sw="${_ea(w.word)} ${_ea(disp)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(w.def)}">
     <div class="vc-left${rd?'':' vc-left-wrap'} notranslate" translate="no">${rubyHTML(disp,rd,_jpStyle(disp))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${w.def}</span></div>
@@ -3158,12 +3211,14 @@ function kanjiCardHTML(k, kl){
   const kp = _kpos(k.kanji);
   const adjTag = kp.pos==='Adj' ? `<span class="vc-adj-tag adj-${kp.adj||'na'}">${kp.adj==='i'?'い':'な'}</span>` : '';
   const grpTag = kp.grp ? `<span class="vc-grp-tag grp-${kp.grp}">${kp.grp}</span>` : '';
-  return `<div class="vocab-card kanji-card is-kanji" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','${kp.pos}','','${k.mode||''}','${kp.grp||''}','${kp.adj||''}')" data-pos="${kp.pos}" data-grp="${kp.grp||''}" data-adjt="${kp.adj||''}" data-kl="${kl}" data-kmode="${k.mode||''}" data-coun="${coun?'1':''}" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
+  const kind = kp.pos==='Expr' ? (EXPR_KIND[k.kanji]||'') : '';
+  const kindTag = kind ? `<span class="vc-kind-tag" title="${_ea(kind)}">${_ea(kind)}</span>` : '';
+  return `<div class="vocab-card kanji-card is-kanji" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','${kp.pos}','','${k.mode||''}','${kp.grp||''}','${kp.adj||''}')" data-pos="${kp.pos}" data-grp="${kp.grp||''}" data-adjt="${kp.adj||''}" data-kl="${kl}" data-kmode="${k.mode||''}" data-kind="${_ea(kind)}" data-coun="${coun?'1':''}" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
     <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"",_jpStyle(k.kanji))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
     <div class="vc-badges">${coun}${adjTag}${grpTag}<span class="vc-badge pos-${kp.pos}" style="position:static;">${kp.pos}</span></div>
-    <div class="vc-indicators">${_kanjiDot(k.mode)}<span class="vc-lvl-tag" title="Kanji list ${label}">${label}</span></div>
+    <div class="vc-indicators">${_kanjiDot(k.mode)}${kindTag}<span class="vc-lvl-tag" title="Kanji list ${label}">${label}</span></div>
   </div>`;
 }
 
