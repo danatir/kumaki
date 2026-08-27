@@ -157,11 +157,11 @@ main{overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;positi
 .gram-fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:8px;padding:6px 0 8px;align-items:start;}
 .gram-section-emoji{display:inline-flex;align-items:center;margin-right:3px;color:var(--mid);flex-shrink:0;}
 .gc-meaning{font-size:11.5px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;}
-.gc-pattern{font-size:12px;font-weight:700;color:var(--red);font-family:Arial,sans-serif;background:var(--rose);border-radius:8px;padding:7px 10px;line-height:1.6;}
+.gc-pattern{background:var(--rose);border-radius:10px;padding:9px 11px;}
 .gram-fc{background:var(--white);border:1px solid var(--dot);border-radius:12px;padding:14px 16px 14px;display:flex;flex-direction:column;gap:9px;height:100%;box-sizing:border-box;transition:outline .6s ease,box-shadow .6s ease;}
 .gram-fc-label{display:flex;flex-direction:column;gap:1px;}
-.gc-t{font-family:'Chihaya','Noto Serif JP',serif;font-size:16px;font-weight:700;color:var(--ink);line-height:1.3;}
-.gc-t-en{font:600 10px/1.4 Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);}
+.gc-t{font:700 14px/1.35 Arial,sans-serif;color:var(--ink);letter-spacing:.01em;}
+.gc-t-jp{font-family:'Chihaya','Noto Serif JP',serif;font-size:13px;color:var(--red);line-height:1.4;}
 .gram-fc-rule{display:flex;flex-direction:column;}
 .gc-rule-line{display:block;}
 .gc-rule-en{display:block;font-size:10px;color:var(--sub);font-family:Arial,sans-serif;margin-top:1px;}
@@ -1077,3 +1077,25 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
   color:var(--dim);margin:0 0 12px;}
 .gc-legend i{font-style:normal;display:inline-flex;align-items:center;gap:4px;}
 .gc-legend b{font-weight:800;}
+
+/* ── Pattern block: one row per clause, one chip per transformation ─────── */
+.pt{display:flex;flex-direction:column;gap:6px;}
+.pt-row{display:flex;align-items:flex-start;gap:7px;}
+.pt-g,.pt-qa{flex:0 0 auto;min-width:19px;height:19px;border-radius:10px;display:inline-flex;
+  align-items:center;justify-content:center;background:var(--red);color:#fff;
+  font:800 10px/1 Arial,sans-serif;padding:0 5px;margin-top:2px;}
+.pt-qa{background:var(--mid);}
+.pt-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.pt-x{display:inline-flex;align-items:center;gap:5px;background:var(--white);
+  border:1px solid var(--dot);border-radius:8px;padding:3px 8px;
+  font-family:'Chihaya','Noto Serif JP',serif;font-size:13px;line-height:1.3;}
+.pt-x b{font-weight:700;color:var(--mid);}
+.pt-x i{font-style:normal;color:var(--dot);font-size:11px;}
+.pt-x em{font-style:normal;font-weight:800;color:var(--red);}
+.pt-x-plain{font-weight:600;color:var(--ink);}
+.pt-frame{font-family:'Chihaya','Noto Serif JP',serif;font-size:13.5px;line-height:1.7;color:var(--ink);}
+
+/* Embedded video explanation inside a card */
+.gc-vid{position:relative;width:100%;aspect-ratio:16/9;margin-top:10px;
+  border-radius:9px;overflow:hidden;background:var(--bg);border:1px solid var(--dot);}
+.gc-vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
