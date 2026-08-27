@@ -3217,6 +3217,11 @@ const grammarSections=[
    meaning:"〜について = about / regarding. Used when asking or explaining about a topic.",
    pattern:"[Topic] について [Verb]",
    rows:[{jp:"日本について おしえてください。",en:"Please tell me about Japan."},{jp:"私は 日本は おもしろいと こたえました。",en:"I answered that Japan is interesting."},{jp:"私は 道に まよいました。",en:"I got lost."}]},
+  {label:"10-4 ｜ のります・おります・のりかえます ｜ Transport",
+   meaning:"に marks what you board or change onto; で marks the station where you get off or change.",
+   pattern:"[Line] に のります ｜ [Station] で おります ｜ [Station] で [Line] に のりかえます",
+   rows:[{jp:"新大久保で 山手線に のって、あきはばらで おります。",en:"Board the Yamanote Line at Shin-Okubo and get off at Akihabara."},{jp:"私は 中央線に のりかえます。",en:"I transfer to the Chuo Line."},{jp:"えきからうちまで 30分 かかります。",en:"It takes 30 minutes from the station to my house."}],
+   imgs:["10-4-1.webp","10-4-2.webp"]},
 ]},
 
 {id:"G-NOUN",title:"めいし",en:"This, that, whose, from where",goal:"これ・それ・あれ stand alone, この・その・あの need a noun, and の links one noun to another.",vid:{"u":"https://www.youtube.com/watch?v=jSVmeco5kJM","t":"この・その・あの — short explanation"},emoji:_gicon.point,cards:[
@@ -3432,19 +3437,11 @@ const grammarSections=[
    rows:[{jp:"たべてください。",en:"Please eat."},{jp:"そのカメラを みせてください。",en:"Please show me that camera."},{jp:"でんわばんごうを おしえてください。",en:"Please tell me your phone number."},{jp:"もういちど 言ってください。",en:"Please say it once more."}],
    note:"Three uses drilled in class: ①「どうぞ」inviting ②「おねがいします」requesting ③ instruction.",
    imgs:["9-2-2.webp","9-2-4.webp"]},
-  {label:"10-1 ｜ Vましょうか・Vてください・Vてもいいですか まとめ",
+  {label:"Vましょうか・Vてください・Vてもいいですか ｜ Who does the action?",
    meaning:"The three て-form patterns side by side — who does the action changes each time.",
    pattern:"「Vましょうか」= I do it for you ｜「Vてください」= you do it for me ｜「Vてもいいですか」= I want to do it",
-   rows:[{jp:"（1）Vましょうか ＝ 私が Vます。",en:"A offers; A does it."},{jp:"（2）Vてください ＝ あなたが Vます、おねがいします。",en:"B is asked; B does it."},{jp:"（3）Vてもいいですか ＝ 私が Vたいです。いいですか。",en:"A asks permission; A does it."}],
-   imgs:["10-1-4.webp","ref-expr-4.webp"]},
-  {label:"Vましょうか・Vてください・Vてもいいですか ｜ Who acts?",
-   meaning:"The three request/offer patterns and which person performs the action.",
-   rows:[{jp:"A：すみません、エアコンを けしてください。",en:"B does it — A asks B."},{jp:"A：すみません、エアコンを けしてもいいですか。",en:"A does it — A asks permission."},{jp:"A：エアコンを けしましょうか。",en:"A does it — A offers."}],
-   imgs:["ref-expr-2.webp","ref-expr-3.webp","ref-expr-4.webp"]},
-  {label:"きょうしつの ひょうげん ｜ Classroom phrases",
-   meaning:"What to say when you did not catch something, or need more time.",
-   rows:[{jp:"すみません、もういちど おねがいします。",en:"Sorry, once more please."},{jp:"すみません、ゆっくり おねがいします。",en:"Sorry, more slowly please."},{jp:"ちょっと まってください。",en:"Please wait a moment."},{jp:"わかりました。／ わかりません。",en:"I understand. / I don’t understand."},{jp:"にほんごで なんですか。",en:"What is it in Japanese?"}],
-   imgs:["ref-expr-1.webp"]},
+   rows:[{jp:"（1）Vましょうか ＝ 私が Vます。",en:"A offers; A does it."},{jp:"（2）Vてください ＝ あなたが Vます、おねがいします。",en:"B is asked; B does it."},{jp:"（3）Vてもいいですか ＝ 私が Vたいです。いいですか。",en:"A asks permission; A does it."},{jp:"A：すみません、エアコンを けしてください。",en:"B does it — A asks B."},{jp:"A：すみません、エアコンを けしてもいいですか。",en:"A does it — A asks permission."},{jp:"A：エアコンを けしましょうか。",en:"A does it — A offers."}],
+   imgs:["10-1-4.webp","ref-expr-4.webp","ref-expr-2.webp","ref-expr-3.webp"]},
   {label:"10-1 ｜ 〜てもいいですか ｜ May I …?",
    meaning:"て-form + もいいですか asks permission. Answer はい、どうぞ or すみません、ちょっと….",
    pattern:"[Verb て-form] ＋ もいいですか。",
@@ -3456,6 +3453,11 @@ const grammarSections=[
    rows:[{jp:"じてんしゃに のってはいけません。",en:"You must not ride a bicycle (here)."},{jp:"ここに 車を とめてはいけません。",en:"You must not park a car here."},{jp:"ここに ゴミを だしてはいけません。",en:"You must not put out rubbish here."}],
    note:"Used with class rules: カンニング・ペット・ゴミ・たちいりきんし。",
    imgs:["10-2-2.webp","10-2-3.webp","10-2-4.webp"]},
+  {label:"2-3 ｜ 〜と〜を ください",
+   meaning:"Ask for things in a shop. と joins two nouns (\"and\"); を marks what you want; ください = please give me.",
+   pattern:"[Noun] と [Noun] を ください。",
+   convo:{title:"おみせで ｜ At the shop",lines:[["A","りんごと バナナを ください。","An apple and a banana, please."],["B","はい。","Certainly."],["A","いくらですか。","How much is it?"],["B","370えんです。","370 yen."]]},
+   imgs:["2-3-4.webp"]},
 ]},
 
 {id:"G-CONN",title:"ぶんをつなぐ",en:"Connecting sentences & actions",goal:"でも・そして for another sentence, and て for one action after another.",vid:{"u":"https://www.youtube.com/watch?v=1ucR-mWVOxY","t":"Joining adjectives with くて／で"},emoji:_gicon.chain,cards:[
@@ -3560,7 +3562,19 @@ const grammarSections=[
    imgs:["4-3-1.webp","4-3-2.webp","4-3-3.webp"]},
 ]},
 
-{id:"G-CTR",title:"じょすうし",en:"Counters",goal:"助数詞 — which counter goes with which kind of thing, and where the sound changes are.",vid:{"u":"https://www.youtube.com/watch?v=9u6e1HkxQCs","t":"助数詞 — counter words"},emoji:_gicon.count,cards:[
+{id:"G-CTR",title:"すうじ・じょすうし",en:"Numbers, prices & counters",goal:"Reading numbers aloud, asking a price, and which counter goes with which kind of thing.",vid:{"u":"https://www.youtube.com/watch?v=9u6e1HkxQCs","t":"助数詞 — counter words"},emoji:_gicon.count,cards:[
+  {label:"2-1 ｜ でんわばんごう ｜ Phone numbers",
+   meaning:"Read a phone number digit by digit and put の where the hyphen is. Use なんばん to ask which number.",
+   pattern:"[Person] の でんわばんごうは ＿＿ です。　Q: でんわばんごうは なんばんですか。",
+   rows:[{jp:"080 の 3462 の 9751 です。",en:"080-3462-9751."},{jp:"Q：でんわばんごうは なんばんですか。",en:"What is your phone number?"},{jp:"A：03 の 3328 の 9543 です。",en:"It is 03-3328-9543."}],
+   note:"0＝ゼロ／れい、4＝よん、7＝なな、9＝きゅう when reading numbers aloud. If you miss it: すみません、もういちどおねがいします。／ すみません、ゆっくりおねがいします。",
+   imgs:["2-1-2.webp","2-1-3.webp"]},
+  {label:"2-3 ｜ いくらですか ｜ Prices",
+   meaning:"いくら asks the price. Answer with the number + えん.",
+   pattern:"Q: [Noun] は いくらですか。　A: ＿＿ えんです。",
+   rows:[{jp:"Q：このかさは いくらですか。",en:"How much is this umbrella?"},{jp:"A：1200えんです。",en:"It is 1,200 yen."}],
+   note:"Watch the sound changes: 300＝さんびゃく、600＝ろっぴゃく、800＝はっぴゃく、3000＝さんぜん、8000＝はっせん。",
+   imgs:["2-3-2.webp","2-3-3.webp","2-4-4.webp"]},
   {label:"つ ｜ 1つ、2つ — small & round things",
    meaning:"The native counter used for most small objects when no special counter fits.",
    rows:[{jp:"ひとつ・ふたつ・みっつ・よっつ・いつつ",en:"1–5"},{jp:"むっつ・ななつ・やっつ・ここのつ・とお",en:"6–10"},{jp:"Q：いくつですか。",en:"How many?"}],
@@ -3599,23 +3613,6 @@ const grammarSections=[
    convo:{title:"〜じこしょうかい〜",lines:[["","はじめまして。","Nice to meet you."],["","わたしは ジャスティンです。","I am Justin."],["","アメリカじんです。","I am American."],["","がくせいです。","I am a student."],["","すしが すきです。","I like sushi."],["","どうぞ よろしくおねがいします。","Pleased to meet you."]]},
    note:"★ポイント★ ①ぶんぽう grammar ②はつおん pronunciation ③ないよう content — the three things the report is marked on.",
    imgs:["1-2-4.webp","ref-selfintro-1.webp","ref-selfintro-2.webp","ref-selfintro-3.webp"]},
-  {label:"2-1 ｜ でんわばんごう ｜ Phone numbers",
-   meaning:"Read a phone number digit by digit and put の where the hyphen is. Use なんばん to ask which number.",
-   pattern:"[Person] の でんわばんごうは ＿＿ です。　Q: でんわばんごうは なんばんですか。",
-   rows:[{jp:"080 の 3462 の 9751 です。",en:"080-3462-9751."},{jp:"Q：でんわばんごうは なんばんですか。",en:"What is your phone number?"},{jp:"A：03 の 3328 の 9543 です。",en:"It is 03-3328-9543."}],
-   note:"0＝ゼロ／れい、4＝よん、7＝なな、9＝きゅう when reading numbers aloud. If you miss it: すみません、もういちどおねがいします。／ すみません、ゆっくりおねがいします。",
-   imgs:["2-1-2.webp","2-1-3.webp"]},
-  {label:"2-3 ｜ いくらですか ｜ Prices",
-   meaning:"いくら asks the price. Answer with the number + えん.",
-   pattern:"Q: [Noun] は いくらですか。　A: ＿＿ えんです。",
-   rows:[{jp:"Q：このかさは いくらですか。",en:"How much is this umbrella?"},{jp:"A：1200えんです。",en:"It is 1,200 yen."}],
-   note:"Watch the sound changes: 300＝さんびゃく、600＝ろっぴゃく、800＝はっぴゃく、3000＝さんぜん、8000＝はっせん。",
-   imgs:["2-3-2.webp","2-3-3.webp","2-4-4.webp"]},
-  {label:"2-3 ｜ 〜と〜を ください",
-   meaning:"Ask for things in a shop. と joins two nouns (\"and\"); を marks what you want; ください = please give me.",
-   pattern:"[Noun] と [Noun] を ください。",
-   convo:{title:"おみせで ｜ At the shop",lines:[["A","りんごと バナナを ください。","An apple and a banana, please."],["B","はい。","Certainly."],["A","いくらですか。","How much is it?"],["B","370えんです。","370 yen."]]},
-   imgs:["2-3-4.webp"]},
   {label:"2-4 ｜ おみせの かいわ ｜ Shop conversation",
    meaning:"The full shop dialogue practised in class — ask the price, ask where it is from, then buy it.",
    convo:{title:"おみせで ｜ At the shop",lines:[["A","すみません、（この）とけいは（いくらですか）。","Excuse me, how much is this watch?"],["B","ああ、それは（12,000）円です。","Ah, that one is 12,000 yen."],["A","そうですか。どこのとけいですか。","I see. Where is the watch from?"],["B","スイスのとけいです。","It is a Swiss watch."],["A","じゃあ、これを（ください）。","Then I’ll take this one, please."],["B","はい。ありがとうございました。","Certainly. Thank you very much."]]},
@@ -3629,15 +3626,14 @@ const grammarSections=[
   {label:"11-5 ｜ くつやの かいわ ｜ Shoe-shop conversation",
    meaning:"The information-gap shop conversation using comparison and すぎます.",
    convo:{title:"くつやで ｜ At the shoe shop",lines:[["A","すみません、この黒いパンプスを（みせてください）。","Excuse me, could you show me these black pumps?"],["B","はい、ありますよ。少々お待ちください。","Certainly, we have them. One moment please."],["B","はい、どうぞ。… いかがですか。","Here you are. … How are they?"],["A","うーん。これは、ちょっと…。ヒールが高すぎて、（あるきにくい）です。","Hmm, these are a bit… The heels are too high and hard to walk in."],["B","そうですか…。では、こちらの青いパンプスはどうですか。","I see. Then how about these blue pumps?"],["A","うーん、ちょっとサイズが（小さい）ですね。","Hmm, the size is a little small."],["A","これは、ちょうどいいです！ちょっと（あるいてもいいですか）。","These are just right! May I walk a little?"],["B","もちろんです。どうぞ。","Of course. Go ahead."],["A","ありがとうございます。","Thank you."]]}},
-  {label:"10-4 ｜ のります・おります・のりかえます ｜ Transport",
-   meaning:"に marks what you board or change onto; で marks the station where you get off or change.",
-   pattern:"[Line] に のります ｜ [Station] で おります ｜ [Station] で [Line] に のりかえます",
-   rows:[{jp:"新大久保で 山手線に のって、あきはばらで おります。",en:"Board the Yamanote Line at Shin-Okubo and get off at Akihabara."},{jp:"私は 中央線に のりかえます。",en:"I transfer to the Chuo Line."},{jp:"えきからうちまで 30分 かかります。",en:"It takes 30 minutes from the station to my house."}],
-   imgs:["10-4-1.webp","10-4-2.webp"]},
   {label:"10-4 ｜ どうやって いきますか ｜ Asking the route",
    meaning:"The full route-asking conversation: how, how long, how much.",
    convo:{title:"よこはまへ いきたいです",lines:[["Ａ","すみません、横浜へ行きたいですが、どうやって行きますか。","Excuse me, I want to go to Yokohama — how do I get there?"],["Ｂ","横浜ですね。まず、山手線にのります。","Yokohama, right. First, take the Yamanote Line."],["Ａ","山手線ですね。","The Yamanote Line."],["Ｂ","ええ、山手線にのって、新宿でおりてください。","Yes — take the Yamanote Line and get off at Shinjuku."],["Ａ","新宿ですね。","Shinjuku."],["Ｂ","ええ、新宿で湘南新宿ラインにのりかえて、横浜まで行きます。","Yes, change to the Shonan-Shinjuku Line at Shinjuku and go to Yokohama."],["Ａ","あのう、ここから横浜までどのぐらいかかりますか。","Um, how long does it take from here to Yokohama?"],["Ｂ","45分です。","45 minutes."],["Ａ","いくらかかりますか。","How much does it cost?"],["Ｂ","580円です。","580 yen."],["Ａ","わかりました。どうもありがとうございました。","I see. Thank you very much."],["Ｂ","いいえ、どういたしまして。","Not at all."]]},
    imgs:["10-4-3.webp"]},
+  {label:"きょうしつの ひょうげん ｜ Classroom phrases",
+   meaning:"What to say when you did not catch something, or need more time.",
+   rows:[{jp:"すみません、もういちど おねがいします。",en:"Sorry, once more please."},{jp:"すみません、ゆっくり おねがいします。",en:"Sorry, more slowly please."},{jp:"ちょっと まってください。",en:"Please wait a moment."},{jp:"わかりました。／ わかりません。",en:"I understand. / I don’t understand."},{jp:"にほんごで なんですか。",en:"What is it in Japanese?"}],
+   imgs:["ref-expr-1.webp"]},
 ]},
 ];function renderSheets(){
   const el = document.getElementById('content');
@@ -3809,6 +3805,37 @@ function copySheet(){
   navigator.clipboard.writeText(tsv).then(done).catch(()=>{const ta=document.createElement('textarea');ta.value=tsv;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);done();});
 }
 
+// ── Colour coding for grammar patterns and examples ───────────────────────
+// Particles are only ever highlighted when they stand as their own token —
+// after a space or a slot, and before a space or punctuation. A kana that
+// happens to sit inside a word is never touched.
+const _PARTICLES = ['について','から','まで','より','ごろ','ぐらい','では','には','へは',
+                    'は','が','を','に','で','へ','と','も','の'];
+const _PBOUND_L = '(^|[\\s　\\]）」／/｜])';
+const _PBOUND_R = '($|[\\s　\\[（「／/｜。、])';
+const _PRX = new RegExp(_PBOUND_L+'('+_PARTICLES.join('|')+')'+_PBOUND_R,'g');
+function _hlParticles(t){
+  // run twice: adjacent particles share a boundary character
+  const one = s => s.replace(_PRX, (m,a,p,b)=>a+'<b class="hl-p">'+p+'</b>'+b);
+  return one(one(t));
+}
+// A pattern line: [Slots] one colour, particles another, Q/A and ｜ muted.
+function _hlPattern(t){
+  let s = _ea(t)
+    .replace(/\[([^\]]+)\]/g, (m,x)=>'\u0001'+x+'\u0002')
+    .replace(/([QAＱＡ])(\s*[:：])/g, '<span class="hl-qa">$1$2</span>')
+    .replace(/｜/g, '<span class="hl-sep">｜</span>');
+  s = _hlParticles(s);
+  return s.replace(/\u0001/g,'<span class="hl-slot">').replace(/\u0002/g,'</span>');
+}
+// Example sentences are NOT auto-coloured. A particle in running text cannot
+// be told apart from the same kana inside a word without parsing: an audit of
+// this data flagged でも, the て-form of のむ/よむ/およぐ, ちょっと, どうも and
+// この as false hits. Only the speaker markers, which are plain ASCII, are
+// marked — the rule itself is colour-coded in the pattern line above.
+function _hlExample(t){
+  return _ea(t).replace(/([QAＱＡ])(\s*[:：])/g, '<span class="hl-qa">$1$2</span>');
+}
 function renderGrammar(){
   const q = currentSearch;
   const el = document.getElementById('content');
@@ -3822,11 +3849,11 @@ function renderGrammar(){
     const useCards=cards.length?cards:sec.cards;
     const cardsHtml=useCards.map(c=>{
       const meaningHtml=c.meaning?`<div class="gc-meaning">${c.meaning}</div>`:'';
-      const patternHtml=c.pattern?`<div class="gc-pattern notranslate" translate="no">${c.pattern}</div>`:'';
-      const rowsHtml=(c.rows||[]).map(r=>`<span class="gc-ex" translate="no">${r.jp}<span class="gc-ex-en">${_warn(r.en)}</span></span>`).join('');
+      const patternHtml=c.pattern?`<div class="gc-pattern notranslate" translate="no">${_hlPattern(c.pattern)}</div>`:'';
+      const rowsHtml=(c.rows||[]).map(r=>`<span class="gc-ex" translate="no">${_hlExample(r.jp)}<span class="gc-ex-en">${_warn(r.en)}</span></span>`).join('');
       const noteHtml=c.note?`<div class="gc-note">${c.note}</div>`:'';
       const convoHtml=c.convo?`<div class="gc-convo"><div class="gc-convo-title notranslate" translate="no">${c.convo.title}</div>${
-        c.convo.lines.map(l=>`<div class="gc-convo-line"><span class="gc-convo-sp notranslate" translate="no">${l[0]||''}</span><span class="gc-convo-jp notranslate" translate="no">${l[1]}</span><span class="gc-convo-en">${l[2]||''}</span></div>`).join('')
+        c.convo.lines.map(l=>`<div class="gc-convo-line"><span class="gc-convo-sp notranslate" translate="no">${l[0]||''}</span><span class="gc-convo-jp notranslate" translate="no">${_hlExample(l[1])}</span><span class="gc-convo-en">${l[2]||''}</span></div>`).join('')
       }</div>`:'';
       const imgsHtml=(c.imgs&&c.imgs.length)?`<div class="gc-imgs">${
         c.imgs.map(src=>`<button class="gc-img-btn" onclick="openMaterial('materials/${src}')" title="Class slide — tap to enlarge"><img class="gc-img" loading="lazy" decoding="async" data-src="materials/${src}" alt="Slide from the class material"></button>`).join('')
@@ -3841,8 +3868,10 @@ function renderGrammar(){
       return `<div class="gram-fc">${head}${body}<div class="gc-foot">${imgsHtml}${noteHtml}</div></div>`;
     }).join('');
     const goalHtml=sec.goal?`<div class="gram-goal"><span class="gram-goal-tag">ゴール</span>${sec.goal}</div>`:'';
+    const hasPat=useCards.some(c=>c.pattern);
+    const legendHtml=hasPat?`<div class="gc-legend"><i><b class="hl-slot">slot</b> what you swap in</i><i><b class="hl-p">は</b> particle</i></div>`:'';
     const vidHtml=sec.vid?`<a class="gram-vid" href="${sec.vid.u}" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 7.2a2.7 2.7 0 0 0-1.9-1.9C18 4.8 12 4.8 12 4.8s-6 0-7.7.5A2.7 2.7 0 0 0 2.4 7.2 28 28 0 0 0 2 12a28 28 0 0 0 .4 4.8 2.7 2.7 0 0 0 1.9 1.9c1.7.5 7.7.5 7.7.5s6 0 7.7-.5a2.7 2.7 0 0 0 1.9-1.9A28 28 0 0 0 22 12a28 28 0 0 0-.4-4.8zM10 15.2V8.8l5.2 3.2z"/></svg><span>${sec.vid.t}</span></a>`:'';
-    return `<div class="gram-section"><div class="gram-section-header" onclick="toggleGramSection(this)"><div style="display:flex;align-items:baseline;gap:6px;"><span class="gram-section-emoji">${sec.emoji}</span><span class="gram-section-title notranslate" translate="no">${sec.title}</span><span class="gram-section-en">${sec.en}</span></div><span class="gram-section-arrow">\u203a</span></div><div class="gram-section-body">${goalHtml}${vidHtml}<div class="gram-fc-grid">${cardsHtml}</div></div></div>`;
+    return `<div class="gram-section"><div class="gram-section-header" onclick="toggleGramSection(this)"><div style="display:flex;align-items:baseline;gap:6px;"><span class="gram-section-emoji">${sec.emoji}</span><span class="gram-section-title notranslate" translate="no">${sec.title}</span><span class="gram-section-en">${sec.en}</span></div><span class="gram-section-arrow">\u203a</span></div><div class="gram-section-body">${goalHtml}${vidHtml}${legendHtml}<div class="gram-fc-grid">${cardsHtml}</div></div></div>`;
   };
   // Full-width sections stacked, the same shape as the Words tab.
   const all=sections.map(makeSect).join('');
