@@ -2735,6 +2735,13 @@ function filterCardsInPlace(q){
   // Collapsible lesson sections: hide the ones with no hit, and open the ones
   // that have one so the matches are actually on screen. Without a query the
   // sections go back to whatever the user had open.
+  // a kanji-level heading whose grid has no visible card must hide with it
+  el.querySelectorAll('.kanji-sub-tag').forEach(tag=>{
+    const grid = tag.nextElementSibling;
+    const has = grid && [...grid.querySelectorAll('.vocab-card')].some(c=>c.style.display!=='none');
+    tag.style.display = has ? '' : 'none';
+    if(grid) grid.style.display = has ? '' : 'none';
+  });
   el.querySelectorAll('.words-sec').forEach(sec=>{
     const header = sec.querySelector('.words-sec-header');
     const body   = sec.querySelector('.words-sec-body');
@@ -2973,6 +2980,12 @@ function toggleWordSection(el){
   const k = el.dataset.lvl;
   if(el.classList.contains('open')) _wordsOpenSections.add(k); else _wordsOpenSections.delete(k);
 }
+function toggleAllWords(btn){
+  const anyClosed = [...document.querySelectorAll('.words-sec-header')].some(h=>!h.classList.contains('open'));
+  if(anyClosed) openAllWords(); else closeAllWords();
+  btn.classList.toggle('open', anyClosed);
+  btn.title = anyClosed ? 'Collapse all' : 'Expand all';
+}
 function closeAllWords(){
   _wordsTouched = true;
   document.querySelectorAll('.words-sec-header.open').forEach(h=>{
@@ -3033,17 +3046,18 @@ function renderWords(){
     el.innerHTML = `<div class="empty"><span class="empty-jp">語</span>No words found.</div>`;
     return;
   }
-  const bar = `<div class="words-bar">
-    <button class="words-bar-btn" onclick="openAllWords()">Expand all</button>
-    <button class="words-bar-btn" onclick="closeAllWords()">Collapse all</button>
-  </div>`;
+  const allOpen = groups.every(g=>_wordsOpenSections.has(g.key));
+  const bar = `<div class="words-bar"><button class="sec-toggle${allOpen?' open':''}" id="words-toggle"
+    onclick="toggleAllWords(this)" title="${allOpen?'Collapse all':'Expand all'}" aria-label="Expand or collapse all">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </button></div>`;
   el.innerHTML = bar + groups.map(g=>
     `<div class="words-sec">
       <div class="words-sec-header" data-lvl="${g.key}" onclick="toggleWordSection(this)">
-        <div class="words-sec-head-l">
-          <span class="lt-key">${g.label}</span>${g.sub?`<span class="lt-sub notranslate" translate="no">${g.sub}</span>`:''}
-        </div>
-        <div class="words-sec-head-r"><span class="lt-count">${g.count}</span><span class="gram-section-arrow">›</span></div>
+        <span class="gram-section-arrow">›</span>
+        <span class="lt-key">${g.label}</span>${g.sub?`<span class="lt-sub notranslate" translate="no">${g.sub}</span>`:''}
+        <span class="lt-line"></span>
+        <span class="lt-count">${g.count}</span>
       </div>
       <div class="words-sec-body">${g.raw?g.cards:`<div class="vocab-grid">${g.cards}</div>`}</div>
     </div>`
@@ -3096,6 +3110,21 @@ function openMaterial(src){
   ov.innerHTML='<img src="'+src+'" alt="Class slide"><button class="ml-close" aria-label="Close">\u2715</button>';
   ov.style.display='flex';
   requestAnimationFrame(()=>ov.classList.add('visible'));
+}
+function openAllGram(){
+  document.querySelectorAll('.gram-section-header').forEach(h=>{
+    if(h.classList.contains('open')) return;
+    _loadSectionImages(h);
+    h.classList.add('open'); h.nextElementSibling.classList.add('open');
+    h.closest('.gram-section').classList.add('open');
+    const t=h.querySelector('.gram-section-title'); if(t)_gramOpenSections.add(t.textContent.trim());
+  });
+}
+function toggleAllGram(btn){
+  const anyClosed=[...document.querySelectorAll('.gram-section-header')].some(h=>!h.classList.contains('open'));
+  if(anyClosed) openAllGram(); else closeAllGram();
+  btn.classList.toggle('open', anyClosed);
+  btn.title = anyClosed ? 'Collapse all' : 'Expand all';
 }
 function closeAllGram(){
   document.querySelectorAll('.gram-section-header.open').forEach(h=>{h.classList.remove('open');h.nextElementSibling.classList.remove('open');h.closest('.gram-section').classList.remove('open');});
@@ -3895,11 +3924,12 @@ function renderGrammar(){
     const hasPat=useCards.some(c=>c.pattern);
     const legendHtml=hasPat?`<div class="gc-legend"><i><b class="hl-slot">slot</b> what you swap in</i><i><b class="hl-p">は</b> particle</i></div>`:'';
     const vidHtml=sec.vid?`<a class="gram-vid" href="${sec.vid.u}" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 7.2a2.7 2.7 0 0 0-1.9-1.9C18 4.8 12 4.8 12 4.8s-6 0-7.7.5A2.7 2.7 0 0 0 2.4 7.2 28 28 0 0 0 2 12a28 28 0 0 0 .4 4.8 2.7 2.7 0 0 0 1.9 1.9c1.7.5 7.7.5 7.7.5s6 0 7.7-.5a2.7 2.7 0 0 0 1.9-1.9A28 28 0 0 0 22 12a28 28 0 0 0-.4-4.8zM10 15.2V8.8l5.2 3.2z"/></svg><span>${sec.vid.t}</span></a>`:'';
-    return `<div class="gram-section"><div class="gram-section-header" onclick="toggleGramSection(this)"><div style="display:flex;align-items:baseline;gap:6px;"><span class="gram-section-emoji">${sec.emoji}</span><span class="gram-section-title notranslate" translate="no">${sec.title}</span><span class="gram-section-en">${sec.en}</span></div><span class="gram-section-arrow">\u203a</span></div><div class="gram-section-body">${goalHtml}${vidHtml}${legendHtml}<div class="gram-fc-grid">${cardsHtml}</div></div></div>`;
+    return `<div class="gram-section"><div class="gram-section-header" onclick="toggleGramSection(this)"><span class="gram-section-arrow">\u203a</span><span class="gram-section-emoji">${sec.emoji}</span><span class="gram-section-en">${sec.en}</span><span class="gram-section-title notranslate" translate="no">${sec.title}</span><span class="lt-line"></span><span class="lt-count">${sec.cards.length} rules</span></div><div class="gram-section-body">${goalHtml}${vidHtml}${legendHtml}<div class="gram-fc-grid">${cardsHtml}</div></div></div>`;
   };
   // Full-width sections stacked, the same shape as the Words tab.
   const all=sections.map(makeSect).join('');
-  const closeBtn=`<div style="display:flex;justify-content:flex-end;margin-bottom:8px;"><button onclick="closeAllGram()" title="Close all" style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--dot);background:var(--white);color:var(--mid);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;transition:all .12s;" onmouseover="this.style.background='var(--rose)'" onmouseout="this.style.background='var(--white)'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`;
+  const anyGramClosed = sections.some(x=>!_gramOpenSections.has(x.title));
+  const closeBtn=`<div class="words-bar"><button class="sec-toggle${anyGramClosed?'':' open'}" onclick="toggleAllGram(this)" title="${anyGramClosed?'Expand all':'Collapse all'}" aria-label="Expand or collapse all"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div>`;
   el.innerHTML=closeBtn+`<div class="gram-sections-grid">${all}</div>`;
   // Restore open sections after re-render
   if(_gramOpenSections.size>0){

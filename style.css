@@ -360,15 +360,15 @@ body.open .sticky-search{left:160px;}
 .trans-output{font-size:14px;color:var(--ink);font-family:Arial,sans-serif;line-height:1.6;}
 .trans-placeholder{color:var(--dim);font-size:11px;font-family:Arial,sans-serif;}
 .gram-section{margin-bottom:6px;}
-.gram-section-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--rose);border-radius:10px;cursor:pointer;border:1px solid var(--dot);transition:border-color .12s,background .15s;user-select:none;}
-.gram-section-header:hover{border-color:var(--mid);}
-.gram-section-header.open{border-radius:10px 10px 0 0;border-bottom-color:transparent;}
+.gram-section-header{display:flex;align-items:center;gap:9px;padding:6px 2px;background:none;border:none;cursor:pointer;user-select:none;font:700 9px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);}
+.gram-section-header:hover .gram-section-en{color:var(--ink);}
+
 .gram-section-title{font-family:'Chihaya','Noto Serif JP',serif;font-size:15px;color:var(--ink);font-weight:600;}
 .gram-section-en{font-size:11px;color:var(--sub);font-family:Arial,sans-serif;margin-left:8px;}
 .gram-section-arrow{font-size:14px;color:var(--mid);transition:transform .2s;display:inline-block;}
 .gram-section-header.open .gram-section-arrow{transform:rotate(90deg);}
-.gram-section-body{background:var(--white);border:1px solid var(--dot);border-top:none;border-radius:0 0 10px 10px;padding:0 12px;max-height:0;overflow:hidden;transition:max-height .32s cubic-bezier(.4,0,.2,1),padding .32s cubic-bezier(.4,0,.2,1),opacity .25s ease;opacity:0;pointer-events:none;}
-.gram-section-body.open{max-height:none;overflow:visible;padding:8px 12px 12px;opacity:1;pointer-events:auto;}
+.gram-section-body{background:none;border:none;padding:0;max-height:0;overflow:hidden;opacity:0;pointer-events:none;transition:max-height .32s cubic-bezier(.4,0,.2,1),opacity .25s ease;}
+.gram-section-body.open{max-height:none;overflow:visible;padding:2px 0 18px;opacity:1;pointer-events:auto;}
 .gram-rule{margin-bottom:0;padding:5px 0;border-bottom:1px solid var(--dot);}
 .gram-rule:last-child{border-bottom:none;}
 .gram-rule-pattern{font-family:'Chihaya','Noto Serif JP',serif;font-size:14px;color:var(--red);display:inline;margin-right:8px;}
@@ -949,25 +949,20 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 
 /* ── Words tab: collapsible vocabulary-lesson sections ─────────────────── */
 .words-bar{display:flex;justify-content:flex-end;gap:6px;margin:0 0 10px;}
-.words-bar-btn{font-size:10px;font-weight:600;font-family:Arial,sans-serif;color:var(--mid);background:var(--white);
-  border:1px solid var(--dot);border-radius:14px;padding:4px 11px;cursor:pointer;transition:all .12s;}
-.words-bar-btn:hover{background:var(--rose);border-color:var(--mid);}
 .words-sec{margin-bottom:6px;}
-.words-sec-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 13px;
-  background:var(--rose);border-radius:10px;cursor:pointer;border:1px solid var(--dot);
-  transition:border-color .12s,background .15s;user-select:none;}
-.words-sec-header:hover{border-color:var(--mid);}
-.words-sec-header.open{border-radius:10px 10px 0 0;border-bottom-color:transparent;}
+.words-sec-header{display:flex;align-items:center;gap:9px;padding:6px 2px;background:none;border:none;
+  cursor:pointer;user-select:none;font:700 9px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);}
+.words-sec-header:hover .lt-key{color:var(--ink);}
+
 .words-sec-head-l{display:flex;align-items:baseline;gap:8px;min-width:0;flex-wrap:wrap;}
 .words-sec-head-r{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .words-sec-header .lt-key,.words-sec-header .lt-count{font-size:9px;font-family:Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;}
 .words-sec-header .lt-count{font-weight:500;color:var(--dim);letter-spacing:.06em;}
 .words-sec-header .gram-section-arrow{transition:transform .2s;color:var(--mid);}
 .words-sec-header.open .gram-section-arrow{transform:rotate(90deg);}
-.words-sec-body{background:var(--white);border:1px solid var(--dot);border-top:none;border-radius:0 0 10px 10px;
-  padding:0 12px;max-height:0;overflow:hidden;opacity:0;pointer-events:none;
-  transition:max-height .32s cubic-bezier(.4,0,.2,1),padding .32s cubic-bezier(.4,0,.2,1),opacity .25s ease;}
-.words-sec-body.open{max-height:none;overflow:visible;padding:10px 12px 12px;opacity:1;pointer-events:auto;}
+.words-sec-body{background:none;border:none;padding:0;max-height:0;overflow:hidden;opacity:0;pointer-events:none;
+  transition:max-height .32s cubic-bezier(.4,0,.2,1),opacity .25s ease;}
+.words-sec-body.open{max-height:none;overflow:visible;padding:2px 0 18px;opacity:1;pointer-events:auto;}
 
 /* KL badge on a card that is also on the kanji list */
 .vc-kl-tag{font-size:8px;font-weight:800;letter-spacing:.04em;color:#8a4a3c;background:rgba(200,120,100,.14);
@@ -1099,3 +1094,28 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 .gc-vid{position:relative;width:100%;aspect-ratio:16/9;margin-top:10px;
   border-radius:9px;overflow:hidden;background:var(--bg);border:1px solid var(--dot);}
 .gc-vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+
+/* ── Collapsible sections: a title, a rule and a count. No box. ─────────── */
+.words-sec,.gram-section{margin-bottom:0;}
+.words-sec-header .lt-key,.gram-section-header .gram-section-en{font-weight:800;color:var(--red);letter-spacing:.14em;}
+.words-sec-header .lt-sub,.gram-section-header .gram-section-title{
+  font-family:'Chihaya','Noto Serif JP',serif;font-size:13px;letter-spacing:0;text-transform:none;
+  color:var(--ink);font-weight:600;}
+.words-sec-header .lt-count,.gram-section-header .lt-count{font-weight:500;color:var(--dim);letter-spacing:.06em;white-space:nowrap;}
+.words-sec-header .lt-line,.gram-section-header .lt-line{flex:1;height:1px;background:var(--dot);min-width:14px;}
+.gram-section-header .gram-section-emoji{display:inline-flex;color:var(--mid);}
+.words-sec-header .gram-section-arrow,.gram-section-header .gram-section-arrow{
+  color:var(--dot);transition:transform .2s;font-size:14px;line-height:1;}
+.words-sec-header.open .gram-section-arrow,.gram-section-header.open .gram-section-arrow{transform:rotate(90deg);color:var(--red);}
+
+/* One round control for expand / collapse all */
+.words-bar{display:flex;justify-content:flex-end;margin:0 0 4px;}
+.sec-toggle{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--dot);background:var(--white);
+  color:var(--mid);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;
+  transition:all .14s;}
+.sec-toggle:hover{border-color:var(--red);color:var(--red);background:var(--rose);}
+.sec-toggle svg{transition:transform .2s;}
+.sec-toggle.open svg{transform:rotate(180deg);}
+
+/* Grammar cards sit on the page now, so they keep their own outline */
+.gram-fc{box-shadow:0 1px 3px rgba(0,0,0,.04);}
