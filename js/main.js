@@ -3145,7 +3145,7 @@ const _gicon = {
 };
 
 const grammarSections=[
-{id:"G-JOSHI",title:"じょし",en:"Particles",goal:"は・が・を・で・へ・に・も・と — which particle marks what, and the pairs that get confused.",emoji:_gicon.joshi,cards:[
+{id:"G-JOSHI",title:"じょし",en:"Particles",goal:"は・が・を・で・へ・に・も・と — which particle marks what, and the pairs that get confused.",vid:{"u":"https://www.youtube.com/watch?v=ufxBFUb4-7g","t":"Basic Japanese particles"},emoji:_gicon.joshi,cards:[
   {label:"1-2 ｜ 〜は ⚪︎⚪︎ です",
    meaning:"The basic Japanese sentence. は marks the topic (what you are talking about); です closes the sentence politely.",
    pattern:"[Topic] は [Noun] です。",
@@ -3219,7 +3219,7 @@ const grammarSections=[
    rows:[{jp:"日本について おしえてください。",en:"Please tell me about Japan."},{jp:"私は 日本は おもしろいと こたえました。",en:"I answered that Japan is interesting."},{jp:"私は 道に まよいました。",en:"I got lost."}]},
 ]},
 
-{id:"G-NOUN",title:"めいし",en:"This, that, whose, from where",goal:"これ・それ・あれ stand alone, この・その・あの need a noun, and の links one noun to another.",emoji:_gicon.point,cards:[
+{id:"G-NOUN",title:"めいし",en:"This, that, whose, from where",goal:"これ・それ・あれ stand alone, この・その・あの need a noun, and の links one noun to another.",vid:{"u":"https://www.youtube.com/watch?v=jSVmeco5kJM","t":"この・その・あの — short explanation"},emoji:_gicon.point,cards:[
   {label:"2-2 ｜ これ・それ・あれ",
    meaning:"Three demonstratives that stand alone as nouns: これ = near me, それ = near you, あれ = away from both of us.",
    pattern:"これ / それ / あれ は [Noun] です。",
@@ -3250,7 +3250,7 @@ const grammarSections=[
    imgs:["3-1-3.webp"]},
 ]},
 
-{id:"G-ADJ",title:"けいようし",en:"Adjectives",goal:"The two families, how each attaches to a noun, how to join two, and how to say what something looks like.",emoji:_gicon.adj,cards:[
+{id:"G-ADJ",title:"けいようし",en:"Adjectives",goal:"The two families, how each attaches to a noun, how to join two, and how to say what something looks like.",vid:{"u":"https://www.youtube.com/watch?v=1VwyXw1gUwA","t":"い-adjectives and な-adjectives"},emoji:_gicon.adj,cards:[
   {label:"3-2 ｜ い形容詞 ｜ い-adjectives",
    meaning:"い-adjectives end in い. Positive: 〜いです。 Negative: drop い → 〜くありません。",
    pattern:"[Noun] は [い-adj] です。／ [い-adj minus い] ＋ くありません。",
@@ -3297,7 +3297,7 @@ const grammarSections=[
    imgs:["8-6-1.webp","8-6-2.webp","8-6-3.webp","8-6-4.webp"]},
 ]},
 
-{id:"G-VERB",title:"どうし",en:"Verbs & their forms",goal:"The three groups and the forms they take: ます, dictionary, て, and 〜ています.",emoji:_gicon.verb,cards:[
+{id:"G-VERB",title:"どうし",en:"Verbs & their forms",goal:"The three groups and the forms they take: ます, dictionary, て, and 〜ています.",vid:{"u":"https://www.youtube.com/watch?v=ZEEe4rweLAQ","t":"Spotting the verb group from ます"},emoji:_gicon.verb,cards:[
   {label:"5-1〜5-4 ｜ どうし ｜ Verb groups",
    meaning:"Every verb belongs to Group 1, 2 or 3. The group decides every later form (て-form, dictionary form, ない-form).",
    pattern:"①Group 1 ｜ ②Group 2 ｜ ③Group 3 (します・きます)",
@@ -3335,7 +3335,7 @@ const grammarSections=[
    imgs:["9-3-1.webp","9-3-2.webp","9-3-3.webp"]},
 ]},
 
-{id:"G-PAST",title:"かこけい",en:"Past tense",goal:"Past and past-negative for verbs, い-adjectives, な-adjectives and nouns.",emoji:_gicon.past,cards:[
+{id:"G-PAST",title:"かこけい",en:"Past tense",goal:"Past and past-negative for verbs, い-adjectives, な-adjectives and nouns.",vid:{"u":"https://www.youtube.com/watch?v=C6BghJTnpvM","t":"Past tense ました"},emoji:_gicon.past,cards:[
   {label:"6-1 ｜ 〜ました ／ 〜ませんでした ｜ Verb past",
    meaning:"Past of a ます-verb: ました (did) and ませんでした (did not).",
    pattern:"[Verb]ます → [Verb]ました　／　[Verb]ません → [Verb]ませんでした",
@@ -3359,7 +3359,7 @@ const grammarSections=[
    imgs:["6-2-3.webp","6-2-4.webp","6-1-4.webp"]},
 ]},
 
-{id:"G-EXIST",title:"そんざい・いち",en:"Existence & position",goal:"あります for things, います for living things, and where one thing sits relative to another.",emoji:_gicon.exist,cards:[
+{id:"G-EXIST",title:"そんざい・いち",en:"Existence & position",goal:"あります for things, います for living things, and where one thing sits relative to another.",vid:{"u":"https://www.youtube.com/watch?v=gQMqFixIiwE","t":"あります vs います"},emoji:_gicon.exist,cards:[
   {label:"7-1 ｜ 〜に 〜が あります／います",
    meaning:"あります = a thing exists. います = a living thing exists. に marks the place, が marks the thing.",
    pattern:"[Place] に [Noun] が あります／います。",
@@ -3385,7 +3385,7 @@ const grammarSections=[
    imgs:["7-3-4.webp","7-3-1.webp"]},
 ]},
 
-{id:"G-WANT",title:"きぼう・このみ",en:"Wants & likes",goal:"〜たいです, 〜がほしいです, 〜がすきです — the patterns that mark their object with が.",emoji:_gicon.heart,cards:[
+{id:"G-WANT",title:"きぼう・このみ",en:"Wants & likes",goal:"〜たいです, 〜がほしいです, 〜がすきです — the patterns that mark their object with が.",vid:{"u":"https://www.youtube.com/watch?v=nCfLxNUUXbg","t":"〜たいです — saying what you want"},emoji:_gicon.heart,cards:[
   {label:"8-4 ｜ 〜たいです ｜ Want to do",
    meaning:"Take the ます-stem and add たいです. The object may be marked with を or が.",
    pattern:"[Verb ます-stem] ＋ たいです。",
@@ -3415,7 +3415,7 @@ const grammarSections=[
    imgs:["8-5-4.webp"]},
 ]},
 
-{id:"G-REQ",title:"いらい・きょか",en:"Requests, offers & permission",goal:"Ask someone to do it, offer to do it yourself, ask whether you may, and state what is not allowed.",emoji:_gicon.hand,cards:[
+{id:"G-REQ",title:"いらい・きょか",en:"Requests, offers & permission",goal:"Ask someone to do it, offer to do it yourself, ask whether you may, and state what is not allowed.",vid:{"u":"https://www.youtube.com/watch?v=ZskrDL0LtFc","t":"〜てもいいですか — asking permission"},emoji:_gicon.hand,cards:[
   {label:"9-1 ｜ 〜ましょうか ｜ Shall I …?",
    meaning:"Offer to do something for the other person. Take the ます-stem + ましょうか.",
    pattern:"[Verb ます-stem] ＋ ましょうか。",
@@ -3458,7 +3458,7 @@ const grammarSections=[
    imgs:["10-2-2.webp","10-2-3.webp","10-2-4.webp"]},
 ]},
 
-{id:"G-CONN",title:"ぶんをつなぐ",en:"Connecting sentences & actions",goal:"でも・そして for another sentence, and て for one action after another.",emoji:_gicon.chain,cards:[
+{id:"G-CONN",title:"ぶんをつなぐ",en:"Connecting sentences & actions",goal:"でも・そして for another sentence, and て for one action after another.",vid:{"u":"https://www.youtube.com/watch?v=1ucR-mWVOxY","t":"Joining adjectives with くて／で"},emoji:_gicon.chain,cards:[
   {label:"3本文 ｜ でも ｜ Reading text",
    meaning:"でも joins two sentences with a contrast (\"but\"). It starts the second sentence.",
    pattern:"[Sentence]。 でも、[Sentence]。",
@@ -3481,7 +3481,7 @@ const grammarSections=[
    imgs:["10-5-3.webp"]},
 ]},
 
-{id:"G-COMP",title:"ひかく・ていど",en:"Comparison & degree",goal:"More than, most of all, too much, easy or hard to do, and how often.",emoji:_gicon.compare,cards:[
+{id:"G-COMP",title:"ひかく・ていど",en:"Comparison & degree",goal:"More than, most of all, too much, easy or hard to do, and how often.",vid:{"u":"https://www.youtube.com/shorts/HDgpOAWgfpQ","t":"AのほうがBより — 1-minute short"},emoji:_gicon.compare,cards:[
   {label:"11-1 ｜ 〜のほうが 〜より ｜ A is more … than B",
    meaning:"のほうが marks the winner of the comparison; より marks the one it beats.",
    pattern:"[A] のほうが [B] より [Adj] です。",
@@ -3529,7 +3529,7 @@ const grammarSections=[
    rows:[{jp:"私は しゅうまつだけ パンやで アルバイトします。",en:"I work at the bakery only on weekends."}]},
 ]},
 
-{id:"G-TIME",title:"じかん",en:"Time & dates",goal:"The clock, から〜まで, the days and months, and asking someone their schedule.",emoji:_gicon.clock,cards:[
+{id:"G-TIME",title:"じかん",en:"Time & dates",goal:"The clock, から〜まで, the days and months, and asking someone their schedule.",vid:{"u":"https://www.youtube.com/watch?v=M-COP8FZTKA","t":"Telling the time"},emoji:_gicon.clock,cards:[
   {label:"4-1 ｜ いま、なんじですか ｜ Telling the time",
    meaning:"Times are [number]じ [number]ふん. 30 minutes = はん.",
    pattern:"Q: いま、なんじですか。　A: ⚪︎じ⚪︎ふんです。",
@@ -3560,7 +3560,7 @@ const grammarSections=[
    imgs:["4-3-1.webp","4-3-2.webp","4-3-3.webp"]},
 ]},
 
-{id:"G-CTR",title:"じょすうし",en:"Counters",goal:"助数詞 — which counter goes with which kind of thing, and where the sound changes are.",emoji:_gicon.count,cards:[
+{id:"G-CTR",title:"じょすうし",en:"Counters",goal:"助数詞 — which counter goes with which kind of thing, and where the sound changes are.",vid:{"u":"https://www.youtube.com/watch?v=9u6e1HkxQCs","t":"助数詞 — counter words"},emoji:_gicon.count,cards:[
   {label:"つ ｜ 1つ、2つ — small & round things",
    meaning:"The native counter used for most small objects when no special counter fits.",
    rows:[{jp:"ひとつ・ふたつ・みっつ・よっつ・いつつ",en:"1–5"},{jp:"むっつ・ななつ・やっつ・ここのつ・とお",en:"6–10"},{jp:"Q：いくつですか。",en:"How many?"}],
@@ -3841,7 +3841,8 @@ function renderGrammar(){
       return `<div class="gram-fc">${head}${body}<div class="gc-foot">${imgsHtml}${noteHtml}</div></div>`;
     }).join('');
     const goalHtml=sec.goal?`<div class="gram-goal"><span class="gram-goal-tag">ゴール</span>${sec.goal}</div>`:'';
-    return `<div class="gram-section"><div class="gram-section-header" onclick="toggleGramSection(this)"><div style="display:flex;align-items:baseline;gap:6px;"><span class="gram-section-emoji">${sec.emoji}</span><span class="gram-section-title notranslate" translate="no">${sec.title}</span><span class="gram-section-en">${sec.en}</span></div><span class="gram-section-arrow">\u203a</span></div><div class="gram-section-body">${goalHtml}<div class="gram-fc-grid">${cardsHtml}</div></div></div>`;
+    const vidHtml=sec.vid?`<a class="gram-vid" href="${sec.vid.u}" target="_blank" rel="noopener noreferrer"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 7.2a2.7 2.7 0 0 0-1.9-1.9C18 4.8 12 4.8 12 4.8s-6 0-7.7.5A2.7 2.7 0 0 0 2.4 7.2 28 28 0 0 0 2 12a28 28 0 0 0 .4 4.8 2.7 2.7 0 0 0 1.9 1.9c1.7.5 7.7.5 7.7.5s6 0 7.7-.5a2.7 2.7 0 0 0 1.9-1.9A28 28 0 0 0 22 12a28 28 0 0 0-.4-4.8zM10 15.2V8.8l5.2 3.2z"/></svg><span>${sec.vid.t}</span></a>`:'';
+    return `<div class="gram-section"><div class="gram-section-header" onclick="toggleGramSection(this)"><div style="display:flex;align-items:baseline;gap:6px;"><span class="gram-section-emoji">${sec.emoji}</span><span class="gram-section-title notranslate" translate="no">${sec.title}</span><span class="gram-section-en">${sec.en}</span></div><span class="gram-section-arrow">\u203a</span></div><div class="gram-section-body">${goalHtml}${vidHtml}<div class="gram-fc-grid">${cardsHtml}</div></div></div>`;
   };
   // Full-width sections stacked, the same shape as the Words tab.
   const all=sections.map(makeSect).join('');
