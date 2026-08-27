@@ -2924,14 +2924,21 @@ function _kanjiInfo(word){
 // Which level/mode a card shows: the one you picked, else the earliest.
 function _klShown(entries){
   // entries run lowest level first
+  const overall = entries.some(e=>e.mode==='write') ? 'write' : 'read';
   if(activeKanjiLevels.size){
     const sel = entries.filter(e=>activeKanjiLevels.has(e.kl));
-    // Pick several levels and you get the level you meet it at, with what the
-    // last of those levels asks of you: KL5+KL6 on 新聞 gives KL5 and "write".
-    if(sel.length) return {kl: sel[0].kl, mode: sel[sel.length-1].mode};
+    if(sel.length){
+      // KL1–KL8 are a progression: 新聞 really is reading-only at KL5 and a
+      // writing word at KL6, so the requirement comes from the highest level
+      // you picked. サイン is not a stage in that progression — it is a
+      // separate deck that reuses kanji you already write — so it must never
+      // downgrade a term to read-only. 東 stays a writing kanji under サイン.
+      const staged = sel.filter(e=>e.kl!=='SIGN');
+      const mode = staged.length ? staged[staged.length-1].mode : overall;
+      return {kl: sel[0].kl, mode};
+    }
   }
-  const final = entries.some(e=>e.mode==='write') ? 'write' : 'read';
-  return {kl: entries[0].kl, mode: final};
+  return {kl: entries[0].kl, mode: overall};
 }
 function _klBadge(kl){
   const label = kl==='SIGN' ? 'サイン' : kl;
