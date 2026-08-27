@@ -1035,17 +1035,22 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 .ff-panel.open .ff-line:nth-child(9){transition-delay:.18s}
 .ff-panel.open .ff-line:nth-child(10){transition-delay:.20s}
 /* one shape for every button in the menu */
-.ff-panel .float-btn{height:32px;min-width:80px;width:auto;padding:0 14px;border-radius:16px;
+.ff-panel .float-btn{box-sizing:border-box;height:32px;min-width:0;width:92px;flex:0 0 92px;padding:0;border-radius:16px;align-self:center;
   font:700 11px/1 Arial,sans-serif;border:1.5px solid var(--dot);background:var(--white);color:var(--mid);
   box-shadow:0 2px 8px rgba(0,0,0,.10);display:flex;align-items:center;justify-content:center;}
 .ff-panel .float-btn.active{background:var(--red);color:var(--white);border-color:var(--red);}
-.ff-panel .ff-sub-btn{min-width:34px;padding:0 10px;}
-.ff-panel .ff-clear{font-weight:600;color:var(--dim);}
+/* one glyph or one digit: a true circle. Longer labels keep the pill. */
+.ff-panel .ff-sub-btn{box-sizing:border-box;width:32px;min-width:0;flex:0 0 32px;padding:0;border-radius:50%;}
+.ff-panel .ff-sub-btn.ff-wide{width:62px;flex:0 0 62px;border-radius:16px;}
+.ff-panel .ff-clear{background:var(--red);border-color:var(--red);color:#fff;font-weight:800;}
+.ff-panel .ff-clear:hover{background:#a3323f;border-color:#a3323f;color:#fff;}
 /* sub-buttons share their parent's line, sitting to its left */
-.ff-subs{display:flex;align-items:center;justify-content:flex-end;gap:5px;flex-wrap:wrap;
-  max-width:330px;max-height:0;opacity:0;overflow:hidden;pointer-events:none;
-  transition:opacity .18s ease,max-height .22s ease;}
-.ff-subs.visible{max-height:120px;opacity:1;pointer-events:auto;overflow:visible;}
+/* the chips that appear sit in one row that grows leftward, so no button
+   already on screen ever shifts */
+.ff-subs{display:flex;align-items:center;justify-content:flex-end;gap:5px;flex-wrap:nowrap;
+  max-width:0;opacity:0;overflow:hidden;pointer-events:none;
+  transition:opacity .18s ease,max-width .24s ease;}
+.ff-subs.visible{max-width:520px;opacity:1;pointer-events:auto;}
 
 /* Sheets: pick which columns the Copy button puts on the clipboard */
 .copy-cols{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:10px 0 0;}

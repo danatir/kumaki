@@ -6,7 +6,7 @@
 <title>くまキィ</title>
 <link rel="icon" type="image/png" href="images/favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=20260827y">
+<link rel="stylesheet" href="style.css?v=20260828e">
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
 <script>
   // ── Service Worker (rate-limit interceptor) ──────────────────────────────
@@ -292,7 +292,7 @@
     <div class="ff-panel" id="ff-panel">
       <div class="ff-line"><button class="float-btn" id="flt-Noun" onclick="toggleFilter('Noun',this)">Noun</button></div>
       <div class="ff-line">
-        <span class="ff-subs float-sub" id="sub-Verb">
+        <span class="ff-subs" id="sub-Verb">
           <button class="float-btn ff-sub-btn" id="flt-G1" onclick="toggleSubFilter('G1',this)" title="Group 1">1</button>
           <button class="float-btn ff-sub-btn" id="flt-G2" onclick="toggleSubFilter('G2',this)" title="Group 2">2</button>
           <button class="float-btn ff-sub-btn" id="flt-G3" onclick="toggleSubFilter('G3',this)" title="Group 3">3</button>
@@ -300,7 +300,7 @@
         <button class="float-btn" id="flt-Verb" onclick="toggleFilter('Verb',this)">Verb</button>
       </div>
       <div class="ff-line">
-        <span class="ff-subs float-sub" id="sub-Adj">
+        <span class="ff-subs" id="sub-Adj">
           <button class="float-btn ff-sub-btn notranslate" translate="no" id="flt-i" onclick="toggleSubFilter('i',this)" title="い-adjective">い</button>
           <button class="float-btn ff-sub-btn notranslate" translate="no" id="flt-na" onclick="toggleSubFilter('na',this)" title="な-adjective">な</button>
         </span>
@@ -309,8 +309,10 @@
       <div class="ff-line"><button class="float-btn" id="flt-Adv"  onclick="toggleFilter('Adv',this)">Adv</button></div>
       <div class="ff-line"><button class="float-btn" id="flt-Conj" onclick="toggleFilter('Conj',this)">Conj</button></div>
       <div class="ff-line"><button class="float-btn" id="flt-Expr" onclick="toggleFilter('Expr',this)">Expr</button></div>
+      <div class="ff-line"><button class="float-btn" id="flt-coun" onclick="toggleCounterFilter(this)" title="Words that have a counter table">Counters</button></div>
+      <div class="ff-line"><button class="float-btn" data-kindfilter="Greeting" onclick="toggleKindFilter('Greeting',this)" title="Greetings">Greeting</button></div>
       <div class="ff-line">
-        <span class="ff-subs float-sub" id="sub-Kanji">
+        <span class="ff-subs" id="sub-Kanji">
           <button class="float-btn ff-sub-btn" id="kflt-read" onclick="toggleKanjiMode('read',this)" title="Read-only kanji (よみ)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           <button class="float-btn ff-sub-btn" id="kflt-KL1" onclick="toggleKanjiLevel('KL1',this)" title="Kanji level 1">1</button>
           <button class="float-btn ff-sub-btn" id="kflt-KL2" onclick="toggleKanjiLevel('KL2',this)" title="Kanji level 2">2</button>
@@ -320,13 +322,11 @@
           <button class="float-btn ff-sub-btn" id="kflt-KL6" onclick="toggleKanjiLevel('KL6',this)" title="Kanji level 6">6</button>
           <button class="float-btn ff-sub-btn" id="kflt-KL7" onclick="toggleKanjiLevel('KL7',this)" title="Kanji level 7">7</button>
           <button class="float-btn ff-sub-btn" id="kflt-KL8" onclick="toggleKanjiLevel('KL8',this)" title="Kanji level 8">8</button>
-          <button class="float-btn ff-sub-btn notranslate" translate="no" id="kflt-SIGN" onclick="toggleKanjiLevel('SIGN',this)" title="Kanji on signs">サイン</button>
+          <button class="float-btn ff-sub-btn ff-wide notranslate" translate="no" id="kflt-SIGN" onclick="toggleKanjiLevel('SIGN',this)" title="Kanji on signs">サイン</button>
         </span>
         <button class="float-btn" id="flt-Kanji" onclick="toggleFilter('Kanji',this)">Kanji</button>
       </div>
-      <div class="ff-line"><button class="float-btn" id="flt-coun" onclick="toggleCounterFilter(this)" title="Words that have a counter table">Counters</button></div>
-      <div class="ff-line"><button class="float-btn" data-kindfilter="Greeting" onclick="toggleKindFilter('Greeting',this)" title="Greetings">Greeting</button></div>
-      <div class="ff-line"><button class="float-btn ff-clear" onclick="clearAllFilters()">Clear all</button></div>
+      <div class="ff-line"><button class="float-btn ff-clear" onclick="clearAllFilters()">Clear</button></div>
     </div>
   </div>
   <button class="translator-toggle" onclick="toggleTranslator()"><img src="https://takoboto.jp/takoboto_48x48.png" width="46" height="46" style="display:block;border-radius:50%;" /></button>
@@ -367,7 +367,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
 <script src="dmak-master/dist/dmak.js"></script>
-<script src="js/main.js?v=20260827y"></script>
+<script src="js/main.js?v=20260828e"></script>
 
 
 
@@ -377,8 +377,8 @@
 
 
 
-<script src="js/utils.js?v=20260827y"></script>
-<script src="js/app.js?v=20260827y"></script>
+<script src="js/utils.js?v=20260828e"></script>
+<script src="js/app.js?v=20260828e"></script>
 <script>
 (function(){
   var _ppUser = null;

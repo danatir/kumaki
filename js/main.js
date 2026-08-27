@@ -1961,7 +1961,7 @@ function restoreTabState(tab){
 function applyFilterVisuals(){
   // clear all non-kanji filter buttons and sub-panels
   document.querySelectorAll('.float-btn').forEach(b=>{ if(!b.id.startsWith('kflt')) b.classList.remove('active'); });
-  document.querySelectorAll('.float-sub').forEach(s=>s.classList.remove('visible'));
+  document.querySelectorAll('.ff-subs').forEach(s=>s.classList.remove('visible'));
   // restore pos filter button
   if(activeFilter){
     const fb = document.getElementById('flt-'+activeFilter);
@@ -2185,24 +2185,26 @@ function setTab(tab, btn){
   }
 }
 
+// On the Words tab a filter is a display pass; elsewhere it still re-renders.
+function _refilter(){ if(currentTab==='words') applyWordFilters(); else render(); }
 function toggleFilter(pos, btn){
   if(activeFilter === pos){
     activeFilter = null; activeSubFilter = null;
     btn.classList.remove('active');
-    document.querySelectorAll('.float-sub').forEach(s=>s.classList.remove('visible'));
+    document.querySelectorAll('.ff-subs').forEach(s=>s.classList.remove('visible'));
     document.querySelectorAll('.float-btn[id^="flt-G"], .float-btn[id^="flt-i"], .float-btn[id^="flt-na"]').forEach(b=>b.classList.remove('active'));
   } else {
     activeFilter = pos; activeSubFilter = null;
     document.querySelectorAll('.float-btn').forEach(b=>{ if(!b.id.startsWith('kflt')) b.classList.remove('active'); });
     btn.classList.add('active');
-    document.querySelectorAll('.float-sub').forEach(s=>s.classList.remove('visible'));
+    document.querySelectorAll('.ff-subs').forEach(s=>s.classList.remove('visible'));
     document.querySelectorAll('.float-btn[id^="flt-G"], .float-btn[id^="flt-i"], .float-btn[id^="flt-na"]').forEach(b=>b.classList.remove('active'));
     if(pos==='Verb') setTimeout(()=>document.getElementById('sub-Verb').classList.add('visible'),60);
     if(pos==='Adj') setTimeout(()=>document.getElementById('sub-Adj').classList.add('visible'),60);
     if(pos==='Kanji') setTimeout(()=>document.getElementById('sub-Kanji').classList.add('visible'),60);
   }
   _updateFilterBadge();
-  render();
+  _refilter();
 }
 
 function toggleSubFilter(sub, btn){
@@ -2215,7 +2217,7 @@ function toggleSubFilter(sub, btn){
     btn.classList.add('active');
   }
   _updateFilterBadge();
-  render();
+  _refilter();
 }
 
 // The Words filters live in a menu; the badge shows how many are active.
@@ -2223,12 +2225,12 @@ let _ffOpen = false;
 function toggleCounterFilter(btn){
   activeCounterOnly = !activeCounterOnly;
   btn.classList.toggle('active', activeCounterOnly);
-  _updateFilterBadge(); render();
+  _updateFilterBadge(); _refilter();
 }
 function toggleKindFilter(kind, btn){
   activeKind = (activeKind===kind) ? null : kind;
   document.querySelectorAll('[data-kindfilter]').forEach(b=>b.classList.toggle('active', b.dataset.kindfilter===activeKind));
-  _updateFilterBadge(); render();
+  _updateFilterBadge(); _refilter();
 }
 function toggleFilterMenu(){
   _ffOpen = !_ffOpen;
@@ -2248,12 +2250,12 @@ function _updateFilterBadge(){
 }
 function clearAllFilters(){
   activeFilter=null; activeSubFilter=null; kanjiReadOnly=false; activeCounterOnly=false; activeKind=null; activeKanjiLevels.clear();
-  applyFilterVisuals(); render();
+  applyFilterVisuals(); _refilter();
 }
 function toggleKanjiMode(mode, btn){
   kanjiReadOnly = !kanjiReadOnly;
   btn.classList.toggle('active', kanjiReadOnly);
-  render();
+  _refilter();
 }
 
 // ── Romaji conversion ──
@@ -2304,7 +2306,7 @@ const _H2R=(()=>{
   return t;
 })();
 
-function toRomaji(str){
+function _toRomajiRaw(str){
   if(!str) return '';
   str=str.toLowerCase();
   let r='',i=0;
@@ -2328,6 +2330,15 @@ function toRomaji(str){
   }
   return r;
 }
+// The suggestion scan converts the same few thousand forms on every keystroke.
+// Converting each one once and remembering it turns that into a map lookup.
+const _romajiCache = new Map();
+function toRomaji(str){
+  let v = _romajiCache.get(str);
+  if(v === undefined){ v = _toRomajiRaw(str); _romajiCache.set(str, v); }
+  return v;
+}
+
 
 const _NUMERAL_WORDS = {'0':'zero','1':'one','2':'two','3':'three','4':'four','5':'five','6':'six','7':'seven','8':'eight','9':'nine','10':'ten','11':'eleven','12':'twelve','20':'twenty','100':'hundred','200':'two hundred','300':'three hundred','1000':'thousand','10000':'ten thousand'};
 function matchesSearch(q, ...fields){
@@ -2385,7 +2396,7 @@ function doSearch(val){
   if(currentTab==='words'){
     if(!currentSearch){ preSearchScrollPos = null; }
     clearTimeout(_renderTimer);
-    _renderTimer = setTimeout(()=>filterCardsInPlace(currentSearch), 0);
+    _renderTimer = setTimeout(applyWordFilters, 0);
     // Debounced explicit retranslate for suggestions — fires after user pauses typing
     clearTimeout(_suggRetranslateTimer);
     if(currentSearch){
@@ -2467,6 +2478,23 @@ let _suggIndex = null;
 let _suggActive = -1;
 let _suggHits = [];
 
+// The suggestion index costs ~2s to build. Doing that on the first keystroke
+// is what made search feel stuck, so warm it while the browser is idle.
+let _suggWarmed = false;
+function _warmSuggIndex(){
+  if(_suggWarmed) return;
+  _suggWarmed = true;
+  const go = () => {
+    try{
+      buildSuggIndex();
+      // Convert every form now too, so the first keystroke is a map lookup
+      // rather than a few thousand conversions.
+      for(const item of (_suggIndex||[])) for(const f of item.searchForms) if(f) toRomaji(f.toLowerCase());
+    }catch(e){}
+  };
+  if(window.requestIdleCallback) requestIdleCallback(go, {timeout:4000});
+  else setTimeout(go, 1200);
+}
 function buildSuggIndex(){
   if(_suggIndex) return;
   _suggIndex = [];
@@ -2947,7 +2975,7 @@ function wordCardHTML(w, lvl){
   const disp   = displayForm(w);
   const rd     = (disp===w.reading) ? '' : (w.reading||'');
   const klData = ki ? ki.levels.join(' ') : '';
-  return `<div class="vocab-card${ki?' is-kanji':''}" onclick="openConjPopup('${_eq(disp)}','${_eq(w.reading||'')}','${_eq(w.def)}','${w.pos}','${_eq(w.exprKey||'')}','${ki?ki.mode:''}','${w.grp||''}','${at||''}')" data-grp="${w.grp||''}" data-adjt="${at||''}" data-kl="${_ea(klData)}" data-kmode="${ki?ki.mode:''}" data-kind="${_ea(w.kind||'')}" data-coun="${coun?'1':''}" data-sw="${_ea(w.word)} ${_ea(disp)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(w.def)}">
+  return `<div class="vocab-card${ki?' is-kanji':''}" onclick="openConjPopup('${_eq(disp)}','${_eq(w.reading||'')}','${_eq(w.def)}','${w.pos}','${_eq(w.exprKey||'')}','${ki?ki.mode:''}','${w.grp||''}','${at||''}')" data-pos="${w.pos}" data-grp="${w.grp||''}" data-adjt="${at||''}" data-kl="${_ea(klData)}" data-kmode="${ki?ki.mode:''}" data-kind="${_ea(w.kind||'')}" data-coun="${coun?'1':''}" data-sw="${_ea(w.word)} ${_ea(disp)}" data-sr="${_ea(w.reading||'')}" data-sd="${_ea(w.def)}">
     <div class="vc-left${rd?'':' vc-left-wrap'} notranslate" translate="no">${rubyHTML(disp,rd,_jpStyle(disp))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${w.def}</span></div>
@@ -2961,7 +2989,7 @@ function wordCardHTML(w, lvl){
 function kanjiCardHTML(k, kl){
   const coun = _counterBadge(k.kanji, k.reading);
   const label = kl==='SIGN' ? 'サイン' : kl;
-  return `<div class="vocab-card kanji-card is-kanji" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','Kanji','','${k.mode||''}')" data-kl="${kl}" data-kmode="${k.mode||''}" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
+  return `<div class="vocab-card kanji-card is-kanji" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','Kanji','','${k.mode||''}')" data-pos="Kanji" data-kl="${kl}" data-kmode="${k.mode||''}" data-coun="${coun?'1':''}" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
     <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"",_jpStyle(k.kanji))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
@@ -2980,11 +3008,10 @@ function toggleWordSection(el){
   const k = el.dataset.lvl;
   if(el.classList.contains('open')) _wordsOpenSections.add(k); else _wordsOpenSections.delete(k);
 }
-function toggleAllWords(btn){
+function toggleAllWords(){
   const anyClosed = [...document.querySelectorAll('.words-sec-header')].some(h=>!h.classList.contains('open'));
   if(anyClosed) openAllWords(); else closeAllWords();
-  btn.classList.toggle('open', anyClosed);
-  btn.title = anyClosed ? 'Collapse all' : 'Expand all';
+  _syncSecToggle();
 }
 function closeAllWords(){
   _wordsTouched = true;
@@ -3007,7 +3034,84 @@ function toggleKanjiLevel(kl, btn){
   if(activeKanjiLevels.has(kl)) activeKanjiLevels.delete(kl); else activeKanjiLevels.add(kl);
   btn.classList.toggle('active', activeKanjiLevels.has(kl));
   _updateFilterBadge();
-  render();
+  _refilter();
+}
+
+// ── Filtering without re-rendering ────────────────────────────────────────
+// Every card is in the DOM once. Changing a filter used to rebuild all 950 of
+// them, which is what made the tab stutter. Now a filter only flips display.
+function _cardPasses(el){
+  const pos = el.dataset.pos || '';
+  const kl  = el.dataset.kl  || '';
+  if(activeCounterOnly && !el.dataset.coun) return false;
+  if(activeKind && el.dataset.kind !== activeKind) return false;
+  if(activeFilter === 'Kanji'){ if(!kl) return false; }
+  else if(activeFilter && pos !== activeFilter) return false;
+  if(activeSubFilter){
+    if(pos === 'Verb' && el.dataset.grp  !== activeSubFilter) return false;
+    if(pos === 'Adj'  && el.dataset.adjt !== activeSubFilter) return false;
+  }
+  if(activeKanjiLevels.size){
+    if(!kl || !kl.split(' ').some(l => activeKanjiLevels.has(l))) return false;
+  }
+  if(kanjiReadOnly && el.dataset.kmode !== 'read') return false;
+  return true;
+}
+function applyWordFilters(){
+  const el = document.getElementById('content');
+  if(!el || currentTab !== 'words') return;
+  const q = currentSearch;
+  const anyFilter = !!(q || activeFilter || activeSubFilter || kanjiReadOnly ||
+                       activeCounterOnly || activeKind || activeKanjiLevels.size);
+  let anyVisible = false;
+  el.querySelectorAll('.vocab-card').forEach(card => {
+    const show = _cardPasses(card) &&
+                 (!q || matchesSearch(q, card.dataset.sw, card.dataset.sr, card.dataset.sd));
+    card.style.display = show ? '' : 'none';
+    if(show) anyVisible = true;
+  });
+  // a kanji-level heading goes when its grid empties
+  el.querySelectorAll('.kanji-sub-tag').forEach(tag => {
+    const grid = tag.nextElementSibling;
+    const has = grid && [...grid.querySelectorAll('.vocab-card')].some(c => c.style.display !== 'none');
+    tag.style.display = has ? '' : 'none';
+    if(grid) grid.style.display = has ? '' : 'none';
+  });
+  // section: hide when empty, count what is left, and open it when filtering
+  el.querySelectorAll('.words-sec').forEach(sec => {
+    const header = sec.querySelector('.words-sec-header');
+    const body   = sec.querySelector('.words-sec-body');
+    if(!header || !body) return;
+    const cards = [...body.querySelectorAll('.vocab-card')];
+    const n = cards.filter(c => c.style.display !== 'none').length;
+    sec.style.display = (anyFilter && !n) ? 'none' : '';
+    const cnt = header.querySelector('.lt-count');
+    if(cnt) cnt.textContent = n + ' ' + (header.dataset.lvl === 'KANJI' ? 'kanji' : 'words');
+    const open = anyFilter ? n > 0 : _wordsOpenSections.has(header.dataset.lvl);
+    header.classList.toggle('open', open);
+    body.classList.toggle('open', open);
+    sec.classList.toggle('open', open);
+  });
+  let empty = el.querySelector('.search-no-results');
+  if(!anyVisible && anyFilter){
+    if(!empty){
+      empty = document.createElement('div');
+      empty.className = 'search-no-results empty';
+      empty.innerHTML = `<span class="empty-jp">？</span>Nothing matches those filters.`;
+      el.appendChild(empty);
+    }
+  } else if(empty){ empty.remove(); }
+  _syncSecToggle();
+}
+// The chevron must show the action that is left, from what is actually open.
+function _syncSecToggle(){
+  const btn = document.querySelector('.sec-toggle');
+  if(!btn) return;
+  const heads = [...document.querySelectorAll('.words-sec-header, .gram-section-header')]
+                  .filter(h => h.closest('[style*="display: none"]') === null);
+  const anyClosed = heads.some(h => !h.classList.contains('open'));
+  btn.classList.toggle('open', !anyClosed);
+  btn.title = anyClosed ? 'Expand all' : 'Collapse all';
 }
 
 function renderWords(){
@@ -3019,7 +3123,7 @@ function renderWords(){
   // own section at the end, grouped by kanji level.
   const groups = [];
   for(const lvl of WORD_LEVELS){
-    const words = (vData[lvl]||[]).filter(_wordPasses);
+    const words = vData[lvl]||[];
     if(!words.length) continue;
     groups.push({
       key: lvl, label: lvl, sub: '',
@@ -3031,7 +3135,7 @@ function renderWords(){
   const koCards = [];
   let koCount = 0;
   for(const kl of KANJI_LEVELS){
-    const list = _sortKanjiLevel((KANJI_BY_LEVEL[kl]||[]).filter(k=>_kanjiPasses(k, kl)));
+    const list = _sortKanjiLevel(KANJI_BY_LEVEL[kl]||[]);
     if(!list.length) continue;
     koCount += list.length;
     koCards.push(`<div class="kanji-sub-tag">${kl==='SIGN'?'サイン':kl}</div><div class="vocab-grid">${
@@ -3048,7 +3152,7 @@ function renderWords(){
   }
   const allOpen = groups.every(g=>_wordsOpenSections.has(g.key));
   const bar = `<div class="words-bar"><button class="sec-toggle${allOpen?' open':''}" id="words-toggle"
-    onclick="toggleAllWords(this)" title="${allOpen?'Collapse all':'Expand all'}" aria-label="Expand or collapse all">
+    onclick="toggleAllWords()" title="${allOpen?'Collapse all':'Expand all'}" aria-label="Expand or collapse all">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
   </button></div>`;
   el.innerHTML = bar + groups.map(g=>
@@ -3063,20 +3167,10 @@ function renderWords(){
     </div>`
   ).join('');
 
-  // Everything is open on arrival. A search, or a kanji-level filter, forces
-  // the sections holding the hits open; otherwise the user's own state wins.
+  // Everything is open on arrival; after that the user's own state wins.
   if(!_wordsTouched) groups.forEach(g=>_wordsOpenSections.add(g.key));
-  const anyFilter = currentSearch || activeKanjiLevels.size || activeFilter ||
-                    activeSubFilter || kanjiReadOnly || activeCounterOnly || activeKind;
-  const openKeys = anyFilter ? groups.map(g=>g.key) : [..._wordsOpenSections];
-  openKeys.forEach(k=>{
-    const h = el.querySelector(`.words-sec-header[data-lvl="${k}"]`);
-    if(h && !h.classList.contains('open')){
-      h.classList.add('open'); h.nextElementSibling.classList.add('open');
-      h.closest('.words-sec').classList.add('open');
-    }
-  });
-  if(currentSearch) filterCardsInPlace(currentSearch);
+  applyWordFilters();
+  _warmSuggIndex();
 }
 
 // back-compat aliases
@@ -3120,11 +3214,10 @@ function openAllGram(){
     const t=h.querySelector('.gram-section-title'); if(t)_gramOpenSections.add(t.textContent.trim());
   });
 }
-function toggleAllGram(btn){
+function toggleAllGram(){
   const anyClosed=[...document.querySelectorAll('.gram-section-header')].some(h=>!h.classList.contains('open'));
   if(anyClosed) openAllGram(); else closeAllGram();
-  btn.classList.toggle('open', anyClosed);
-  btn.title = anyClosed ? 'Collapse all' : 'Expand all';
+  _syncSecToggle();
 }
 function closeAllGram(){
   document.querySelectorAll('.gram-section-header.open').forEach(h=>{h.classList.remove('open');h.nextElementSibling.classList.remove('open');h.closest('.gram-section').classList.remove('open');});
@@ -3929,7 +4022,7 @@ function renderGrammar(){
   // Full-width sections stacked, the same shape as the Words tab.
   const all=sections.map(makeSect).join('');
   const anyGramClosed = sections.some(x=>!_gramOpenSections.has(x.title));
-  const closeBtn=`<div class="words-bar"><button class="sec-toggle${anyGramClosed?'':' open'}" onclick="toggleAllGram(this)" title="${anyGramClosed?'Expand all':'Collapse all'}" aria-label="Expand or collapse all"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div>`;
+  const closeBtn=`<div class="words-bar"><button class="sec-toggle${anyGramClosed?'':' open'}" onclick="toggleAllGram()" title="${anyGramClosed?'Expand all':'Collapse all'}" aria-label="Expand or collapse all"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div>`;
   el.innerHTML=closeBtn+`<div class="gram-sections-grid">${all}</div>`;
   // Restore open sections after re-render
   if(_gramOpenSections.size>0){
@@ -3943,6 +4036,7 @@ function renderGrammar(){
       }
     });
   }
+  _syncSecToggle();
 }
 
 function renderAll(){
