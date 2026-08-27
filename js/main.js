@@ -2906,10 +2906,13 @@ function _counterBadge(word,reading){
 }
 const _EYE='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 const _PEN='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
-// One indicator per kanji term: it is on the class kanji list. Writing implies
-// reading, so there is no separate write mark.
-function _kanjiDot(){
-  return `<span class="vc-ind-dot dot-read" title="On the kanji list">${_EYE}</span>`;
+// The eye means read-only. A kanji you must write, you obviously must also
+// read, so those carry no mark at all — the KL badge already says it is on
+// the list.
+function _kanjiDot(mode){
+  return mode==='read'
+    ? `<span class="vc-ind-dot dot-read" title="Read only — よみ, no writing">${_EYE}</span>`
+    : '';
 }
 // KL badge: the kanji-list level, KL1–KL8 (or サイン).
 function _klTag(ki){
@@ -2933,7 +2936,7 @@ function wordCardHTML(w, lvl){
   const coun   = _counterBadge(w.word, w.reading);
   const kindTag= w.kind ? `<span class="vc-kind-tag" title="${_ea(w.kind)}">${_ea(w.kind)}</span>` : '';
   const ki     = _kanjiInfo(w.word);
-  const kanjiBits = ki ? _kanjiDot() + _klTag(ki) : '';
+  const kanjiBits = ki ? _kanjiDot(ki.mode) + _klTag(ki) : '';
   const disp   = displayForm(w);
   const rd     = (disp===w.reading) ? '' : (w.reading||'');
   const klData = ki ? ki.levels.join(' ') : '';
@@ -2956,7 +2959,7 @@ function kanjiCardHTML(k, kl){
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
     <div class="vc-badges"><span class="vc-badge pos-Kanji" style="position:static;">Kanji</span></div>
-    <div class="vc-indicators">${_kanjiDot()}${coun}<span class="vc-lvl-tag" title="Kanji list ${label}">${label}</span></div>
+    <div class="vc-indicators">${_kanjiDot(k.mode)}${coun}<span class="vc-lvl-tag" title="Kanji list ${label}">${label}</span></div>
   </div>`;
 }
 
