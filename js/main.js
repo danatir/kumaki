@@ -2307,7 +2307,7 @@ function toggleGramFilterMenu(){
 function toggleGramLevel(lv, btn){
   if(activeGramLevels.has(lv)) activeGramLevels.delete(lv); else activeGramLevels.add(lv);
   btn.classList.toggle('active', activeGramLevels.has(lv));
-  _updateGramBadge(); applyGramFilters();
+  _updateGramBadge(); applyGramFilters(true);
 }
 function clearGramFilters(){
   activeGramLevels.clear();
@@ -2321,7 +2321,10 @@ function _updateGramBadge(){
   b.textContent = n ? String(n) : '';
   b.classList.toggle('on', n>0);
 }
-function applyGramFilters(){
+// autoOpen only when the user just changed the selection. Opening on every
+// call meant any re-render — a keystroke, a tab return — forced the sections
+// back open, so Collapse all could never stick.
+function applyGramFilters(autoOpen){
   const on = activeGramLevels.size>0;
   document.querySelectorAll('.gram-section').forEach(sec=>{
     let shown=0;
@@ -2338,7 +2341,7 @@ function applyGramFilters(){
     // still have some open themselves — a filter that leaves twelve collapsed
     // headers has not answered anything.
     const head=sec.querySelector('.gram-section-header');
-    if(on && shown && head && !head.classList.contains('open')) toggleGramSection(head);
+    if(autoOpen && on && shown && head && !head.classList.contains('open')) toggleGramSection(head);
   });
   _syncSecToggle();
 }
@@ -3458,8 +3461,15 @@ function openMaterial(src){
   ov.style.display='flex';
   requestAnimationFrame(()=>ov.classList.add('visible'));
 }
+// Only the sections a filter still shows. Counting the hidden ones made the
+// toggle see "some are closed" forever, so under a filter it opened instead
+// of closing, every time.
+function _gramHeads(){
+  return [...document.querySelectorAll('.gram-section-header')]
+           .filter(h => h.closest('[style*="display: none"]') === null);
+}
 function openAllGram(){
-  document.querySelectorAll('.gram-section-header').forEach(h=>{
+  _gramHeads().forEach(h=>{
     if(h.classList.contains('open')) return;
     _loadSectionImages(h);
     h.classList.add('open'); h.nextElementSibling.classList.add('open');
@@ -3468,13 +3478,16 @@ function openAllGram(){
   });
 }
 function toggleAllGram(){
-  const anyClosed=[...document.querySelectorAll('.gram-section-header')].some(h=>!h.classList.contains('open'));
+  const anyClosed=_gramHeads().some(h=>!h.classList.contains('open'));
   if(anyClosed) openAllGram(); else closeAllGram();
   _syncSecToggle();
 }
 function closeAllGram(){
-  document.querySelectorAll('.gram-section-header.open').forEach(h=>{h.classList.remove('open');h.nextElementSibling.classList.remove('open');h.closest('.gram-section').classList.remove('open');});
-  _gramOpenSections.clear();
+  _gramHeads().filter(h=>h.classList.contains('open')).forEach(h=>{
+    h.classList.remove('open'); h.nextElementSibling.classList.remove('open');
+    h.closest('.gram-section').classList.remove('open');
+    const t=h.querySelector('.gram-section-title'); if(t) _gramOpenSections.delete(t.textContent.trim());
+  });
 }
 const _gicon = {
   intro:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
