@@ -6,7 +6,7 @@
 <title>くまキィ</title>
 <link rel="icon" type="image/png" href="images/favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=20260828w">
+<link rel="stylesheet" href="style.css?v=20260828x">
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
 <script>
   // ── Service Worker (rate-limit interceptor) ──────────────────────────────
@@ -345,19 +345,19 @@
       <span class="ff-count" id="gf-count"></span>
     </button>
     <div class="ff-panel" id="gf-panel">
-      <div class="ff-line"><button class="float-btn" data-lv="L1" id="gflt-L1" onclick="toggleGramLevel('L1',this)" title="Lesson 1">L1</button></div>
-      <div class="ff-line"><button class="float-btn" data-lv="L2" id="gflt-L2" onclick="toggleGramLevel('L2',this)" title="Lesson 2">L2</button></div>
-      <div class="ff-line"><button class="float-btn" data-lv="L3" id="gflt-L3" onclick="toggleGramLevel('L3',this)" title="Lesson 3">L3</button></div>
-      <div class="ff-line"><button class="float-btn" data-lv="L4" id="gflt-L4" onclick="toggleGramLevel('L4',this)" title="Lesson 4">L4</button></div>
-      <div class="ff-line"><button class="float-btn" data-lv="L5" id="gflt-L5" onclick="toggleGramLevel('L5',this)" title="Lesson 5">L5</button></div>
-      <div class="ff-line"><button class="float-btn" data-lv="L6" id="gflt-L6" onclick="toggleGramLevel('L6',this)" title="Lesson 6">L6</button></div>
-      <div class="ff-line"><button class="float-btn" data-lv="L7" id="gflt-L7" onclick="toggleGramLevel('L7',this)" title="Lesson 7">L7</button></div>
-      <div class="ff-line"><button class="float-btn" data-lv="L8" id="gflt-L8" onclick="toggleGramLevel('L8',this)" title="Lesson 8">L8</button></div>
-      <div class="ff-line"><button class="float-btn" data-lv="L9" id="gflt-L9" onclick="toggleGramLevel('L9',this)" title="Lesson 9">L9</button></div>
-      <div class="ff-line"><button class="float-btn" data-lv="L10" id="gflt-L10" onclick="toggleGramLevel('L10',this)" title="Lesson 10">L10</button></div>
-      <div class="ff-line"><button class="float-btn" data-lv="L11" id="gflt-L11" onclick="toggleGramLevel('L11',this)" title="Lesson 11">L11</button></div>
-      <div class="ff-line"><button class="float-btn" data-lv="L12" id="gflt-L12" onclick="toggleGramLevel('L12',this)" title="Lesson 12">L12</button></div>
-      <div class="ff-line"><button class="float-btn ff-clear" onclick="clearGramFilters()">Clear</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L1" id="gflt-L1" onclick="toggleGramLevel('L1',this)" title="Lesson 1">1</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L2" id="gflt-L2" onclick="toggleGramLevel('L2',this)" title="Lesson 2">2</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L3" id="gflt-L3" onclick="toggleGramLevel('L3',this)" title="Lesson 3">3</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L4" id="gflt-L4" onclick="toggleGramLevel('L4',this)" title="Lesson 4">4</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L5" id="gflt-L5" onclick="toggleGramLevel('L5',this)" title="Lesson 5">5</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L6" id="gflt-L6" onclick="toggleGramLevel('L6',this)" title="Lesson 6">6</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L7" id="gflt-L7" onclick="toggleGramLevel('L7',this)" title="Lesson 7">7</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L8" id="gflt-L8" onclick="toggleGramLevel('L8',this)" title="Lesson 8">8</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L9" id="gflt-L9" onclick="toggleGramLevel('L9',this)" title="Lesson 9">9</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L10" id="gflt-L10" onclick="toggleGramLevel('L10',this)" title="Lesson 10">10</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L11" id="gflt-L11" onclick="toggleGramLevel('L11',this)" title="Lesson 11">11</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L12" id="gflt-L12" onclick="toggleGramLevel('L12',this)" title="Lesson 12">12</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn ff-clear" onclick="clearGramFilters()" title="Clear" aria-label="Clear filters"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>
   </div>
   <button class="translator-toggle" onclick="toggleTranslator()"><img src="https://takoboto.jp/takoboto_48x48.png" width="46" height="46" style="display:block;border-radius:50%;" /></button>
@@ -398,7 +398,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
 <script src="dmak-master/dist/dmak.js"></script>
-<script src="js/main.js?v=20260828w"></script>
+<script src="js/main.js?v=20260828x"></script>
 
 
 
@@ -408,8 +408,8 @@
 
 
 
-<script src="js/utils.js?v=20260828w"></script>
-<script src="js/app.js?v=20260828w"></script>
+<script src="js/utils.js?v=20260828x"></script>
+<script src="js/app.js?v=20260828x"></script>
 <script>
 (function(){
   var _ppUser = null;
