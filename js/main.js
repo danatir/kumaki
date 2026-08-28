@@ -2334,7 +2334,13 @@ function applyGramFilters(){
     sec.style.display = shown ? '' : 'none';
     const c=sec.querySelector('.lt-count');
     if(c) c.textContent = shown+(shown===1?' rule':' rules');
+    // Picking a level is a request to read those rules, so the sections that
+    // still have some open themselves — a filter that leaves twelve collapsed
+    // headers has not answered anything.
+    const head=sec.querySelector('.gram-section-header');
+    if(on && shown && head && !head.classList.contains('open')) toggleGramSection(head);
   });
+  _syncSecToggle();
 }
 function toggleFilterMenu(){
   _ffOpen = !_ffOpen;
