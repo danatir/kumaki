@@ -1004,8 +1004,9 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 .vc-kl-tag,.vc-lvl-tag{padding:0 6px;border-radius:9px;}
 .vc-lvl-tag{background:rgba(0,0,0,.05);}
 /* "what it is" tag for words that belong to no level */
-.vc-kind-tag{font:700 8px/17px Arial,sans-serif;letter-spacing:.04em;color:#6a5a86;
-  background:rgba(120,100,160,.14);border-radius:9px;padding:0 6px;white-space:nowrap;}
+.vc-kind-tag{font:700 9px/1 Arial,sans-serif;letter-spacing:.04em;color:#6a5a86;
+  background:rgba(120,100,160,.18);border-radius:20px;padding:2px 8px;white-space:nowrap;
+  display:inline-flex;align-items:center;}
 
 /* A card's Japanese can never push past the card edge */
 .vc-left{flex-shrink:1;min-width:0;max-width:100%;overflow:hidden;}
@@ -1071,12 +1072,13 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 .gf-levels::-webkit-scrollbar{display:none;}
 
 /* Sheets: pick which columns the Copy button puts on the clipboard */
-/* the column chips share the Copy button's row and sit at the right edge */
-.copy-cols{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end;
-  margin-left:auto;padding:0;}
-.cc-label{font:700 8.5px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-right:2px;}
-.cc-chip{height:26px;padding:0 10px;border-radius:13px;border:1.5px solid var(--dot);background:var(--white);
-  color:var(--mid);font:700 10.5px/1 Arial,sans-serif;cursor:pointer;transition:all .12s;}
+/* the column chips follow the Copy button from the left; the Quizlet note is
+   what takes the free space and stays at the right edge */
+.copy-cols{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-start;
+  margin:0;padding:0;}
+.cc-label{font:700 8px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-right:2px;}
+.cc-chip{height:22px;padding:0 8px;border-radius:11px;border:1.5px solid var(--dot);background:var(--white);
+  color:var(--mid);font:700 9.5px/1 Arial,sans-serif;cursor:pointer;transition:all .12s;}
 .cc-chip:hover{border-color:var(--mid);background:var(--rose);}
 .cc-chip.active{background:var(--red);color:var(--white);border-color:var(--red);}
 

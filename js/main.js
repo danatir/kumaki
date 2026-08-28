@@ -1884,12 +1884,15 @@ let currentTab = 'words';
 const scrollPositions = {words:0,grammar:0,sheets:0};
 let currentSearch = '';
 let preSearchScrollPos = null; // scroll position saved before renderAll() takes over
-let activeFilter = null;
-let activeSubFilter = null;
+// Every filter is an independent switch: picking Verb does not un-pick Noun,
+// and several may be on at once. Within a set the members are alternatives
+// (Noun OR Verb); across sets they narrow (Noun AND kanji level 3).
+const activeFilters = new Set();     // Noun, Verb, … and Kanji (list membership)
+const activeSubFilters = new Set();  // G1–G3 for verbs, i/na for adjectives
 // Hide the kanji you only have to read, leaving the ones you must write.
 let hideReadOnly = false;
 let activeCounterOnly = false;   // show only words that have a counter table
-let activeKind = null;           // Greeting, … — the kind tag on a card
+const activeKinds = new Set();   // Question, Counter, Greeting, … on an expression
 const activeKanjiLevels = new Set(); // KL1–KL8 / SIGN filter chips in the Words tab
 const activeGramLevels = new Set();  // L1–L12 chips in the Grammar tab
 
@@ -1910,8 +1913,8 @@ const sheetTabStates = {
 function saveTabState(tab){
   if(!tabState[tab]) return;
   tabState[tab].search    = currentSearch;
-  tabState[tab].filter    = activeFilter;
-  tabState[tab].subFilter = activeSubFilter;
+  tabState[tab].filter    = [...activeFilters];
+  tabState[tab].subFilter = [...activeSubFilters];
   if(tab === 'words'){
     tabState[tab].readOnly  = hideReadOnly;
   }
@@ -1933,8 +1936,8 @@ function saveTabState(tab){
 function restoreTabState(tab){
   if(!tabState[tab]) return;
   currentSearch   = tabState[tab].search    || '';
-  activeFilter    = tabState[tab].filter    || null;
-  activeSubFilter = tabState[tab].subFilter || null;
+  activeFilters.clear();    (tabState[tab].filter    || []).forEach(x=>activeFilters.add(x));
+  activeSubFilters.clear(); (tabState[tab].subFilter || []).forEach(x=>activeSubFilters.add(x));
   if(tab === 'words'){
     hideReadOnly  = tabState[tab].readOnly === true;
   }
@@ -1964,29 +1967,25 @@ function applyFilterVisuals(){
   document.querySelectorAll('.float-btn').forEach(b=>{ if(!b.id.startsWith('kflt')) b.classList.remove('active'); });
   document.querySelectorAll('.ff-subs').forEach(s=>s.classList.remove('visible'));
   // restore pos filter button
-  if(activeFilter){
-    const fb = document.getElementById('flt-'+activeFilter);
+  activeFilters.forEach(f=>{
+    const fb = document.getElementById('flt-'+f);
     if(fb) fb.classList.add('active');
-    if(activeFilter==='Verb'){ const sp=document.getElementById('sub-Verb'); if(sp) sp.classList.add('visible'); }
-    if(activeFilter==='Adj') { const sp=document.getElementById('sub-Adj');  if(sp) sp.classList.add('visible'); }
-    if(activeFilter==='Kanji'){ const sp=document.getElementById('sub-Kanji');if(sp) sp.classList.add('visible'); }
-    if(activeFilter==='Expr'){ const sp=document.getElementById('sub-Expr'); if(sp) sp.classList.add('visible'); }
-  }
-  // restore sub-filter button
-  if(activeSubFilter){
-    const sb = document.getElementById('flt-'+activeSubFilter);
+  });
+  activeSubFilters.forEach(sub=>{
+    const sb = document.getElementById('flt-'+sub);
     if(sb) sb.classList.add('active');
-  }
+  });
+  _syncSubRows();
   // restore the read-only chip
   _syncEyeBtn();
-  if(activeFilter==='Kanji' || activeKanjiLevels.size || hideReadOnly){
+  if(activeFilters.has('Kanji') || activeKanjiLevels.size || hideReadOnly){
     const sk=document.getElementById('sub-Kanji'); if(sk) sk.classList.add('visible');
   }
   const cf = document.getElementById('flt-coun');
   if(cf) cf.classList.toggle('active', activeCounterOnly);
-  document.querySelectorAll('[data-kindfilter]').forEach(b=>b.classList.toggle('active', b.dataset.kindfilter===activeKind));
+  document.querySelectorAll('[data-kindfilter]').forEach(b=>b.classList.toggle('active', activeKinds.has(b.dataset.kindfilter)));
   // a chosen kind keeps its row out, the way a kanji level keeps sub-Kanji out
-  if(activeKind){ const se=document.getElementById('sub-Expr'); if(se) se.classList.add('visible'); }
+  if(activeKinds.size){ const se=document.getElementById('sub-Expr'); if(se) se.classList.add('visible'); }
   KANJI_LEVELS.forEach(kl=>{
     const b = document.getElementById('kflt-'+kl);
     if(b) b.classList.toggle('active', activeKanjiLevels.has(kl));
@@ -2156,7 +2155,7 @@ function setTab(tab, btn){
   if(tab !== 'home'){
     restoreTabState(tab);
   } else {
-    currentSearch = ''; activeFilter = null; activeSubFilter = null;
+    currentSearch = ''; activeFilters.clear(); activeSubFilters.clear();
   }
   const _stb = document.getElementById('scroll-top-btn');
   if(_stb && tab === 'sheets') _stb.classList.remove('visible');
@@ -2243,42 +2242,27 @@ function setTab(tab, btn){
 
 // On the Words tab a filter is a display pass; elsewhere it still re-renders.
 function _refilter(){ if(currentTab==='words') applyWordFilters(); else render(); }
+// A sub-row is out whenever its own button is on or one of its chips is
+// picked, so a chip stays reachable after you un-pick its parent.
+const _SUB_OF = {Verb:['G1','G2','G3'], Adj:['i','na']};
+function _syncSubRows(){
+  const out = (id,on)=>{ const el=document.getElementById(id); if(el) el.classList.toggle('visible', !!on); };
+  out('sub-Verb',  activeFilters.has('Verb')  || _SUB_OF.Verb.some(x=>activeSubFilters.has(x)));
+  out('sub-Adj',   activeFilters.has('Adj')   || _SUB_OF.Adj.some(x=>activeSubFilters.has(x)));
+  out('sub-Kanji', activeFilters.has('Kanji') || activeKanjiLevels.size || hideReadOnly);
+  out('sub-Expr',  activeFilters.has('Expr')  || activeKinds.size);
+}
 function toggleFilter(pos, btn){
-  if(activeFilter === pos){
-    activeFilter = null; activeSubFilter = null;
-    btn.classList.remove('active');
-    document.querySelectorAll('.ff-subs').forEach(s=>s.classList.remove('visible'));
-    document.querySelectorAll('.float-btn[id^="flt-G"], .float-btn[id^="flt-i"], .float-btn[id^="flt-na"]').forEach(b=>b.classList.remove('active'));
-  } else {
-    activeFilter = pos; activeSubFilter = null;
-    // a kind belongs to Expr, so choosing another part of speech clears it
-    // rather than leaving a filter on that can match nothing.
-    if(pos!=='Expr' && activeKind){
-      activeKind = null;
-      document.querySelectorAll('[data-kindfilter]').forEach(b=>b.classList.remove('active'));
-    }
-    document.querySelectorAll('.float-btn').forEach(b=>{ if(!b.id.startsWith('kflt')) b.classList.remove('active'); });
-    btn.classList.add('active');
-    document.querySelectorAll('.ff-subs').forEach(s=>s.classList.remove('visible'));
-    document.querySelectorAll('.float-btn[id^="flt-G"], .float-btn[id^="flt-i"], .float-btn[id^="flt-na"]').forEach(b=>b.classList.remove('active'));
-    if(pos==='Verb') setTimeout(()=>document.getElementById('sub-Verb').classList.add('visible'),60);
-    if(pos==='Adj') setTimeout(()=>document.getElementById('sub-Adj').classList.add('visible'),60);
-    if(pos==='Kanji') setTimeout(()=>document.getElementById('sub-Kanji').classList.add('visible'),60);
-    if(pos==='Expr') setTimeout(()=>document.getElementById('sub-Expr').classList.add('visible'),60);
-  }
+  if(activeFilters.has(pos)) activeFilters.delete(pos); else activeFilters.add(pos);
+  btn.classList.toggle('active', activeFilters.has(pos));
+  _syncSubRows();
   _updateFilterBadge();
   _refilter();
 }
 
 function toggleSubFilter(sub, btn){
-  if(activeSubFilter === sub){
-    activeSubFilter = null;
-    btn.classList.remove('active');
-  } else {
-    activeSubFilter = sub;
-    document.querySelectorAll('#sub-Verb .float-btn, #sub-Adj .float-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-  }
+  if(activeSubFilters.has(sub)) activeSubFilters.delete(sub); else activeSubFilters.add(sub);
+  btn.classList.toggle('active', activeSubFilters.has(sub));
   _updateFilterBadge();
   _refilter();
 }
@@ -2291,9 +2275,9 @@ function toggleCounterFilter(btn){
   _updateFilterBadge(); _refilter();
 }
 function toggleKindFilter(kind, btn){
-  activeKind = (activeKind===kind) ? null : kind;
-  document.querySelectorAll('[data-kindfilter]').forEach(b=>b.classList.toggle('active', b.dataset.kindfilter===activeKind));
-  _updateFilterBadge(); _refilter();
+  if(activeKinds.has(kind)) activeKinds.delete(kind); else activeKinds.add(kind);
+  document.querySelectorAll('[data-kindfilter]').forEach(b=>b.classList.toggle('active', activeKinds.has(b.dataset.kindfilter)));
+  _syncSubRows(); _updateFilterBadge(); _refilter();
 }
 // ── Grammar tab filters ───────────────────────────────────────────────────
 // The same menu the Words tab uses, filtering on the lesson a rule is taught
@@ -2354,7 +2338,8 @@ function toggleFilterMenu(){
   if(t) t.classList.toggle('open', _ffOpen);
 }
 function _activeFilterCount(){
-  return (activeFilter?1:0) + (activeSubFilter?1:0) + (hideReadOnly?1:0) + (activeCounterOnly?1:0) + (activeKind?1:0) + activeKanjiLevels.size;
+  return activeFilters.size + activeSubFilters.size + (hideReadOnly?1:0) +
+         (activeCounterOnly?1:0) + activeKinds.size + activeKanjiLevels.size;
 }
 function _updateFilterBadge(){
   const b=document.getElementById('ff-count');
@@ -2364,7 +2349,9 @@ function _updateFilterBadge(){
   b.classList.toggle('on', n>0);
 }
 function clearAllFilters(){
-  activeFilter=null; activeSubFilter=null; hideReadOnly=false; activeCounterOnly=false; activeKind=null; activeKanjiLevels.clear();
+  activeFilters.clear(); activeSubFilters.clear(); activeKinds.clear(); activeKanjiLevels.clear();
+  hideReadOnly=false; activeCounterOnly=false;
+  _syncSubRows();
   applyFilterVisuals(); _refilter();
 }
 const _EYE_ON  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -2374,6 +2361,7 @@ const _EYE_OFF = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" st
 function toggleKanjiMode(mode, btn){
   hideReadOnly = !hideReadOnly;
   _syncEyeBtn();
+  _syncSubRows();
   _updateFilterBadge();
   _refilter();
 }
@@ -2553,7 +2541,7 @@ function doSearch(val){
   // Also snapshot the translated content on first keystroke for fast restore on clear
   if(currentSearch && wasEmpty){
     const contentEl = document.getElementById('content');
-    if(contentEl){ _contentSnapshot = contentEl.innerHTML; _snapshotMeta = {tab:currentTab, sem, filter:activeFilter}; }
+    if(contentEl){ _contentSnapshot = contentEl.innerHTML; _snapshotMeta = {tab:currentTab, sem, filter:[...activeFilters].sort().join(',')}; }
   }
   clearTimeout(_renderTimer);
   _renderTimer = setTimeout(()=>{
@@ -2565,7 +2553,7 @@ function doSearch(val){
       const contentEl = document.getElementById('content');
       const meta = _snapshotMeta;
       if(contentEl && _contentSnapshot && meta &&
-         meta.tab===currentTab && meta.sem===sem && meta.filter===activeFilter){
+         meta.tab===currentTab && meta.sem===sem && meta.filter===[...activeFilters].sort().join(',')){
         contentEl.innerHTML = _contentSnapshot;
       } else {
         render();
@@ -2865,6 +2853,12 @@ function searchKeyNav(e){
 }
 
 document.addEventListener('click', e=>{ if(!e.target.closest('.sticky-search')) document.getElementById('search-suggestions').classList.remove('visible'); });
+// A menu left hanging open covers the cards behind it, so a click anywhere
+// that is not the menu itself closes it.
+document.addEventListener('click', e=>{
+  if(_ffOpen && !e.target.closest('#words-floats')) toggleFilterMenu();
+  if(_gfOpen && !e.target.closest('#gram-floats')) toggleGramFilterMenu();
+});
 
 function render(){
   if(currentTab==='words') renderWords();
@@ -3056,21 +3050,37 @@ function _klBadge(kl){
   return `<span class="vc-kl-tag" title="Kanji list ${label}">${label}</span>`;
 }
 
+// Several parts of speech at once are alternatives, so a card need only match
+// one of them. "Kanji" is not a part of speech but membership of the kanji
+// list, so it is answered separately.
+function _posPasses(pos, onKanjiList){
+  if(!activeFilters.size) return true;
+  for(const f of activeFilters){
+    if(f==='Kanji' ? onKanjiList : pos===f) return true;
+  }
+  return false;
+}
+// Group and type chips narrow only the cards they can describe: picking G1
+// says nothing about an adjective, so adjectives are left alone by it.
+function _subPasses(pos, grp, adj){
+  if(!activeSubFilters.size) return true;
+  if(pos==='Verb'){
+    const picked = _SUB_OF.Verb.filter(x=>activeSubFilters.has(x));
+    return !picked.length || picked.includes(grp);
+  }
+  if(pos==='Adj'){
+    const picked = _SUB_OF.Adj.filter(x=>activeSubFilters.has(x));
+    return !picked.length || picked.includes(adj);
+  }
+  return true;
+}
 function _wordPasses(w){
   if(activeCounterOnly && !(extraCounterMap[w.word]||extraCounterMap[w.reading]||(counTypeMap[w.word]||{}).key)) return false;
-  if(activeKind && _exprKind(w)!==activeKind) return false;
+  if(activeKinds.size && !activeKinds.has(_exprKind(w))) return false;
   // "Kanji" means "on the kanji list" — it must not short-circuit the level
   // and read-only chips that sit under it.
-  if(activeFilter==='Kanji'){ if(!KANJI_INDEX.get(w.word)) return false; }
-  else if(activeFilter && w.pos!==activeFilter) return false;
-  if(activeSubFilter){
-    if(w.pos==='Verb' && w.grp!==activeSubFilter) return false;
-    if(w.pos==='Adj'){
-      const at = adjType[w.word];
-      if(activeSubFilter==='i'  && at!=='i')  return false;
-      if(activeSubFilter==='na' && at!=='na') return false;
-    }
-  }
+  if(!_posPasses(w.pos, !!KANJI_INDEX.get(w.word))) return false;
+  if(!_subPasses(w.pos, w.grp, adjType[w.word])) return false;
   const ki = _kanjiInfo(w.word);
   // Kanji-level filter: when any level is picked, only kanji-list words show.
   if(activeKanjiLevels.size){
@@ -3082,16 +3092,13 @@ function _wordPasses(w){
   return true;
 }
 function _kanjiPasses(k, kl){
-  if(activeKind && (_kpos(k.kanji).pos!=='Expr' || EXPR_KIND[k.kanji]!==activeKind)) return false;
+  if(activeKinds.size && !activeKinds.has(EXPR_KIND[k.kanji]||'')) return false;
   if(activeCounterOnly && !(extraCounterMap[k.kanji]||extraCounterMap[k.reading]||(counTypeMap[k.kanji]||{}).key)) return false;
   // A kanji entry now states its real part of speech, so Noun or Verb must
   // reach it the same way it reaches a word. "Kanji" stays list membership.
   const kp = _kpos(k.kanji);
-  if(activeFilter && activeFilter!=='Kanji' && kp.pos!==activeFilter) return false;
-  if(activeSubFilter){
-    if(kp.pos==='Verb' && kp.grp!==activeSubFilter) return false;
-    if(kp.pos==='Adj'  && kp.adj!==activeSubFilter) return false;
-  }
+  if(!_posPasses(kp.pos, true)) return false;
+  if(!_subPasses(kp.pos, kp.grp, kp.adj)) return false;
   if(activeKanjiLevels.size && !activeKanjiLevels.has(kl)) return false;
   if(hideReadOnly && k.mode==='read') return false;
   return true;
@@ -3141,8 +3148,8 @@ function wordCardHTML(w, lvl){
     <div class="vc-left${rd?'':' vc-left-wrap'} notranslate" translate="no">${rubyHTML(disp,rd,_jpStyle(disp))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${w.def}</span></div>
-    <div class="vc-badges">${coun}${adjTag}${grpTag}<span class="vc-badge pos-${w.pos}" style="position:static;">${w.pos}</span></div>
-    <div class="vc-indicators">${modeDot}${kindTag}${klTag}<span class="vc-lvl-tag" title="Level ${lvl}">${lvl}</span></div>
+    <div class="vc-badges">${coun}${adjTag}${grpTag}${kindTag}<span class="vc-badge pos-${w.pos}" style="position:static;">${w.pos}</span></div>
+    <div class="vc-indicators">${modeDot}${klTag}<span class="vc-lvl-tag" title="Level ${lvl}">${lvl}</span></div>
   </div>`;
 }
 
@@ -3228,8 +3235,8 @@ function kanjiCardHTML(k, kl){
     <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"",_jpStyle(k.kanji))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
-    <div class="vc-badges">${coun}${adjTag}${grpTag}<span class="vc-badge pos-${kp.pos}" style="position:static;">${kp.pos}</span></div>
-    <div class="vc-indicators">${_kanjiDot(k.mode)}${kindTag}<span class="vc-lvl-tag" title="Kanji list ${label}">${label}</span></div>
+    <div class="vc-badges">${coun}${adjTag}${grpTag}${kindTag}<span class="vc-badge pos-${kp.pos}" style="position:static;">${kp.pos}</span></div>
+    <div class="vc-indicators">${_kanjiDot(k.mode)}<span class="vc-lvl-tag" title="Kanji list ${label}">${label}</span></div>
   </div>`;
 }
 
@@ -3268,6 +3275,7 @@ function openAllWords(){
 function toggleKanjiLevel(kl, btn){
   if(activeKanjiLevels.has(kl)) activeKanjiLevels.delete(kl); else activeKanjiLevels.add(kl);
   btn.classList.toggle('active', activeKanjiLevels.has(kl));
+  _syncSubRows();
   _updateFilterBadge();
   _refilter();
 }
@@ -3279,13 +3287,9 @@ function _cardPasses(el){
   const pos = el.dataset.pos || '';
   const kl  = el.dataset.kl  || '';
   if(activeCounterOnly && !el.dataset.coun) return false;
-  if(activeKind && el.dataset.kind !== activeKind) return false;
-  if(activeFilter === 'Kanji'){ if(!kl) return false; }
-  else if(activeFilter && pos !== activeFilter) return false;
-  if(activeSubFilter){
-    if(pos === 'Verb' && el.dataset.grp  !== activeSubFilter) return false;
-    if(pos === 'Adj'  && el.dataset.adjt !== activeSubFilter) return false;
-  }
+  if(activeKinds.size && !activeKinds.has(el.dataset.kind||'')) return false;
+  if(!_posPasses(pos, !!kl)) return false;
+  if(!_subPasses(pos, el.dataset.grp, el.dataset.adjt)) return false;
   if(activeKanjiLevels.size){
     if(!kl || !kl.split(' ').some(l => activeKanjiLevels.has(l))) return false;
   }
@@ -3296,8 +3300,8 @@ function applyWordFilters(){
   const el = document.getElementById('content');
   if(!el || currentTab !== 'words') return;
   const q = currentSearch;
-  const anyFilter = !!(q || activeFilter || activeSubFilter || hideReadOnly ||
-                       activeCounterOnly || activeKind || activeKanjiLevels.size);
+  const anyFilter = !!(q || activeFilters.size || activeSubFilters.size || hideReadOnly ||
+                       activeCounterOnly || activeKinds.size || activeKanjiLevels.size);
   // A term taught over two levels shows the level you filtered to, with that
   // level's own requirement: 新聞 is KL5 + read-only under a KL5 filter and
   // KL6 with no mark under KL6. With no filter it shows the level you first
@@ -4029,7 +4033,7 @@ const grammarSections=[
 ]},
 ];function renderSheets(){
   const el = document.getElementById('content');
-  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="switchSheet(\'expr\',this)">Expr</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div id="copy-cols" class="copy-cols"></div><div style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="switchSheet(\'expr\',this)">Expr</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div id="copy-cols" class="copy-cols"></div><div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
   // Migrate legacy 'questions' type to 'expr'
   if(currentSheetType === 'questions') currentSheetType = 'expr';
   switchSheet(currentSheetType, document.getElementById('stab-'+currentSheetType) || document.getElementById('stab-verbs'), true);
