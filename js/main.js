@@ -2174,6 +2174,7 @@ function setTab(tab, btn){
       if(stickySearch) stickySearch.classList.add('ss-hidden');
       document.getElementById('words-floats').classList.remove('ff-visible');
       document.getElementById('gram-floats').classList.remove('ff-visible');
+      _syncSecToggle();
       // reset bear bubble to replay its initial delay
       if(typeof window._restartBubble === 'function') window._restartBubble();
       // replay hs-logo-pop entrance animation on home re-entry
@@ -2206,6 +2207,7 @@ function setTab(tab, btn){
       document.getElementById('words-floats').classList.toggle('ff-visible', tab==='words');
       document.getElementById('gram-floats').classList.toggle('ff-visible', tab==='grammar');
     }, 80);
+    _syncSecToggle();
     applyFilterVisuals();
     render();
     requestAnimationFrame(()=>{
@@ -3360,9 +3362,15 @@ function applyWordFilters(){
   _syncSecToggle();
 }
 // The chevron must show the action that is left, from what is actually open.
+// One control for both tabs now that it lives in the search bar.
+function toggleAllSections(){
+  if(currentTab==='grammar') toggleAllGram();
+  else if(currentTab==='words') toggleAllWords();
+}
 function _syncSecToggle(){
   const btn = document.querySelector('.sec-toggle');
   if(!btn) return;
+  btn.classList.toggle('st-visible', currentTab==='words' || currentTab==='grammar');
   const heads = [...document.querySelectorAll('.words-sec-header, .gram-section-header')]
                   .filter(h => h.closest('[style*="display: none"]') === null);
   const anyClosed = heads.some(h => !h.classList.contains('open'));
@@ -3406,12 +3414,7 @@ function renderWords(){
     el.innerHTML = `<div class="empty"><span class="empty-jp">語</span>No words found.</div>`;
     return;
   }
-  const allOpen = groups.every(g=>_wordsOpenSections.has(g.key));
-  const bar = `<div class="words-bar"><button class="sec-toggle${allOpen?' open':''}" id="words-toggle"
-    onclick="toggleAllWords()" title="${allOpen?'Collapse all':'Expand all'}" aria-label="Expand or collapse all">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-  </button></div>`;
-  el.innerHTML = bar + groups.map(g=>
+  el.innerHTML = groups.map(g=>
     `<div class="words-sec">
       <div class="words-sec-header" data-lvl="${g.key}" onclick="toggleWordSection(this)">
         <span class="gram-section-arrow">›</span>
@@ -4291,9 +4294,7 @@ function renderGrammar(){
   };
   // Full-width sections stacked, the same shape as the Words tab.
   const all=sections.map(makeSect).join('');
-  const anyGramClosed = sections.some(x=>!_gramOpenSections.has(x.title));
-  const closeBtn=`<div class="words-bar"><button class="sec-toggle${anyGramClosed?'':' open'}" onclick="toggleAllGram()" title="${anyGramClosed?'Expand all':'Collapse all'}" aria-label="Expand or collapse all"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></div>`;
-  el.innerHTML=closeBtn+`<div class="gram-sections-grid">${all}</div>`;
+  el.innerHTML=`<div class="gram-sections-grid">${all}</div>`;
   // Restore open sections after re-render
   if(_gramOpenSections.size>0){
     document.querySelectorAll('.gram-section-header').forEach(h=>{
