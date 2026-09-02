@@ -2998,16 +2998,33 @@ const KANJI_INDEX = (function(){
 })();
 const KANJI_LEVELS = ['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8','SIGN'];
 // Kanji-list entries that are NOT also vocabulary, grouped by kanji level.
+// A term is one card. 大好きな is on the KL6 list twice (once per part) and
+// 名前 is on both KL3 and KL8; each gets a single card, filed at the level you
+// first meet it. Every level it belongs to still rides along in its badge and
+// its filter data, so a KL8 filter still finds 名前.
 const KANJI_BY_LEVEL = (function(){
   const byLvl = {};
   const vocab = new Set();
   for(const lvl of Object.keys(vocabData[sem]||{})) for(const w of vocabData[sem][lvl]) vocab.add(w.word);
   const kd = kanjiData[sem] || {};
-  for(const kl of Object.keys(kd)) for(const k of kd[kl]){
-    if(vocab.has(k.kanji)) continue;
+  const placed = new Set();
+  for(const kl of KANJI_LEVELS) for(const k of kd[kl]||[]){
+    if(vocab.has(k.kanji) || placed.has(k.kanji)) continue;
+    placed.add(k.kanji);
     (byLvl[kl] = byLvl[kl] || []).push(k);
   }
   return byLvl;
+})();
+// Every lesson a vocabulary word is taught in. 降ります is on the L10 and L12
+// lists; it gets one card, badged L10, and the badge says where else it turns up.
+const VOCAB_LEVELS = (function(){
+  const m = new Map();
+  const vd = vocabData[sem] || {};
+  for(const lvl of WORD_LEVELS) for(const w of vd[lvl]||[]){
+    if(!m.has(w.word)) m.set(w.word, []);
+    if(!m.get(w.word).includes(lvl)) m.get(w.word).push(lvl);
+  }
+  return m;
 })();
 // Merge every KL badge a term carries: 電話 sits on both the KL5 and KL7 lists.
 const _klNum = kl => kl==='SIGN' ? 99 : parseInt(kl.slice(2),10);
@@ -3128,6 +3145,10 @@ function _jpStyle(text){
   const fs = n<=4 ? 36 : n<=6 ? 29 : n<=8 ? 23 : n<=11 ? 19 : 16;
   return 'font-size:'+fs+'px';
 }
+const _lvlTitle = (word, lvl) => {
+  const all = VOCAB_LEVELS.get(word) || [lvl];
+  return all.length > 1 ? 'Taught in lessons ' + all.join(', ') : 'Level ' + lvl;
+};
 function wordCardHTML(w, lvl){
   const at = adjType[w.word];
   const adjTag = w.pos==='Adj' ? `<span class="vc-adj-tag adj-${at||'na'}">${at==='i'?'い':'な'}</span>` : '';
@@ -3149,7 +3170,7 @@ function wordCardHTML(w, lvl){
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${w.def}</span></div>
     <div class="vc-badges">${coun}${adjTag}${grpTag}${kindTag}<span class="vc-badge pos-${w.pos}" style="position:static;">${w.pos}</span></div>
-    <div class="vc-indicators">${modeDot}${klTag}<span class="vc-lvl-tag" title="Level ${lvl}">${lvl}</span></div>
+    <div class="vc-indicators">${modeDot}${klTag}<span class="vc-lvl-tag" title="${_ea(_lvlTitle(w.word, lvl))}">${lvl}</span></div>
   </div>`;
 }
 
@@ -3225,18 +3246,25 @@ const _kpos = w => KANJI_POS[w] || {pos:"Noun"};
 // so it is written once — no second copy of the same tag.
 function kanjiCardHTML(k, kl){
   const coun = _counterBadge(k.kanji, k.reading);
-  const label = kl==='SIGN' ? 'サイン' : kl;
+  // The card is filed at one level but belongs to every level the term is on,
+  // so the badge, the read/write mark and the level filter all read the merged
+  // entry — the same way a vocabulary card that is also on the kanji list does.
+  const ki    = _kanjiInfo(k.kanji) || {entries:[{kl, mode:k.mode}], levels:[kl]};
+  const shown = _klShown(ki.entries);
+  const label = shown.kl==='SIGN' ? 'サイン' : shown.kl;
+  const klModes = ki.entries.length>1
+    ? ' data-klmodes="'+ki.entries.map(e=>e.kl+':'+e.mode).join('|')+'"' : '';
   const kp = _kpos(k.kanji);
   const adjTag = kp.pos==='Adj' ? `<span class="vc-adj-tag adj-${kp.adj||'na'}">${kp.adj==='i'?'い':'な'}</span>` : '';
   const grpTag = kp.grp ? `<span class="vc-grp-tag grp-${kp.grp}">${kp.grp}</span>` : '';
   const kind = kp.pos==='Expr' ? (EXPR_KIND[k.kanji]||'') : '';
   const kindTag = kind ? `<span class="vc-kind-tag" title="${_ea(kind)}">${_ea(kind)}</span>` : '';
-  return `<div class="vocab-card kanji-card is-kanji" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','${kp.pos}','','${k.mode||''}','${kp.grp||''}','${kp.adj||''}')" data-pos="${kp.pos}" data-grp="${kp.grp||''}" data-adjt="${kp.adj||''}" data-kl="${kl}" data-kmode="${k.mode||''}" data-kind="${_ea(kind)}" data-coun="${coun?'1':''}" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
+  return `<div class="vocab-card kanji-card is-kanji" onclick="openConjPopup('${_eq(k.kanji)}','${_eq(k.reading||'')}','${_eq(k.meaning||'')}','${kp.pos}','','${shown.mode}','${kp.grp||''}','${kp.adj||''}')" data-pos="${kp.pos}" data-grp="${kp.grp||''}" data-adjt="${kp.adj||''}" data-kl="${_ea(ki.levels.join(' '))}"${klModes} data-kmode="${shown.mode}" data-kind="${_ea(kind)}" data-coun="${coun?'1':''}" data-sw="${_ea(k.kanji)}" data-sr="${_ea(k.reading||'')}" data-sd="${_ea(k.meaning||'')}">
     <div class="vc-left notranslate" translate="no">${rubyHTML(k.kanji,k.reading||"",_jpStyle(k.kanji))}</div>
     <div class="vc-sep"></div>
     <div class="vc-right"><span class="vc-def">${k.meaning||''}</span></div>
     <div class="vc-badges">${coun}${adjTag}${grpTag}${kindTag}<span class="vc-badge pos-${kp.pos}" style="position:static;">${kp.pos}</span></div>
-    <div class="vc-indicators">${_kanjiDot(k.mode)}<span class="vc-lvl-tag" title="Kanji list ${label}">${label}</span></div>
+    <div class="vc-indicators">${_kanjiDot(shown.mode)}<span class="vc-lvl-tag" title="Kanji list ${ki.levels.join(', ')}">${label}</span></div>
   </div>`;
 }
 
@@ -3312,7 +3340,10 @@ function applyWordFilters(){
       const [kl,mode] = x.split(':'); return {kl,mode};
     });
     const shown = _klShown(entries);
-    const tag = card.querySelector('.vc-kl-tag');
+    // on a vocabulary card the kanji level is its own badge; on a kanji-only
+    // card the level badge IS the kanji level
+    const tag = card.querySelector('.vc-kl-tag') ||
+                (card.classList.contains('kanji-card') ? card.querySelector('.vc-lvl-tag') : null);
     if(tag){
       const label = shown.kl==='SIGN' ? 'サイン' : shown.kl;
       if(tag.textContent !== label){ tag.textContent = label; tag.title = 'Kanji list '+label; }
@@ -3390,8 +3421,14 @@ function renderWords(){
   // an indicator on a word; the kanji that are not vocabulary collect in their
   // own section at the end, grouped by kanji level.
   const groups = [];
+  const placed = new Set();
   for(const lvl of WORD_LEVELS){
-    const words = vData[lvl]||[];
+    // 掃除 is on the L5 and L10 lists, 降ります on L10 and L12 — one card each,
+    // under the lesson it is first taught in.
+    const words = (vData[lvl]||[]).filter(w=>{
+      if(placed.has(w.word)) return false;
+      placed.add(w.word); return true;
+    });
     if(!words.length) continue;
     groups.push({
       key: lvl, label: lvl, sub: '',
@@ -4100,7 +4137,7 @@ const grammarSections=[
    imgs:["10-4-3.webp"]},
 ]},
 
-{id:"G-CONV",title:"かいわ",en:"Set conversations",goal:"The exchanges drilled whole in class: introducing yourself, shopping, phone numbers and asking the route.",emoji:_gicon.chat,cards:[
+{id:"G-CONV",title:"かいわ",en:"Set conversations",goal:"The exchanges drilled whole in class: introducing yourself, shopping and the classroom phrases. Asking the route lives with the trains, in こうつう.",emoji:_gicon.chat,cards:[
   {label:"Self-introduction",jp:"じこしょうかい",lv:"L1",
    meaning:"The self-introduction script practised in class. Fill each blank, then say it straight through.",
    pattern:"はじめまして。／ わたしは ＿＿ です。／ ＿＿ じん です。／ ＿＿ です。／ ＿＿ が すきです。／ どうぞ よろしくおねがいします。",
@@ -4445,15 +4482,15 @@ function renderAll(){
 
   // Words (vocabulary + kanji, grouped by lesson)
   const vData = vocabData[sem]||{};
-  const kData = kanjiData[sem]||{};
   let wHtml = '';
+  const seen = new Set();
   for(const lvl of WORD_LEVELS){
     const kl = lvl==='EXPR' ? 'SIGN' : (/^L\d+$/.test(lvl) ? 'KL'+lvl.slice(1) : null);
-    const fw = (vData[lvl]||[]).filter(w=>matchesSearch(q,w.word,w.reading,w.def));
-    for(const w of fw) wHtml += wordCardHTML(w, lvl);
+    const fw = (vData[lvl]||[]).filter(w=>matchesSearch(q,w.word,w.reading,w.def) && !seen.has(w.word));
+    for(const w of fw){ seen.add(w.word); wHtml += wordCardHTML(w, lvl); }
     if(kl){
-      const fk = _sortKanjiLevel((kData[kl]||[]).filter(k=>matchesSearch(q,k.kanji,k.reading,k.meaning)));
-      for(const k of fk) wHtml += kanjiCardHTML(k, kl);
+      const fk = _sortKanjiLevel((KANJI_BY_LEVEL[kl]||[]).filter(k=>matchesSearch(q,k.kanji,k.reading,k.meaning) && !seen.has(k.kanji)));
+      for(const k of fk){ seen.add(k.kanji); wHtml += kanjiCardHTML(k, kl); }
     }
   }
   if(wHtml) html += `<div class="level-tag"><span class="lt-key">語 Words</span><span class="lt-line"></span></div><div class="vocab-grid">${wHtml}</div>`;
