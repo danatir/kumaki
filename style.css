@@ -1094,6 +1094,12 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 .hl-p{color:#b03a48;font-weight:800;font-style:normal;}
 .gc-pattern .hl-p{background:rgba(176,58,72,.10);border-radius:4px;padding:0 3px;}
 .hl-qa{color:var(--dim);font-weight:700;}
+/* The form a rule teaches, marked inside its own examples and dialogue —
+   a highlighter swipe, so it reads as "this is the bit" without competing
+   with the blue slots and red particles of the pattern line above. */
+.hl-form{font-weight:700;color:#6d4a06;
+  background:linear-gradient(transparent 58%,rgba(240,192,74,.55) 58%,rgba(240,192,74,.55) 96%,transparent 96%);}
+.gc-convo-jp .hl-form{color:#5d3f05;}
 .hl-sep{color:var(--dot);font-weight:400;margin:0 2px;}
 .gc-legend{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font:600 9.5px/1 Arial,sans-serif;
   color:var(--dim);margin:0 0 12px;}
