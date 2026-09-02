@@ -1082,13 +1082,6 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 .cc-chip:hover{border-color:var(--mid);background:var(--rose);}
 .cc-chip.active{background:var(--red);color:var(--white);border-color:var(--red);}
 
-/* Video explanation link on a grammar topic */
-.gram-vid{display:inline-flex;align-items:center;gap:7px;margin:0 0 12px;padding:6px 12px 6px 10px;
-  border:1px solid var(--dot);border-radius:16px;background:var(--white);text-decoration:none;
-  font:600 11px/1 Arial,sans-serif;color:var(--mid);transition:all .12s;}
-.gram-vid svg{color:#c4302b;flex-shrink:0;}
-.gram-vid:hover{border-color:var(--red);color:var(--red);background:var(--rose);}
-
 /* Colour coding: slots, particles and speaker markers */
 .hl-slot{color:#2f6f9e;background:rgba(47,111,158,.10);border-radius:4px;padding:0 4px;font-weight:700;}
 .hl-p{color:#b03a48;font-weight:800;font-style:normal;}
