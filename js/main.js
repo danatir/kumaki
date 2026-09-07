@@ -1117,6 +1117,18 @@ kanjiData['S1'] = {
     {kanji:'西',reading:'にし',meaning:'west',mode:'read',part:2},
     {kanji:'南',reading:'みなみ',meaning:'south',mode:'read',part:2},
     {kanji:'北',reading:'きた',meaning:'north',mode:'read',part:2},
+    {kanji:'禁',reading:'きん',meaning:'prohibited (sign kanji)',mode:'read',part:3},
+    {kanji:'禁煙',reading:'きんえん',meaning:'no smoking',mode:'read',part:3},
+    {kanji:'立入禁止',reading:'たちいりきんし',meaning:'keep out; no entry',mode:'read',part:3},
+    {kanji:'非常',reading:'ひじょう',meaning:'emergency (非常口 emergency exit)',mode:'read',part:3},
+    {kanji:'危険',reading:'きけん',meaning:'danger',mode:'read',part:3},
+    {kanji:'営業中',reading:'えいぎょうちゅう',meaning:'open (for business)',mode:'read',part:4},
+    {kanji:'準備中',reading:'じゅんびちゅう',meaning:'not open yet; preparing',mode:'read',part:4},
+    {kanji:'無料',reading:'むりょう',meaning:'free of charge',mode:'read',part:4},
+    {kanji:'有料',reading:'ゆうりょう',meaning:'fee required; not free',mode:'read',part:4},
+    {kanji:'半額',reading:'はんがく',meaning:'half price (50% OFF)',mode:'read',part:4},
+    {kanji:'割引',reading:'わりびき',meaning:'discount (3割引 = 30% OFF)',mode:'read',part:4},
+    {kanji:'薬局',reading:'やっきょく',meaning:'pharmacy',mode:'read',part:4},
   ],
 };
 const grammarData = {};
