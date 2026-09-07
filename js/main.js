@@ -119,7 +119,7 @@ vocabData['S1'] = {
     {word:"とても",def:"very",pos:"Adv",sub:"3-3",ex:"わたしのかばんはとても大きいです。"},
     {word:"親切",reading:"しんせつ",def:"kind, friendly",pos:"Adj",sub:"3-3",ex:"彼はしんせつです。"},
     {word:"便利",reading:"べんり",def:"convenient; useful",pos:"Adj",sub:"3-3",ex:"コンピューターはべんりです。"},
-    {word:"きれい",def:"pretty, clean",pos:"Adj",sub:"3-3",ex:"彼女はきれいです。"},
+    {word:"きれい",def:"pretty, clean",pos:"Adj",adj:"na",sub:"3-3",ex:"彼女はきれいです。"},
     {word:"静か",reading:"しずか",def:"quiet; calm",pos:"Adj",sub:"3-3",ex:"まちはしずかです。"},
     {word:"元気",reading:"げんき",def:"healthy, energetic",pos:"Adj",sub:"3-3",ex:"彼はげんきです。"},
     {word:"大切",reading:"たいせつ",def:"important",pos:"Adj",sub:"3-3",ex:"じしょはたいせつです。"},
@@ -409,7 +409,7 @@ vocabData['S1'] = {
     {word:"観光客",reading:"かんこうきゃく",def:"tourist",pos:"Noun",sub:"7-3"},
     {word:"火山",reading:"かざん",def:"volcano",pos:"Noun",sub:"7-3"},
     {word:"温泉",reading:"おんせん",def:"hot spring",pos:"Noun",sub:"7-3"},
-    {word:"有名",reading:"ゆうめい",def:"famous",pos:"Adj",sub:"7-3",ex:"彼は有名な歌手です。"},
+    {word:"有名",reading:"ゆうめい",def:"famous",pos:"Adj",adj:"na",sub:"7-3",ex:"彼は有名な歌手です。"},
     {word:"北口",reading:"きたぐち",def:"north exit",pos:"Noun",sub:"7·Reading"},
     {word:"南口",reading:"みなみぐち",def:"south exit",pos:"Noun",sub:"7·Reading"},
   ],
@@ -450,7 +450,10 @@ vocabData['S1'] = {
     {word:"猿",reading:"さる",def:"monkey",pos:"Noun",sub:"8-2"},
     {word:"ライオン",def:"lion",pos:"Noun",sub:"8-2"},
     {word:"好き",reading:"すき",def:"like, fond of",pos:"Adj",sub:"8-2",ex:"私はあまいものが好きです。"},
-    {word:"嫌い",reading:"きらい",def:"dislike; hate",pos:"Adj",sub:"8-2",ex:"私は犬がきらいです。"},
+    {word:"嫌い",reading:"きらい",def:"dislike; hate",pos:"Adj",adj:"na",sub:"8-2",ex:"私は犬がきらいです。"},
+    {word:"下手",reading:"へた",def:"bad at; unskilled",pos:"Adj",adj:"na",sub:"8-2",ex:"わたしはりょうりがへたです。"},
+    {word:"得意",reading:"とくい",def:"good at; one's strong point",pos:"Adj",adj:"na",sub:"8-2",ex:"わたしはうたがとくいです。"},
+    {word:"苦手",reading:"にがて",def:"bad at; not one's strong point",pos:"Adj",adj:"na",sub:"8-2",ex:"わたしはスポーツがにがてです。"},
     {word:"セーター",def:"sweater",pos:"Noun",sub:"8-3"},
     {word:"四角い",reading:"しかくい",def:"square; rectangular",pos:"Adj",sub:"8-3",ex:"このビルはしかくいです。"},
     {word:"黄色い",reading:"きいろい",def:"yellow",pos:"Adj",sub:"8-3",ex:"バナナはきいろいです。"},
@@ -520,7 +523,7 @@ vocabData['S1'] = {
     {word:"塩",reading:"しお",def:"salt",pos:"Noun",sub:"9-2"},
     {word:"カメラマン",def:"photographer",pos:"Noun",sub:"9-2"},
     {word:"モデル",def:"model",pos:"Noun",sub:"9-2"},
-    {word:"ゆっくり",def:"slowly; take your time",pos:"Adj",sub:"9-2",ex:"父はゆっくりと歩きます。"},
+    {word:"ゆっくり",def:"slowly; take your time",pos:"Adv",sub:"9-2",ex:"父はゆっくりと歩きます。"},
     {word:"立ちます",reading:"たちます",def:"to stand",pos:"Verb",grp:"G1",sub:"9-2",ex:"みなさん、たってください。"},
     {word:"飛びます",reading:"とびます",def:"to fly; to jump",pos:"Verb",grp:"G1",sub:"9-2",ex:"とりがとびます。"},
     {word:"言います",reading:"いいます",def:"to say",pos:"Verb",grp:"G1",sub:"9-2",ex:"先生が言いました。"},
@@ -1304,6 +1307,12 @@ const conjLookup = {
   'すき':[{label:'Pres. +',jp:'すきです'},{label:'Pres. −',jp:'すきじゃありません'},{label:'Past +',jp:'すきでした'},{label:'Past −',jp:'すきじゃありませんでした'},{label:'+ Noun',jp:'すきな＋N'}],
   '嫌い':[{label:'Pres. +',jp:'きらいです'},{label:'Pres. −',jp:'きらいじゃありません'},{label:'Past +',jp:'きらいでした'},{label:'Past −',jp:'きらいじゃありませんでした'},{label:'+ Noun',jp:'きらいな＋N'}],
   'きらい':[{label:'Pres. +',jp:'きらいです'},{label:'Pres. −',jp:'きらいじゃありません'},{label:'Past +',jp:'きらいでした'},{label:'Past −',jp:'きらいじゃありませんでした'},{label:'+ Noun',jp:'きらいな＋N'}],
+  '下手':[{label:'Pres. +',jp:'へたです'},{label:'Pres. −',jp:'へたじゃありません'},{label:'Past +',jp:'へたでした'},{label:'Past −',jp:'へたじゃありませんでした'},{label:'+ Noun',jp:'へたな＋N'}],
+  'へた':[{label:'Pres. +',jp:'へたです'},{label:'Pres. −',jp:'へたじゃありません'},{label:'Past +',jp:'へたでした'},{label:'Past −',jp:'へたじゃありませんでした'},{label:'+ Noun',jp:'へたな＋N'}],
+  '得意':[{label:'Pres. +',jp:'とくいです'},{label:'Pres. −',jp:'とくいじゃありません'},{label:'Past +',jp:'とくいでした'},{label:'Past −',jp:'とくいじゃありませんでした'},{label:'+ Noun',jp:'とくいな＋N'}],
+  'とくい':[{label:'Pres. +',jp:'とくいです'},{label:'Pres. −',jp:'とくいじゃありません'},{label:'Past +',jp:'とくいでした'},{label:'Past −',jp:'とくいじゃありませんでした'},{label:'+ Noun',jp:'とくいな＋N'}],
+  '苦手':[{label:'Pres. +',jp:'にがてです'},{label:'Pres. −',jp:'にがてじゃありません'},{label:'Past +',jp:'にがてでした'},{label:'Past −',jp:'にがてじゃありませんでした'},{label:'+ Noun',jp:'にがてな＋N'}],
+  'にがて':[{label:'Pres. +',jp:'にがてです'},{label:'Pres. −',jp:'にがてじゃありません'},{label:'Past +',jp:'にがてでした'},{label:'Past −',jp:'にがてじゃありませんでした'},{label:'+ Noun',jp:'にがてな＋N'}],
   '四角い':[{label:'Pres. +',jp:'しかくいです'},{label:'Pres. −',jp:'しかくくありません'},{label:'Past +',jp:'しかくかったです'},{label:'Past −',jp:'しかくくありませんでした'},{label:'Adverb',jp:'しかくく'}],
   'しかくい':[{label:'Pres. +',jp:'しかくいです'},{label:'Pres. −',jp:'しかくくありません'},{label:'Past +',jp:'しかくかったです'},{label:'Past −',jp:'しかくくありませんでした'},{label:'Adverb',jp:'しかくく'}],
   '黄色い':[{label:'Pres. +',jp:'きいろいです'},{label:'Pres. −',jp:'きいろくありません'},{label:'Past +',jp:'きいろかったです'},{label:'Past −',jp:'きいろくありませんでした'},{label:'Adverb',jp:'きいろく'}],
@@ -1413,7 +1422,6 @@ const conjLookup = {
   'ひっこします':[{label:'Pres. +',jp:'ひっこします'},{label:'Pres. −',jp:'ひっこしません'},{label:'Past +',jp:'ひっこしました'},{label:'Past −',jp:'ひっこしませんでした'},{label:'Dictionary',jp:'ひっこす'},{label:'て-form',jp:'ひっこして'},{label:'ない form',jp:'ひっこさない'}],
   '大丈夫':[{label:'Pres. +',jp:'だいじょうぶです'},{label:'Pres. −',jp:'だいじょうぶじゃありません'},{label:'Past +',jp:'だいじょうぶでした'},{label:'Past −',jp:'だいじょうぶじゃありませんでした'},{label:'+ Noun',jp:'だいじょうぶな＋N'}],
   'だいじょうぶ':[{label:'Pres. +',jp:'だいじょうぶです'},{label:'Pres. −',jp:'だいじょうぶじゃありません'},{label:'Past +',jp:'だいじょうぶでした'},{label:'Past −',jp:'だいじょうぶじゃありませんでした'},{label:'+ Noun',jp:'だいじょうぶな＋N'}],
-  'ゆっくり':[{label:'Pres. +',jp:'ゆっくりです'},{label:'Pres. −',jp:'ゆっくりじゃありません'},{label:'Past +',jp:'ゆっくりでした'},{label:'Past −',jp:'ゆっくりじゃありませんでした'},{label:'+ Noun',jp:'ゆっくりな＋N'}],
   '立ちます':[{label:'Pres. +',jp:'立ちます'},{label:'Pres. −',jp:'立ちません'},{label:'Past +',jp:'立ちました'},{label:'Past −',jp:'立ちませんでした'},{label:'Dictionary',jp:'たつ'},{label:'て-form',jp:'たって'},{label:'ない form',jp:'たたない'}],
   '立ちます#G1':[{label:'Pres. +',jp:'立ちます'},{label:'Pres. −',jp:'立ちません'},{label:'Past +',jp:'立ちました'},{label:'Past −',jp:'立ちませんでした'},{label:'Dictionary',jp:'たつ'},{label:'て-form',jp:'たって'},{label:'ない form',jp:'たたない'}],
   'たちます#G1':[{label:'Pres. +',jp:'たちます'},{label:'Pres. −',jp:'たちません'},{label:'Past +',jp:'たちました'},{label:'Past −',jp:'たちませんでした'},{label:'Dictionary',jp:'たつ'},{label:'て-form',jp:'たって'},{label:'ない form',jp:'たたない'}],
@@ -1909,6 +1917,7 @@ const sheetTabStates = {
   nouns:  {lvls: new Set()},
   kanji:  {lvls: new Set(), modes: new Set(['read','write'])},
   expr:   {lvls: new Set()},
+  other:  {lvls: new Set()},
 };
 function saveTabState(tab){
   if(!tabState[tab]) return;
@@ -2058,7 +2067,13 @@ const adjType = {};
 // can never drift apart. lvl is the lesson number; 'EXPR' for the leftovers.
 const sheetData = (function(){
   const lvlNum = l => l==='EXPR' ? 'EXPR' : l.replace('L','');
-  const verbs=[], adj=[], nouns=[];
+  // adverbs, conjunctions and the expressions questionsData does not carry
+  // used to fall out of the if/else below and reach no sheet at all
+  const verbs=[], adj=[], nouns=[], other=[];
+  // the question words already have their own sheet; the leftovers are what
+  // no other sheet carries
+  const _onExprSheet = new Set();
+  for(const r of questionsData){ if(r.jp) _onExprSheet.add(r.jp); if(r.reading) _onExprSheet.add(r.reading); }
   for(const [lvl,arr] of Object.entries(vocabData[sem]||{})){
     for(const w of arr){
       const base={word:w.word, reading:w.reading||'', eng:w.def, lvl:lvlNum(lvl)};
@@ -2070,13 +2085,23 @@ const sheetData = (function(){
         adj.push({...base, adj:adjType[w.word]||'na'});
       } else if(w.pos==='Noun'){
         nouns.push(base);
+      } else if(!_onExprSheet.has(w.word) && !_onExprSheet.has(w.reading||'')){
+        other.push({...base, pos:w.pos||'Expr'});
       }
     }
   }
-  const kanji=[];
+  // A term taught as read-only in one kanji level and as write in a later one
+  // is two rows on purpose. Two rows identical in kanji, level and mode are
+  // not: they are the same term split across the printed sheet's two parts.
+  const kanji=[], seen=new Set();
   for(const [kl,arr] of Object.entries(kanjiData[sem]||{}))
-    for(const k of arr) kanji.push({kanji:k.kanji, reading:k.reading||'', meaning:k.meaning||'', mode:k.mode, kl});
-  return {verbs, adj, nouns, kanji};
+    for(const k of arr){
+      const key=k.kanji+'#'+kl+'#'+k.mode;
+      if(seen.has(key)) continue;
+      seen.add(key);
+      kanji.push({kanji:k.kanji, reading:k.reading||'', meaning:k.meaning||'', mode:k.mode, kl});
+    }
+  return {verbs, adj, nouns, kanji, other};
 })();
 
 const counTypeMap = {};
@@ -2662,7 +2687,11 @@ function updateSuggestions(raw){
   if(!raw || raw.length < 1){ box.classList.remove('visible'); return; }
   buildSuggIndex();
   const q = raw.toLowerCase();
-  const qr = toRomaji(q);
+  // toRomaji drops anything that is not kana, so a kanji-only query romanises
+  // to the empty string — and "".includes('') is true of every entry, which
+  // used to score the whole index 1 and answer 食 with わたし. Only compare the
+  // romaji when there is some.
+  const qr = toRomaji(q) || null;
   const numWord = /^\d+$/.test(q) ? (_NUMERAL_WORDS[q]||null) : null;
 
   const scoreItem = (item) => {
@@ -2670,11 +2699,11 @@ function updateSuggestions(raw){
       if(!f) continue;
       const fl = f.toLowerCase();
       const fr = toRomaji(fl);
-      if(fl === q || fr === q || fr === qr) return 3;
+      if(fl === q || (fr && (fr === q || (qr && fr === qr)))) return 3;
       if(numWord && fl === numWord) return 3;
-      if(fl.startsWith(q) || fr.startsWith(q) || fr.startsWith(qr)) return 2;
+      if(fl.startsWith(q) || (fr && (fr.startsWith(q) || (qr && fr.startsWith(qr))))) return 2;
       if(numWord && fl.startsWith(numWord)) return 2;
-      if(fl.includes(q) || fr.includes(q) || fr.includes(qr)) return 1;
+      if(fl.includes(q) || (fr && (fr.includes(q) || (qr && fr.includes(qr))))) return 1;
       if(numWord && fl.includes(numWord)) return 1;
     }
     return 0;
@@ -4245,7 +4274,7 @@ const grammarSections=[
 ]},
 ];function renderSheets(){
   const el = document.getElementById('content');
-  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="switchSheet(\'expr\',this)">Expr</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div id="copy-cols" class="copy-cols"></div><div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="switchSheet(\'expr\',this)">Expr</button><button class="sheet-tab" id="stab-other" onclick="switchSheet(\'other\',this)">Other</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div id="copy-cols" class="copy-cols"></div><div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
   // Migrate legacy 'questions' type to 'expr'
   if(currentSheetType === 'questions') currentSheetType = 'expr';
   switchSheet(currentSheetType, document.getElementById('stab-'+currentSheetType) || document.getElementById('stab-verbs'), true);
@@ -4342,6 +4371,9 @@ function renderSheetTable(type){
     if(activeKanjiModes.size>0&&activeKanjiModes.size<2) src=src.filter(r=>activeKanjiModes.has(r.mode));
     headers=['Kanji','Reading','Meaning','Practice','Level'];
     rows=src.map(r=>'<tr><td class="jp notranslate" translate="no">'+r.kanji+'</td><td class="sm notranslate" translate="no">'+r.reading+'</td><td>/ '+r.meaning+'</td><td><span class="sheet-lvl" style="background:'+(r.mode==='write'?'var(--rose)':'rgba(0,0,0,.05)')+'">'+r.mode+'</span></td><td><span class="sheet-lvl">'+r.kl+'</span></td></tr>');
+  } else if(type==='other'){
+    headers=['Word','English','Type','Level'];
+    rows=src.map(r=>'<tr><td class="jp notranslate" translate="no">'+(r.word)+(r.reading&&r.reading!==r.word?'\u3000<span class="sm">'+r.reading+'</span>':'')+'</td><td>'+r.eng+'</td><td style="color:var(--sub);font-size:11px;">'+(r.pos==='Adv'?'adverb':r.pos==='Conj'?'conjunction':'expression')+'</td><td><span class="sheet-lvl">'+_lvlLabel(r.lvl)+'</span></td></tr>');
   } else {
     headers=['Expression','English','Category'];
     rows=src.map(r=>'<tr><td class="jp notranslate" translate="no">'+(r.reading||r.jp)+'</td><td>'+r.eng+'</td><td style="color:var(--sub);font-size:11px;">'+(r.cat||'')+'</td></tr>');
@@ -4354,9 +4386,10 @@ function renderSheetTable(type){
 const SHEET_COLS = {
   verbs: [['word','Word'],['eng','English'],['dict','Dictionary'],['te','て-form'],['nai','ない form'],['grp','Group'],['lvl','Level']],
   adj:   [['word','Word'],['eng','English'],['type','い / な'],['lvl','Level']],
-  nouns: [['word','Word'],['eng','English'],['lvl','Level']],
-  kanji: [['word','Kanji'],['reading','Reading'],['eng','Meaning'],['lvl','Level']],
+  nouns: [['word','Word'],['reading','Reading'],['eng','English'],['lvl','Level']],
+  kanji: [['word','Kanji'],['reading','Reading'],['eng','Meaning'],['mode','Practice'],['lvl','Level']],
   expr:  [['word','Expression'],['eng','English'],['cat','Category']],
+  other: [['word','Word'],['reading','Reading'],['eng','English'],['type','Type'],['lvl','Level']],
 };
 const _copyCols = {};
 function _cols(type){
@@ -4393,13 +4426,17 @@ function _sheetRecords(){
   }
   if(t==='nouns'){
     let src=sheetData.nouns; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
-    return src.map(r=>({word:r.reading||r.word, eng:r.eng, lvl:_lvlLabel(r.lvl)}));
+    return src.map(r=>({word:r.word, reading:(r.reading&&r.reading!==r.word)?r.reading:'', eng:r.eng, lvl:_lvlLabel(r.lvl)}));
+  }
+  if(t==='other'){
+    let src=sheetData.other; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
+    return src.map(r=>({word:r.word, reading:(r.reading&&r.reading!==r.word)?r.reading:'', eng:r.eng, type:r.pos==='Adv'?'adverb':r.pos==='Conj'?'conjunction':'expression', lvl:_lvlLabel(r.lvl)}));
   }
   if(t==='kanji'){
     let src=sheetData.kanji;
     if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(r.kl));
     if(activeKanjiModes.size>0&&activeKanjiModes.size<2) src=src.filter(r=>activeKanjiModes.has(r.mode));
-    return src.map(r=>({word:r.kanji, reading:r.reading, eng:r.meaning, lvl:r.kl}));
+    return src.map(r=>({word:r.kanji, reading:r.reading, eng:r.meaning, mode:r.mode==='read'?'読み':'書き', lvl:r.kl}));
   }
   return questionsData.map(r=>({word:r.reading||r.jp, eng:r.eng, cat:r.cat||''}));
 }
