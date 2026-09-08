@@ -1923,14 +1923,6 @@ const tabState = {
   sheets:  {search:'', sheetType:'verbs', sheetLvls:new Set(), kanjiModes:new Set(['read','write'])}
 };
 // Per-sheet-sub-tab state: remembers level filters and kanji modes independently per sheet tab
-const sheetTabStates = {
-  verbs:  {lvls: new Set()},
-  adj:    {lvls: new Set()},
-  nouns:  {lvls: new Set()},
-  kanji:  {lvls: new Set(), modes: new Set(['read','write'])},
-  expr:   {lvls: new Set()},
-  other:  {lvls: new Set()},
-};
 function saveTabState(tab){
   if(!tabState[tab]) return;
   tabState[tab].search    = currentSearch;
@@ -1940,18 +1932,11 @@ function saveTabState(tab){
     tabState[tab].readOnly  = hideReadOnly;
   }
   if(tab === 'sheets'){
-    tabState[tab].sheetType  = currentSheetType;
-    // Save active tab's live state into sheetTabStates before persisting
-    if(sheetTabStates[currentSheetType]){
-      sheetTabStates[currentSheetType].lvls = new Set(activeSheetLvls);
-      if(currentSheetType === 'kanji') sheetTabStates['kanji'].modes = new Set(activeKanjiModes);
-    }
-    // Snapshot all sheet tab states
-    tabState[tab].sheetTabStates = {};
-    for(const k of Object.keys(sheetTabStates)){
-      tabState[tab].sheetTabStates[k] = {lvls: new Set(sheetTabStates[k].lvls)};
-      if(k === 'kanji') tabState[tab].sheetTabStates[k].modes = new Set(sheetTabStates['kanji'].modes);
-    }
+    tabState[tab].sheetType   = currentSheetType;
+    tabState[tab].sheets      = [...activeSheets];
+    tabState[tab].sheetLvls   = [...activeSheetLvls];
+    tabState[tab].kanjiLvls   = [...activeKanjiLvls];
+    tabState[tab].kanjiModes  = [...activeKanjiModes];
   }
 }
 function restoreTabState(tab){
@@ -1963,20 +1948,11 @@ function restoreTabState(tab){
     hideReadOnly  = tabState[tab].readOnly === true;
   }
   if(tab === 'sheets'){
-    currentSheetType = tabState[tab].sheetType  || 'verbs';
-    // Restore all sheet tab states if saved
-    if(tabState[tab].sheetTabStates){
-      for(const k of Object.keys(sheetTabStates)){
-        if(tabState[tab].sheetTabStates[k]){
-          sheetTabStates[k].lvls = new Set(tabState[tab].sheetTabStates[k].lvls);
-          if(k === 'kanji' && tabState[tab].sheetTabStates[k].modes)
-            sheetTabStates['kanji'].modes = new Set(tabState[tab].sheetTabStates[k].modes);
-        }
-      }
-    }
-    // Restore the active sheet tab's state into live variables
-    activeSheetLvls  = new Set((sheetTabStates[currentSheetType]||{}).lvls);
-    activeKanjiModes = new Set((sheetTabStates['kanji']||{modes:new Set(['read','write'])}).modes);
+    currentSheetType = tabState[tab].sheetType || 'verbs';
+    activeSheets.clear(); (tabState[tab].sheets || ['verbs']).forEach(x=>activeSheets.add(x));
+    activeSheetLvls  = new Set(tabState[tab].sheetLvls  || []);
+    activeKanjiLvls  = new Set(tabState[tab].kanjiLvls  || []);
+    activeKanjiModes = new Set(tabState[tab].kanjiModes || ['read','write']);
   }
   const searchEl = document.getElementById('main-search');
   const clearEl  = document.getElementById('search-clear');
@@ -4286,84 +4262,119 @@ const grammarSections=[
 ]},
 ];function renderSheets(){
   const el = document.getElementById('content');
-  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="switchSheet(\'expr\',this)">Expr</button><button class="sheet-tab" id="stab-other" onclick="switchSheet(\'other\',this)">Other</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div id="copy-cols" class="copy-cols"></div><div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="toggleSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="toggleSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="toggleSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="toggleSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="toggleSheet(\'expr\',this)">Expr</button><button class="sheet-tab" id="stab-other" onclick="toggleSheet(\'other\',this)">Other</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div id="copy-cols" class="copy-cols"></div><div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
   // Migrate legacy 'questions' type to 'expr'
   if(currentSheetType === 'questions') currentSheetType = 'expr';
-  switchSheet(currentSheetType, document.getElementById('stab-'+currentSheetType) || document.getElementById('stab-verbs'), true);
+  if(activeSheets.has('questions')){ activeSheets.delete('questions'); activeSheets.add('expr'); }
+  _syncSheetChips(); renderLvlFilters(); renderCopyCols(); renderSheetTable();
 }
 
 let currentSheetType = 'verbs';
-let activeSheetLvls = new Set();
+// Sheets are picked the same way levels are: a chip each, several at once,
+// and none picked means all of them.
+const activeSheets = new Set(['verbs']);
+const SHEET_ORDER = ['verbs','adj','nouns','kanji','expr','other'];
+const SHEET_LABEL = {verbs:'Verbs', adj:'Adjectives', nouns:'Nouns', kanji:'Kanji', expr:'Expr', other:'Other'};
+const _pickedSheets = () => activeSheets.size ? SHEET_ORDER.filter(t=>activeSheets.has(t)) : SHEET_ORDER.slice();
+let activeSheetLvls = new Set();   // lesson numbers, shared by the word sheets
+let activeKanjiLvls = new Set();   // KL1–KL8 / SIGN, the kanji sheet only
 let activeKanjiModes = new Set(['read','write']);
 
-function renderLvlFilters(type){
+// The level chips answer to whichever sheets are picked: lesson numbers for
+// the word sheets, KL levels and the read/write pair when kanji is among them.
+function renderLvlFilters(){
   const el = document.getElementById('sheet-lvl-filters');
   if(!el) return;
-  if(type === 'expr'){ el.innerHTML=''; return; }
-  if(type === 'kanji'){
+  const picked=_pickedSheets();
+  const wordSheets=picked.filter(t=>t!=='kanji'&&t!=='expr');
+  let html='';
+  if(wordSheets.length){
+    const lvls=[...new Set(wordSheets.flatMap(t=>(sheetData[t]||[]).map(r=>String(r.lvl))))]
+      .sort((a,b)=>(a==='EXPR')-(b==='EXPR')||parseInt(a)-parseInt(b));
+    html+=lvls.map(lvl=>{
+      const a=activeSheetLvls.has(lvl);
+      const lab=String(lvl);
+      const wide=lab.length>2;
+return '<button onclick="filterSheetLvl(\''+lvl+'\',this)" title="'+(lvl==='EXPR'?'Expressions':'Lesson '+lvl)+'" style="'+(wide?'padding:0 9px;border-radius:14px;':'width:28px;border-radius:50%;padding:0;')+'height:28px;border:1.5px solid '+(a?'var(--red)':'var(--dot)')+';background:'+(a?'var(--red)':'var(--white)')+';color:'+(a?'var(--white)':'var(--mid)')+';font-size:10px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;">'+lab+'</button>';
+    }).join('');
+  }
+  if(picked.includes('kanji')){
+    if(html) html+='<span style="width:10px;display:inline-block;"></span>';
+    html+=_kanjiLvlChips(wordSheets.length>0);
+  }
+  el.innerHTML=html;
+}
+// Beside the lesson numbers a bare 1–8 would read as a lesson, so the kanji
+// levels keep their KL when they are not alone.
+function _kanjiLvlChips(prefix){
     const kls=['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8','SIGN'];
     const pill=(active,label,click)=>'<button onclick="'+click+'" style="height:28px;padding:0 '+(label.length>2?'10':'0')+'px;'+(label.length<=2?'width:28px;':'')+'border-radius:'+(label.length<=2?'50%':'14px')+';border:1.5px solid '+(active?'var(--red)':'var(--dot)')+';background:'+(active?'var(--red)':'var(--white)')+';color:'+(active?'var(--white)':'var(--mid)')+';font-size:'+(label.length<=2?'9':'10')+'px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;'+( label.length<=2?'padding:0;':'')+'">' +label+'</button>';
-    const klBtns=kls.map(kl=>pill(activeSheetLvls.has(kl), kl==='SIGN'?'Sign':kl.replace('KL',''), "filterSheetKl('"+kl+"',this)")).join('');
+    const klBtns=kls.map(kl=>pill(activeKanjiLvls.has(kl), kl==='SIGN'?'Sign':(prefix?kl:kl.replace('KL','')), "filterSheetKl('"+kl+"',this)")).join('');
     const sep='<span style="width:6px;display:inline-block;"></span>';
     const mkMode=(mode,svg)=>{const a=activeKanjiModes.has(mode);return '<button onclick="toggleSheetKanjiMode(\''+mode+'\')" title="'+mode[0].toUpperCase()+mode.slice(1)+'" style="width:28px;height:28px;border-radius:50%;border:1.5px solid '+(a?'var(--red)':'var(--dot)')+';background:'+(a?'var(--red)':'var(--white)')+';color:'+(a?'var(--white)':'var(--mid)')+';cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;">'+svg+'</button>';};
     const eyeSvg='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
     const penSvg='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
     const mr=mkMode('read',eyeSvg);
     const mw=mkMode('write',penSvg);
-    el.innerHTML=klBtns+sep+mr+mw;
-    return;
-  }
-  const src=sheetData[type]||[];
-  const lvls=[...new Set(src.map(r=>String(r.lvl)))].sort((a,b)=>(a==='EXPR')-(b==='EXPR')||parseInt(a)-parseInt(b));
-  el.innerHTML=lvls.map(lvl=>{
-    const a=activeSheetLvls.has(lvl);
-    const lab=String(lvl);
-    const wide=lab.length>2;
-    return '<button onclick="filterSheetLvl(\''+lvl+'\',this)" title="'+(lvl==='EXPR'?'Expressions':'Lesson '+lvl)+'" style="'+(wide?'padding:0 9px;border-radius:14px;':'width:28px;border-radius:50%;padding:0;')+'height:28px;border:1.5px solid '+(a?'var(--red)':'var(--dot)')+';background:'+(a?'var(--red)':'var(--white)')+';color:'+(a?'var(--white)':'var(--mid)')+';font-size:10px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;">'+lab+'</button>';
-  }).join('');
+  return klBtns+sep+mr+mw;
 }
 
 function toggleSheetKanjiMode(mode){
   if(activeKanjiModes.has(mode)) activeKanjiModes.delete(mode); else activeKanjiModes.add(mode);
-  renderLvlFilters('kanji'); renderSheetTable('kanji');
+  renderLvlFilters(); renderSheetTable();
 }
 
 function filterSheetKl(kl, btn){
-  if(activeSheetLvls.has(kl)) activeSheetLvls.delete(kl); else activeSheetLvls.add(kl);
-  renderLvlFilters(currentSheetType);
-  renderSheetTable(currentSheetType);
+  if(activeKanjiLvls.has(kl)) activeKanjiLvls.delete(kl); else activeKanjiLvls.add(kl);
+  renderLvlFilters(); renderSheetTable();
 }
 function filterSheetLvl(lvl, btn){
   if(activeSheetLvls.has(lvl)) activeSheetLvls.delete(lvl); else activeSheetLvls.add(lvl);
-  renderLvlFilters(currentSheetType);
-  renderSheetTable(currentSheetType);
+  renderLvlFilters(); renderSheetTable();
 }
 
+// A sheet chip toggles like a level chip: pick several, or pick none and get
+// all of them. currentSheetType stays as the first pick, for the code that
+// still asks which sheet is in front.
+function toggleSheet(type, btn){
+  if(activeSheets.has(type)) activeSheets.delete(type); else activeSheets.add(type);
+  currentSheetType = _pickedSheets()[0] || 'verbs';
+  _syncSheetChips();
+  renderLvlFilters(); renderCopyCols();
+  renderSheetTable();
+}
+// Show only this sheet — the old single-select behaviour, kept for the state
+// restored when you come back to the tab.
 function switchSheet(type, btn, preserveState){
-  document.querySelectorAll('.sheets-tabs .sheet-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  // Save current tab's state before switching
-  if(sheetTabStates[currentSheetType]){
-    sheetTabStates[currentSheetType].lvls = new Set(activeSheetLvls);
-    if(currentSheetType === 'kanji') sheetTabStates['kanji'].modes = new Set(activeKanjiModes);
-  }
+  activeSheets.clear(); activeSheets.add(type);
   currentSheetType = type;
-  // Restore new tab's state
-  if(sheetTabStates[type]){
-    activeSheetLvls = new Set(sheetTabStates[type].lvls);
-    if(type === 'kanji') activeKanjiModes = new Set(sheetTabStates['kanji'].modes);
-  } else if(!preserveState){
-    activeSheetLvls = new Set();
-  }
-  renderLvlFilters(type); renderCopyCols();
-  renderSheetTable(type);
+  if(!preserveState){ activeSheetLvls = new Set(); activeKanjiLvls = new Set(); }
+  _syncSheetChips();
+  renderLvlFilters(); renderCopyCols();
+  renderSheetTable();
+}
+function _syncSheetChips(){
+  const on=_pickedSheets();
+  document.querySelectorAll('.sheets-tabs .sheet-tab').forEach(b=>{
+    const t=(b.id||'').replace('stab-','');
+    b.classList.toggle('active', activeSheets.size ? activeSheets.has(t) : on.includes(t));
+  });
 }
 
 function _lvlLabel(l){ return String(l)==='EXPR' ? 'EXPR' : 'L'+l; }
-function renderSheetTable(type){
-  const el = document.getElementById('sheet-content');
+// One sheet's rows, after the level chips have had their say.
+function _sheetSource(type){
   let src = type==='expr' ? questionsData : (sheetData[type]||[]);
-  if(activeSheetLvls.size>0) src = type==='kanji' ? src.filter(r=>activeSheetLvls.has(r.kl)) : src.filter(r=>activeSheetLvls.has(String(r.lvl)));
+  if(type==='kanji'){
+    if(activeKanjiLvls.size>0) src=src.filter(r=>activeKanjiLvls.has(r.kl));
+    if(activeKanjiModes.size>0&&activeKanjiModes.size<2) src=src.filter(r=>activeKanjiModes.has(r.mode));
+  } else if(type!=='expr' && activeSheetLvls.size>0){
+    src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
+  }
+  return src;
+}
+function _sheetTableHTML(type){
+  let src = _sheetSource(type);
   let headers, rows;
   if(type==='verbs'){
     headers=['Verb (Masu)','English','Dictionary','て-form','ない form','Group','Level'];
@@ -4380,7 +4391,6 @@ function renderSheetTable(type){
     headers=['Noun','English','Level'];
     rows=src.map(r=>'<tr><td class="jp notranslate" translate="no">'+(r.word)+(r.reading&&r.reading!==r.word?'　<span class="sm">'+r.reading+'</span>':'')+'</td><td>'+r.eng+'</td><td><span class="sheet-lvl">'+_lvlLabel(r.lvl)+'</span></td></tr>');
   } else if(type==='kanji'){
-    if(activeKanjiModes.size>0&&activeKanjiModes.size<2) src=src.filter(r=>activeKanjiModes.has(r.mode));
     headers=['Kanji','Reading','Meaning','Practice','Level'];
     rows=src.map(r=>'<tr><td class="jp notranslate" translate="no">'+r.kanji+'</td><td class="sm notranslate" translate="no">'+r.reading+'</td><td>/ '+r.meaning+'</td><td><span class="sheet-lvl" style="background:'+(r.mode==='write'?'var(--rose)':'rgba(0,0,0,.05)')+'">'+r.mode+'</span></td><td><span class="sheet-lvl">'+r.kl+'</span></td></tr>');
   } else if(type==='other'){
@@ -4390,7 +4400,20 @@ function renderSheetTable(type){
     headers=['Expression','English','Category'];
     rows=src.map(r=>'<tr><td class="jp notranslate" translate="no">'+(r.reading||r.jp)+'</td><td>'+r.eng+'</td><td style="color:var(--sub);font-size:11px;">'+(r.cat||'')+'</td></tr>');
   }
-  el.innerHTML='<div class="sheet-wrap"><table class="sheet-table" id="main-sheet-table"><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
+  return '<div class="sheet-wrap"><table class="sheet-table"><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
+}
+// Every picked sheet, stacked, each under its own name when more than one is on.
+function renderSheetTable(){
+  const el = document.getElementById('sheet-content');
+  if(!el) return;
+  const picked=_pickedSheets();
+  el.innerHTML = picked.map((t,i)=>{
+    const n=_sheetSource(t).length;
+    const cap = picked.length>1
+      ? '<div class="sheet-caption"'+(i?' style="margin-top:18px;"':'')+'>'+SHEET_LABEL[t]+'<span class="sheet-caption-n">'+n+'</span></div>'
+      : '';
+    return cap + _sheetTableHTML(t);
+  }).join('');
 }
 // Which columns the Copy button puts on the clipboard, per sheet. Everything
 // is on by default; untick a column to copy, say, just the word and its
@@ -4408,54 +4431,53 @@ function _cols(type){
   if(!_copyCols[type]) _copyCols[type] = new Set((SHEET_COLS[type]||[]).map(c=>c[0]));
   return _copyCols[type];
 }
-function toggleCopyCol(key, btn){
-  const set=_cols(currentSheetType);
+function toggleCopyCol(key, btn, type){
+  const set=_cols(type||currentSheetType);
   if(set.has(key)) set.delete(key); else set.add(key);
   btn.classList.toggle('active', set.has(key));
 }
 function renderCopyCols(){
   const el=document.getElementById('copy-cols');
   if(!el) return;
-  const defs=SHEET_COLS[currentSheetType]||[];
-  const set=_cols(currentSheetType);
-  el.innerHTML='<span class="cc-label">Copy</span>'+defs.map(([k,label])=>
-    `<button class="cc-chip${set.has(k)?' active':''}" onclick="toggleCopyCol('${k}',this)">${label}</button>`).join('');
+  const picked=_pickedSheets();
+  const many=picked.length>1;
+  el.innerHTML='<span class="cc-label">Copy</span>'+picked.map(t=>{
+    const set=_cols(t);
+    const chips=(SHEET_COLS[t]||[]).map(([k,label])=>
+      `<button class="cc-chip${set.has(k)?' active':''}" onclick="toggleCopyCol('${k}',this,'${t}')">${label}</button>`).join('');
+    return many ? `<span class="cc-group"><span class="cc-group-name">${SHEET_LABEL[t]}</span>${chips}</span>` : chips;
+  }).join('');
 }
 // One record per row, then the selected columns are picked off it.
-function _sheetRecords(){
-  const t=currentSheetType;
+// One record per row of a sheet, with the level chips already applied, so the
+// copy always carries exactly what the table shows.
+function _sheetRecords(type){
+  const t=type||currentSheetType;
+  const src=_sheetSource(t);
   if(t==='verbs'){
-    let src=sheetData.verbs; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
     return src.map(r=>{
       const conj=conjLookup[r.word+'#G'+r.grp]||conjLookup[r.reading+'#G'+r.grp]||conjLookup[r.word]||conjLookup[r.reading]||[];
-      const nai=(conj.find(f=>f.label==='ない form')||{jp:''}).jp;
+      const nai=(conj.find(f=>f.label==='\u306a\u3044 form')||{jp:''}).jp;
       return {word:r.reading||r.word, eng:r.eng, dict:r.dict, te:r.te, nai, grp:'G'+r.grp, lvl:_lvlLabel(r.lvl)};
     });
   }
-  if(t==='adj'){
-    let src=sheetData.adj; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
-    return src.map(r=>({word:r.reading||r.word, eng:r.eng, type:r.adj==='i'?'い':'な', lvl:_lvlLabel(r.lvl)}));
-  }
-  if(t==='nouns'){
-    let src=sheetData.nouns; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
-    return src.map(r=>({word:r.word, reading:(r.reading&&r.reading!==r.word)?r.reading:'', eng:r.eng, lvl:_lvlLabel(r.lvl)}));
-  }
-  if(t==='other'){
-    let src=sheetData.other; if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(String(r.lvl)));
-    return src.map(r=>({word:r.word, reading:(r.reading&&r.reading!==r.word)?r.reading:'', eng:r.eng, type:r.pos==='Adv'?'adverb':r.pos==='Conj'?'conjunction':'expression', lvl:_lvlLabel(r.lvl)}));
-  }
-  if(t==='kanji'){
-    let src=sheetData.kanji;
-    if(activeSheetLvls.size>0) src=src.filter(r=>activeSheetLvls.has(r.kl));
-    if(activeKanjiModes.size>0&&activeKanjiModes.size<2) src=src.filter(r=>activeKanjiModes.has(r.mode));
-    return src.map(r=>({word:r.kanji, reading:r.reading, eng:r.meaning, mode:r.mode==='read'?'読み':'書き', lvl:r.kl}));
-  }
-  return questionsData.map(r=>({word:r.reading||r.jp, eng:r.eng, cat:r.cat||''}));
+  if(t==='adj')   return src.map(r=>({word:r.reading||r.word, eng:r.eng, type:r.adj==='i'?'\u3044':'\u306a', lvl:_lvlLabel(r.lvl)}));
+  if(t==='nouns') return src.map(r=>({word:r.word, reading:(r.reading&&r.reading!==r.word)?r.reading:'', eng:r.eng, lvl:_lvlLabel(r.lvl)}));
+  if(t==='other') return src.map(r=>({word:r.word, reading:(r.reading&&r.reading!==r.word)?r.reading:'', eng:r.eng, type:r.pos==='Adv'?'adverb':r.pos==='Conj'?'conjunction':'expression', lvl:_lvlLabel(r.lvl)}));
+  if(t==='kanji') return src.map(r=>({word:r.kanji, reading:r.reading, eng:r.meaning, mode:r.mode==='read'?'\u8aad\u307f':'\u66f8\u304d', lvl:r.kl}));
+  return src.map(r=>({word:r.reading||r.jp, eng:r.eng, cat:r.cat||''}));
 }
 function copySheet(){
   const btn=document.getElementById('copy-btn');
-  const keys=(SHEET_COLS[currentSheetType]||[]).map(c=>c[0]).filter(k=>_cols(currentSheetType).has(k));
-  const tsv=_sheetRecords().map(rec=>keys.map(k=>rec[k]||'').join('\t')).join('\n');
+  const picked=_pickedSheets();
+  let keys=[];
+  const blocks=picked.map(t=>{
+    const ks=(SHEET_COLS[t]||[]).map(c=>c[0]).filter(k=>_cols(t).has(k));
+    if(!ks.length) return '';
+    keys=keys.concat(ks);
+    return _sheetRecords(t).map(rec=>ks.map(k=>rec[k]||'').join('\t')).join('\n');
+  }).filter(Boolean);
+  const tsv=blocks.join('\n');
   const restore=()=>{btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy';btn.style.opacity='1';};
   const done=()=>{btn.innerHTML='&#10003; Copied';btn.style.opacity='.7';setTimeout(restore,2000);};
   if(!keys.length){ btn.innerHTML='Pick a column'; setTimeout(restore,1600); return; }

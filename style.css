@@ -1077,6 +1077,12 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 .copy-cols{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-start;
   margin:0;padding:0;}
 .cc-label{font:700 8px/1 Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-right:2px;}
+/* Copy chips group per picked sheet once more than one is on */
+.cc-group{display:inline-flex;align-items:center;gap:4px;margin-right:10px;flex-wrap:wrap;max-width:100%;}
+.cc-group-name{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sub);font-family:Arial,sans-serif;margin-right:2px;}
+/* Each stacked sheet says which one it is */
+.sheet-caption{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--red);font-family:Arial,sans-serif;letter-spacing:.04em;margin:0 0 6px;}
+.sheet-caption-n{font-size:10px;font-weight:700;color:var(--sub);background:var(--rose);border-radius:9px;padding:1px 7px;}
 .cc-chip{height:22px;padding:0 8px;border-radius:11px;border:1.5px solid var(--dot);background:var(--white);
   color:var(--mid);font:700 9.5px/1 Arial,sans-serif;cursor:pointer;transition:all .12s;}
 .cc-chip:hover{border-color:var(--mid);background:var(--rose);}
