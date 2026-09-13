@@ -1900,6 +1900,10 @@ const extraCounterMap = {
   '前':'front_back','後ろ':'front_back','右':'left_right','左':'left_right',
 };
 const sem = 'S1';
+// One breakpoint, shared with style.css: under it the page is a phone —
+// no sidebar, no suggestion dropdown, the page itself is the result list.
+const _phoneMQ = window.matchMedia('(max-width:640px)');
+function isPhone(){ return _phoneMQ.matches; }
 let currentTab = 'words';
 const scrollPositions = {words:0,grammar:0,sheets:0};
 let currentSearch = '';
@@ -2136,6 +2140,8 @@ async function translate(){const input=document.getElementById('trans-input').va
 function toggleSidebar(){ document.body.classList.toggle('open'); }
 
 function setTab(tab, btn){
+  // A phone has no Sheets tab: nothing to copy a table into over there.
+  if(tab==='sheets' && isPhone()) tab='words';
   // Tab change invalidates any in-progress search snapshot and pending retranslate
   _contentSnapshot = null; _snapshotMeta = null;
   clearTimeout(_suggRetranslateTimer);
@@ -2325,23 +2331,52 @@ function _updateGramBadge(){
 // back open, so Collapse all could never stick.
 function applyGramFilters(autoOpen){
   const on = activeGramLevels.size>0;
+  // On a phone the search is one more criterion of this same pass, so the two
+  // never fight over a card's display. Desktop search rebuilds the page instead.
+  const q = isPhone() ? currentSearch : '';
+  const el = document.getElementById('content');
+  let anyVisible = false;
   document.querySelectorAll('.gram-section').forEach(sec=>{
+    const head=sec.querySelector('.gram-section-header');
+    // a hit on the section's own title is a hit on every rule in it
+    const secEn = head && head.querySelector('.gram-section-en'), secJp = head && head.querySelector('.gram-section-title');
+    const secHit = !!q && matchesSearch(q, secEn && secEn.textContent, secJp && secJp.textContent);
     let shown=0;
     sec.querySelectorAll('.gram-fc').forEach(card=>{
-      const pass = !on || activeGramLevels.has(card.dataset.lv);
+      const pass = (!on || activeGramLevels.has(card.dataset.lv)) &&
+                   (!q || secHit || matchesSearch(q, card.textContent));
       card.style.display = pass ? '' : 'none';
       if(pass) shown++;
     });
     // a section with nothing left in it does not show at all
     sec.style.display = shown ? '' : 'none';
+    if(shown) anyVisible = true;
     const c=sec.querySelector('.lt-count');
     if(c) c.textContent = shown+(shown===1?' rule':' rules');
     // Picking a level is a request to read those rules, so the sections that
     // still have some open themselves — a filter that leaves twelve collapsed
     // headers has not answered anything.
-    const head=sec.querySelector('.gram-section-header');
     if(autoOpen && on && shown && head && !head.classList.contains('open')) toggleGramSection(head);
+    // A search opens what it finds; cleared, it hands the sections back to
+    // whatever the reader had open — the same deal the Words tab makes.
+    if(isPhone() && head){
+      const t = head.querySelector('.gram-section-title');
+      const open = q ? shown>0 : !!(t && _gramOpenSections.has(t.textContent.trim()));
+      if(open && !head.classList.contains('open')) _loadSectionImages(head);
+      head.classList.toggle('open', open);
+      head.nextElementSibling.classList.toggle('open', open);
+      sec.classList.toggle('open', open);
+    }
   });
+  let emptyEl = el && el.querySelector('.search-no-results');
+  if(q && !anyVisible && el){
+    if(!emptyEl){
+      emptyEl = document.createElement('div');
+      emptyEl.className = 'search-no-results empty';
+      emptyEl.innerHTML = `<span class="empty-jp">文</span>No grammar found for "${q}".`;
+      el.appendChild(emptyEl);
+    }
+  } else if(emptyEl){ emptyEl.remove(); }
   _syncSecToggle();
 }
 function toggleFilterMenu(){
@@ -2506,7 +2541,8 @@ function doSearch(val){
   currentSearch = val.trim().toLowerCase();
   const clr = document.getElementById('search-clear');
   if(clr) clr.classList.toggle('visible', currentSearch.length>0);
-  updateSuggestions(val.trim());
+  if(isPhone()) document.getElementById('search-suggestions').classList.remove('visible');
+  else updateSuggestions(val.trim());
 
   // Snapshot scroll on very first keystroke
   if(currentSearch && wasEmpty){
@@ -2527,7 +2563,7 @@ function doSearch(val){
     _renderTimer = setTimeout(applyWordFilters, 0);
     // Debounced explicit retranslate for suggestions — fires after user pauses typing
     clearTimeout(_suggRetranslateTimer);
-    if(currentSearch){
+    if(currentSearch && !isPhone()){
       _suggRetranslateTimer = setTimeout(()=>{ // 100ms: fast enough to feel instant, long enough to debounce rapid typing
         try {
           const m = document.cookie.match(/googtrans=\/[a-z-]+\/([a-z-]+)/i);
@@ -2547,6 +2583,15 @@ function doSearch(val){
         } catch(e){}
       }, 100);
     }
+    return;
+  }
+
+  // On a phone the grammar rules filter where they stand, the way the Words
+  // tab does: the full cards stay, the sections with a hit open.
+  if(isPhone() && currentTab==='grammar'){
+    if(!currentSearch) preSearchScrollPos = null;
+    clearTimeout(_renderTimer);
+    applyGramFilters();
     return;
   }
 
@@ -2860,6 +2905,7 @@ function searchKeyNav(e){
     const items = box.querySelectorAll('.sugg-item');
     if(_suggActive>=0 && items[_suggActive]){ e.preventDefault(); suggPick(items[_suggActive]); }
     else { box.classList.remove('visible'); }
+    if(isPhone()) e.target.blur(); // the results are already on the page; drop the keyboard
     return;
   }
   if(e.key==='Escape'){ box.classList.remove('visible'); return; }
@@ -3487,7 +3533,7 @@ function renderWords(){
   // Everything is open on arrival; after that the user's own state wins.
   if(!_wordsTouched) groups.forEach(g=>_wordsOpenSections.add(g.key));
   applyWordFilters();
-  _warmSuggIndex();
+  if(!isPhone()) _warmSuggIndex();
 }
 
 // back-compat aliases
