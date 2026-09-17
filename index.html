@@ -6,7 +6,7 @@
 <title>くまキィ</title>
 <link rel="icon" type="image/png" href="images/favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=20260918a">
+<link rel="stylesheet" href="style.css?v=20260918b">
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
 <script>
   // ── Service Worker (rate-limit interceptor) ──────────────────────────────
@@ -359,6 +359,16 @@
       <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L10" id="gflt-L10" onclick="toggleGramLevel('L10',this)" title="Lesson 10">10</button></div>
       <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L11" id="gflt-L11" onclick="toggleGramLevel('L11',this)" title="Lesson 11">11</button></div>
       <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L12" id="gflt-L12" onclick="toggleGramLevel('L12',this)" title="Lesson 12">12</button></div>
+      <div class="ff-line">
+        <button class="float-btn ff-sub-btn ff-wide" data-kind="particle" onclick="toggleGramKind('particle',this)" title="Particles and endings">Particle</button>
+        <button class="float-btn ff-sub-btn ff-wide" data-kind="form" onclick="toggleGramKind('form',this)" title="Conjugations and word forms">Form</button>
+        <button class="float-btn ff-sub-btn ff-wide" data-kind="pattern" onclick="toggleGramKind('pattern',this)" title="Sentence patterns">Pattern</button>
+      </div>
+      <div class="ff-line">
+        <button class="float-btn ff-sub-btn ff-wide" data-kind="question" onclick="toggleGramKind('question',this)" title="Asking and answering">Question</button>
+        <button class="float-btn ff-sub-btn ff-wide" data-kind="expression" onclick="toggleGramKind('expression',this)" title="Set phrases">Phrases</button>
+        <button class="float-btn ff-sub-btn ff-wide" data-kind="dialogue" onclick="toggleGramKind('dialogue',this)" title="Conversations drilled whole">Dialogue</button>
+      </div>
       <div class="ff-line"><button class="float-btn ff-sub-btn ff-clear" onclick="clearGramFilters()" title="Clear" aria-label="Clear filters"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>
   </div>
@@ -400,7 +410,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
 <script src="dmak-master/dist/dmak.js"></script>
-<script src="js/main.js?v=20260918a"></script>
+<script src="js/main.js?v=20260918b"></script>
 
 
 
@@ -410,8 +420,8 @@
 
 
 
-<script src="js/utils.js?v=20260918a"></script>
-<script src="js/app.js?v=20260918a"></script>
+<script src="js/utils.js?v=20260918b"></script>
+<script src="js/app.js?v=20260918b"></script>
 <script>
 (function(){
   var _ppUser = null;

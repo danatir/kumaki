@@ -702,6 +702,8 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
 .ff-panel.open .ff-line:nth-child(11){transition-delay:.22s}
 .ff-panel.open .ff-line:nth-child(12){transition-delay:.24s}
 .ff-panel.open .ff-line:nth-child(13){transition-delay:.26s}
+.ff-panel.open .ff-line:nth-child(14){transition-delay:.28s}
+.ff-panel.open .ff-line:nth-child(15){transition-delay:.30s}
 /* one shape for every button in the menu */
 .ff-panel .float-btn{box-sizing:border-box;height:32px;min-width:0;width:92px;flex:0 0 92px;padding:0;border-radius:16px;align-self:center;
   font:700 11px/1 Arial,sans-serif;border:1.5px solid var(--dot);background:var(--white);color:var(--mid);
@@ -1013,3 +1015,77 @@ body.open .sidebar-account-info.visible{opacity:1;max-width:160px;pointer-events
   .translator-toggle{display:none!important;}
   .translator-panel{display:none!important;}
 }
+
+/* ── Grammar cards, lesson by lesson ──────────────────────────────────────
+   Every card is anchored by its formula: the word types in blue boxes, the
+   form each must take written under the type, and the particle or ending
+   that connects them in red. Everything else on the card hangs off that. */
+.gram-section-num{flex:0 0 auto;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--red);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font:800 11px/1 Arial,sans-serif;letter-spacing:0;}
+.gram-fc{padding:12px 14px 12px;gap:8px;}
+.gc-head{display:flex;align-items:flex-start;gap:8px;}
+.gc-sec{flex:0 0 auto;font:800 10px/1 Arial,sans-serif;letter-spacing:.04em;color:var(--red);background:rgba(224,103,92,.12);
+  border-radius:6px;padding:4px 6px;margin-top:1px;white-space:nowrap;}
+.gc-titles{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px;}
+.gc-kind{flex:0 0 auto;font:700 8px/1 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
+  border:1px solid var(--dot);border-radius:9px;padding:3px 6px;margin-top:2px;white-space:nowrap;}
+.gc-kind-particle{color:#b03a48;border-color:rgba(176,58,72,.35);}
+.gc-kind-form{color:#2f6f9e;border-color:rgba(47,111,158,.35);}
+.gc-kind-dialogue,.gc-kind-expression{color:#6d4a06;border-color:rgba(240,192,74,.6);}
+/* the formula */
+.gc-fm{background:var(--rose);border-radius:10px;padding:10px 11px;}
+.fm{display:flex;flex-direction:column;gap:7px;}
+.fm-line{display:flex;flex-wrap:wrap;align-items:center;gap:5px 6px;row-gap:6px;}
+.fm-b{flex:0 0 auto;min-width:19px;height:19px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--mid);color:#fff;font:800 10px/1 Arial,sans-serif;padding:0 5px;}
+.fm-b.fm-qa{background:var(--mid);}
+.fm-slot{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-height:30px;
+  background:var(--white);border:1.5px solid #2f6f9e;border-radius:8px;padding:2px 9px;line-height:1.15;}
+.fm-slot b{font:800 12.5px/1.2 Arial,sans-serif;color:#2f6f9e;white-space:nowrap;}
+.fm-slot small{font:700 8.5px/1.1 Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#5f8ab0;white-space:nowrap;}
+.fm-has-form b{font-family:'Chihaya','Noto Serif JP',serif;font-size:13.5px;}
+.fm-p{font-family:'Chihaya','Noto Serif JP',serif;font-size:16px;font-weight:800;color:#b03a48;line-height:1.25;
+  background:rgba(255,255,255,.55);border-radius:6px;padding:3px 7px;white-space:nowrap;}
+.fm-t{font-family:'Chihaya','Noto Serif JP',serif;font-size:13.5px;color:var(--sub);line-height:1.4;}
+/* the rest of the card */
+.gc-meaning{font-size:11.5px;}
+.gc-rules{background:var(--bg);border-radius:8px;padding:8px 9px;}
+.gc-ex-list{display:flex;flex-direction:column;}
+.gc-ex-list .gc-ex:first-child{padding-top:0;}
+.gc-ex-list.gc-fold .gc-ex:nth-child(n+4){display:none;}
+.gc-ex-list.gc-open .gc-ex:nth-child(n+4){display:block;}
+.gc-more{align-self:flex-start;border:none;background:none;padding:4px 0 0;cursor:pointer;
+  font:700 10px/1 Arial,sans-serif;color:var(--mid);letter-spacing:.04em;}
+.gc-more:hover{color:var(--red);}
+.gc-open + .gc-more .gc-more-show,.gc-fold + .gc-more .gc-more-hide{display:none;}
+.gc-convo-wrap.gc-fold .gc-convo{display:none;}
+.gc-tags{display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+.gc-tag{border:1px solid var(--dot);background:var(--white);border-radius:10px;padding:2px 7px;cursor:pointer;
+  font:600 10px/1.3 Arial,sans-serif;color:var(--sub);transition:all .12s;}
+.gc-tag:hover{border-color:var(--red);color:var(--red);}
+.gc-tag-p{font-family:'Chihaya','Noto Serif JP',serif;font-size:12px;font-weight:800;color:#b03a48;border-color:rgba(176,58,72,.35);}
+.gc-tag-f{color:#2f6f9e;border-color:rgba(47,111,158,.35);font-weight:700;}
+.gc-tag-w{font-family:'Chihaya','Noto Serif JP',serif;font-size:11.5px;}
+.gc-tags-lbl{font:700 8.5px/1 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-right:2px;}
+/* search results: a compact card that opens the full one */
+.grammar-card{background:var(--white);border:1px solid var(--dot);border-radius:12px;padding:10px 13px;cursor:pointer;
+  display:flex;flex-direction:column;gap:7px;transition:border-color .12s,box-shadow .12s;}
+.grammar-card:hover{border-color:var(--red);box-shadow:0 2px 10px rgba(224,103,92,.15);}
+.grammar-card .g-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.grammar-card .g-pattern{font:700 13px/1.3 Arial,sans-serif;color:var(--ink);margin:0;}
+.grammar-card .g-lesson{font:700 9px/1 Arial,sans-serif;letter-spacing:.08em;color:var(--dim);margin-left:auto;}
+.grammar-card .gc-fm{padding:7px 9px;}
+.grammar-card .fm-p{font-size:14px;}
+.grammar-card .fm-slot{min-height:26px;padding:1px 7px;}
+@media(max-width:560px){
+  .fm-p{font-size:15px;}
+  .gc-tags{gap:3px;}
+}
+.gram-fc-grid{align-items:start;}
+.gc-foot{margin-top:0;gap:0;}
+.gc-foot .gc-note:first-child{margin-top:0;}
+.gc-foot .gc-note{border-top:1px solid var(--rose);padding-top:8px;margin-top:2px;}
+.gc-imgs{margin-top:8px;}
+.gc-vid-btn{margin-top:6px;}
+.gc-vid-btn.gc-vid-open .gc-more-show,.gc-vid-btn:not(.gc-vid-open) .gc-more-hide{display:none;}
+.gc-vid{margin-top:6px;}
