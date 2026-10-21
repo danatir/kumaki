@@ -157,17 +157,32 @@
         return;
       }
 
-      // Force-refresh token so roles reflect latest Netlify dashboard state
+      function hasBeta(roles){ return (roles || []).indexOf('beta') !== -1; }
+      function storedRoles(){ return user.app_metadata && user.app_metadata.roles; }
+
+      // Force-refresh token so roles reflect latest Netlify dashboard state.
+      // A failed refresh (offline, a slow network on waking a phone, Netlify
+      // hiccup) must not end the session: logging out deletes the refresh
+      // token, so one blip meant signing in again. Fall back to the roles the
+      // widget already stored, and only sign out when they lack beta or the
+      // server refuses the refresh token.
       user.jwt(true).then(function(token){
+        var roles;
         try {
-          var payload = JSON.parse(atob(token.split('.')[1]));
-          var roles = (payload.app_metadata && payload.app_metadata.roles) || [];
-          if(roles.indexOf('beta') === -1){
-            netlifyIdentity.logout();
-            document.location.replace('/login.html');
-            return;
-          }
-        } catch(e) {
+          // JWTs are base64url; atob only reads base64
+          var b64 = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+          roles = JSON.parse(atob(b64)).app_metadata.roles;
+        } catch(e) { roles = storedRoles(); }
+        admit(roles, token);
+      }).catch(function(err){
+        // 4xx = the refresh token itself was refused (account deleted,
+        // revoked): that really is signed out. Anything else is the network.
+        if(err && err.status >= 400 && err.status < 500) admit(null, null);
+        else admit(storedRoles(), null);
+      });
+
+      function admit(roles, token){
+        if(!hasBeta(roles)){
           netlifyIdentity.logout();
           document.location.replace('/login.html');
           return;
@@ -176,10 +191,11 @@
         // User is authenticated with beta role
         if(window._rateBlocked){
           // Just blocked on this load — report to server so other browsers are covered too
-          _reportBlock(token, window._rateBlocked);
+          if(token) _reportBlock(token, window._rateBlocked);
           _showRateLimitScreen(window._rateBlocked);
           return;
         }
+        if(!token){ document.documentElement.style.visibility = ''; return; }
 
         // Not locally blocked — check server once per session (catches cross-browser blocks)
         _checkServerBlock(token, function(blocked, until){
@@ -192,10 +208,7 @@
             document.documentElement.style.visibility = '';
           }
         });
-      }).catch(function(){
-        netlifyIdentity.logout();
-        document.location.replace('/login.html');
-      });
+      }
     });
   })();
 </script>
