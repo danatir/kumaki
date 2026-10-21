@@ -6,7 +6,7 @@
 <title>くまキィ</title>
 <link rel="icon" type="image/png" href="images/favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=20260918b">
+<link rel="stylesheet" href="style.css?v=20261021a">
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
 <script>
   // ── Service Worker (rate-limit interceptor) ──────────────────────────────
@@ -257,11 +257,11 @@
         <h1 class="home-title notranslate" id="home-title-text" translate="no"></h1>
       </div>
       <p class="home-tagline">the key to bear Japanese</p>
-      <p class="home-sub">Your self-contained study companion for <strong>KAI Japanese School</strong> — Module&nbsp;1. Words (vocabulary L1–L12 + kanji L1–L8), grammar lesson by lesson with the class slides, and study sheets — all in one place.</p>
+      <p class="home-sub">Your self-contained study companion for <strong>KAI Japanese School</strong> — Module&nbsp;1. Words (vocabulary L1–L12 + kanji L1–L11), grammar lesson by lesson with the class slides, and study sheets — all in one place.</p>
       <div class="home-cards">
         <button class="home-card" onclick="setTab('words',document.querySelector('.s-btn[onclick*=\'words\']'))">
           <span class="home-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7"/><path d="M9 11h7"/></svg></span>
-          <span class="home-card-text"><b>Words</b>Vocabulary L1–L12 and kanji L1–L8 together, with stroke order</span>
+          <span class="home-card-text"><b>Words</b>Vocabulary L1–L12 and kanji L1–L11 together, with stroke order</span>
         </button>
         <button class="home-card" onclick="setTab('grammar',document.querySelector('.s-btn[onclick*=\'grammar\']'))">
           <span class="home-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span>
@@ -333,6 +333,9 @@
           <button class="float-btn ff-sub-btn" id="kflt-KL6" onclick="toggleKanjiLevel('KL6',this)" title="Kanji level 6">6</button>
           <button class="float-btn ff-sub-btn" id="kflt-KL7" onclick="toggleKanjiLevel('KL7',this)" title="Kanji level 7">7</button>
           <button class="float-btn ff-sub-btn" id="kflt-KL8" onclick="toggleKanjiLevel('KL8',this)" title="Kanji level 8">8</button>
+          <button class="float-btn ff-sub-btn" id="kflt-KL9" onclick="toggleKanjiLevel('KL9',this)" title="Kanji level 9">9</button>
+          <button class="float-btn ff-sub-btn" id="kflt-KL10" onclick="toggleKanjiLevel('KL10',this)" title="Kanji level 10">10</button>
+          <button class="float-btn ff-sub-btn" id="kflt-KL11" onclick="toggleKanjiLevel('KL11',this)" title="Kanji level 11">11</button>
           <button class="float-btn ff-sub-btn ff-wide notranslate" translate="no" id="kflt-SIGN" onclick="toggleKanjiLevel('SIGN',this)" title="Kanji on signs">サイン</button>
         </span>
         <button class="float-btn" id="flt-Kanji" onclick="toggleFilter('Kanji',this)">Kanji</button>
@@ -410,7 +413,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
 <script src="dmak-master/dist/dmak.js"></script>
-<script src="js/main.js?v=20260918b"></script>
+<script src="js/main.js?v=20261021a"></script>
 
 
 
@@ -420,8 +423,8 @@
 
 
 
-<script src="js/utils.js?v=20260918b"></script>
-<script src="js/app.js?v=20260918b"></script>
+<script src="js/utils.js?v=20261021a"></script>
+<script src="js/app.js?v=20261021a"></script>
 <script>
 (function(){
   var _ppUser = null;

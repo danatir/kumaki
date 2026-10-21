@@ -1770,6 +1770,142 @@ kanjiData['S1'] = {
     {kanji:'英語',reading:'えいご',meaning:'English (language)',mode:'read',part:2},
     {kanji:'外国語',reading:'がいこくご',meaning:'foreign language',mode:'read',part:2},
   ],
+  'KL9': [
+    {kanji:'春',reading:'はる',meaning:'spring',mode:'write',part:1},
+    {kanji:'春休み',reading:'はるやすみ',meaning:'spring vacation',mode:'write',part:1},
+    {kanji:'春学期',reading:'はるがっき',meaning:'spring semester',mode:'read',part:1},
+    {kanji:'夏',reading:'なつ',meaning:'summer',mode:'write',part:1},
+    {kanji:'夏休み',reading:'なつやすみ',meaning:'summer vacation',mode:'write',part:1},
+    {kanji:'秋',reading:'あき',meaning:'autumn',mode:'write',part:1},
+    {kanji:'冬',reading:'ふゆ',meaning:'winter',mode:'write',part:1},
+    {kanji:'冬休み',reading:'ふゆやすみ',meaning:'winter vacation',mode:'write',part:1},
+    {kanji:'春夏秋冬',reading:'しゅんかしゅうとう',meaning:'the four seasons',mode:'read',part:1},
+    {kanji:'朝',reading:'あさ',meaning:'morning',mode:'write',part:1},
+    {kanji:'毎朝',reading:'まいあさ',meaning:'every morning',mode:'write',part:1},
+    {kanji:'今朝',reading:'けさ',meaning:'this morning',mode:'write',part:1},
+    {kanji:'毎日',reading:'まいにち',meaning:'every day',mode:'write',part:1},
+    {kanji:'今日',reading:'きょう',meaning:'today',mode:'write',part:1},
+    {kanji:'昼',reading:'ひる',meaning:'noon, daytime',mode:'write',part:1},
+    {kanji:'昼間',reading:'ひるま',meaning:'daytime',mode:'write',part:1},
+    {kanji:'昼休み',reading:'ひるやすみ',meaning:'lunch break',mode:'write',part:1},
+    {kanji:'夕方',reading:'ゆうがた',meaning:'evening',mode:'write',part:1},
+    {kanji:'夕食',reading:'ゆうしょく',meaning:'dinner',mode:'write',part:1},
+    {kanji:'朝食',reading:'ちょうしょく',meaning:'breakfast',mode:'read',part:1},
+    {kanji:'昼食',reading:'ちゅうしょく',meaning:'lunch',mode:'read',part:1},
+    {kanji:'読み方',reading:'よみかた',meaning:'way of reading',mode:'write',part:1},
+    {kanji:'両方',reading:'りょうほう',meaning:'both',mode:'read',part:1},
+    {kanji:'晩',reading:'ばん',meaning:'evening, night',mode:'write',part:1},
+    {kanji:'今晩',reading:'こんばん',meaning:'tonight',mode:'write',part:1},
+    {kanji:'毎晩',reading:'まいばん',meaning:'every night',mode:'write',part:1},
+    {kanji:'夜',reading:'よる',meaning:'night',mode:'write',part:1},
+    {kanji:'今夜',reading:'こんや',meaning:'tonight',mode:'write',part:1},
+    {kanji:'夜中',reading:'よなか',meaning:'middle of the night',mode:'write',part:1},
+    {kanji:'明るい',reading:'あかるい',meaning:'bright',mode:'write',part:1},
+    {kanji:'心',reading:'こころ',meaning:'heart, mind',mode:'write',part:1},
+    {kanji:'安心する',reading:'あんしんする',meaning:'to feel relieved',mode:'write',part:1},
+    {kanji:'心配する',reading:'しんぱいする',meaning:'to worry',mode:'read',part:1},
+    {kanji:'手',reading:'て',meaning:'hand',mode:'write',part:1},
+    {kanji:'下手な',reading:'へたな',meaning:'bad at, unskillful',mode:'write',part:1},
+    {kanji:'上手な',reading:'じょうずな',meaning:'good at, skillful',mode:'write',part:1},
+    {kanji:'お手洗い',reading:'おてあらい',meaning:'restroom, toilet',mode:'read',part:1},
+    {kanji:'足',reading:'あし',meaning:'foot, leg',mode:'write',part:1},
+    {kanji:'足りる',reading:'たりる',meaning:'to be enough',mode:'write',part:1},
+    {kanji:'足す',reading:'たす',meaning:'to add',mode:'write',part:1},
+    {kanji:'一足',reading:'いっそく',meaning:'one pair (of shoes)',mode:'read',part:1},
+    {kanji:'体',reading:'からだ',meaning:'body',mode:'write',part:1},
+    {kanji:'体重',reading:'たいじゅう',meaning:'body weight',mode:'read',part:1},
+    {kanji:'首',reading:'くび',meaning:'neck',mode:'write',part:1},
+    {kanji:'首都',reading:'しゅと',meaning:'capital city',mode:'read',part:1},
+    {kanji:'部首',reading:'ぶしゅ',meaning:'kanji radical',mode:'read',part:1},
+    {kanji:'道',reading:'みち',meaning:'road, way',mode:'write',part:1},
+  ],
+  'KL10': [
+    {kanji:'山',reading:'やま',meaning:'mountain',mode:'write',part:1},
+    {kanji:'山道',reading:'やまみち',meaning:'mountain path',mode:'write',part:1},
+    {kanji:'山田さん',reading:'やまださん',meaning:'Yamada (name)',mode:'write',part:1},
+    {kanji:'富士山',reading:'ふじさん',meaning:'Mt. Fuji',mode:'read',part:1},
+    {kanji:'川',reading:'かわ',meaning:'river',mode:'write',part:1},
+    {kanji:'小川さん',reading:'おがわさん',meaning:'Ogawa (name)',mode:'write',part:1},
+    {kanji:'林',reading:'はやし',meaning:'woods, grove',mode:'write',part:1},
+    {kanji:'森',reading:'もり',meaning:'forest',mode:'write',part:1},
+    {kanji:'森田さん',reading:'もりたさん',meaning:'Morita (name)',mode:'write',part:1},
+    {kanji:'森林',reading:'しんりん',meaning:'forest, woodland',mode:'read',part:1},
+    {kanji:'空',reading:'そら',meaning:'sky',mode:'write',part:1},
+    {kanji:'空気',reading:'くうき',meaning:'air',mode:'write',part:1},
+    {kanji:'空く',reading:'あく',meaning:'to become empty, free up',mode:'write',part:1},
+    {kanji:'海',reading:'うみ',meaning:'sea',mode:'write',part:1},
+    {kanji:'北海道',reading:'ほっかいどう',meaning:'Hokkaido',mode:'write',part:1},
+    {kanji:'海外',reading:'かいがい',meaning:'overseas, abroad',mode:'read',part:1},
+    {kanji:'化学',reading:'かがく',meaning:'chemistry',mode:'write',part:1},
+    {kanji:'文化',reading:'ぶんか',meaning:'culture',mode:'read',part:1},
+    {kanji:'花',reading:'はな',meaning:'flower',mode:'write',part:1},
+    {kanji:'花見',reading:'はなみ',meaning:'flower viewing',mode:'write',part:1},
+    {kanji:'花火',reading:'はなび',meaning:'fireworks',mode:'write',part:1},
+    {kanji:'天気',reading:'てんき',meaning:'weather',mode:'write',part:1},
+    {kanji:'赤',reading:'あか',meaning:'red',mode:'write',part:1},
+    {kanji:'赤い',reading:'あかい',meaning:'red',mode:'write',part:1},
+    {kanji:'赤ちゃん',reading:'あかちゃん',meaning:'baby',mode:'write',part:1},
+    {kanji:'赤道',reading:'せきどう',meaning:'the equator',mode:'write',part:1},
+    {kanji:'青',reading:'あお',meaning:'blue',mode:'write',part:1},
+    {kanji:'青い',reading:'あおい',meaning:'blue',mode:'write',part:1},
+    {kanji:'青空',reading:'あおぞら',meaning:'blue sky',mode:'write',part:1},
+    {kanji:'空港',reading:'くうこう',meaning:'airport',mode:'read',part:1},
+    {kanji:'白',reading:'しろ',meaning:'white',mode:'write',part:1},
+    {kanji:'白い',reading:'しろい',meaning:'white',mode:'write',part:1},
+    {kanji:'白紙',reading:'はくし',meaning:'blank paper',mode:'read',part:1},
+    {kanji:'黒',reading:'くろ',meaning:'black',mode:'write',part:1},
+    {kanji:'黒い',reading:'くろい',meaning:'black',mode:'write',part:1},
+    {kanji:'色',reading:'いろ',meaning:'color',mode:'write',part:1},
+    {kanji:'水色',reading:'みずいろ',meaning:'light blue',mode:'read',part:1},
+    {kanji:'魚',reading:'さかな',meaning:'fish',mode:'write',part:1},
+    {kanji:'金魚',reading:'きんぎょ',meaning:'goldfish',mode:'read',part:1},
+    {kanji:'犬',reading:'いぬ',meaning:'dog',mode:'write',part:1},
+    {kanji:'子犬',reading:'こいぬ',meaning:'puppy',mode:'write',part:1},
+  ],
+  'KL11': [
+    {kanji:'料理',reading:'りょうり',meaning:'cooking, cuisine',mode:'write',part:1},
+    {kanji:'無料',reading:'むりょう',meaning:'free of charge',mode:'read',part:1},
+    {kanji:'料金',reading:'りょうきん',meaning:'fee, charge',mode:'read',part:1},
+    {kanji:'理由',reading:'りゆう',meaning:'reason',mode:'read',part:1},
+    {kanji:'ご飯',reading:'ごはん',meaning:'cooked rice, meal',mode:'write',part:1},
+    {kanji:'朝ご飯',reading:'あさごはん',meaning:'breakfast',mode:'write',part:1},
+    {kanji:'昼ご飯',reading:'ひるごはん',meaning:'lunch',mode:'write',part:1},
+    {kanji:'晩ご飯',reading:'ばんごはん',meaning:'dinner',mode:'write',part:1},
+    {kanji:'牛',reading:'うし',meaning:'cow',mode:'write',part:1},
+    {kanji:'牛肉',reading:'ぎゅうにく',meaning:'beef',mode:'write',part:1},
+    {kanji:'牛乳',reading:'ぎゅうにゅう',meaning:'milk',mode:'read',part:1},
+    {kanji:'牛丼',reading:'ぎゅうどん',meaning:'beef bowl',mode:'read',part:1},
+    {kanji:'豚',reading:'ぶた',meaning:'pig',mode:'write',part:1},
+    {kanji:'豚肉',reading:'ぶたにく',meaning:'pork',mode:'write',part:1},
+    {kanji:'豚カツ',reading:'とんカツ',meaning:'pork cutlet',mode:'read',part:1},
+    {kanji:'鳥',reading:'とり',meaning:'bird',mode:'write',part:1},
+    {kanji:'小鳥',reading:'ことり',meaning:'small bird',mode:'write',part:1},
+    {kanji:'鳥肉',reading:'とりにく',meaning:'chicken (meat)',mode:'write',part:1},
+    {kanji:'焼き鳥',reading:'やきとり',meaning:'grilled chicken skewers',mode:'read',part:1},
+    {kanji:'一石二鳥',reading:'いっせきにちょう',meaning:'two birds with one stone',mode:'read',part:1},
+    {kanji:'肉',reading:'にく',meaning:'meat',mode:'write',part:1},
+    {kanji:'肉屋',reading:'にくや',meaning:'butcher shop',mode:'read',part:1},
+    {kanji:'反',reading:'はん',meaning:'oppose, anti-',mode:'write',part:1},
+    {kanji:'反対する',reading:'はんたいする',meaning:'to oppose',mode:'read',part:1},
+    {kanji:'お茶',reading:'おちゃ',meaning:'tea',mode:'write',part:1},
+    {kanji:'茶色',reading:'ちゃいろ',meaning:'brown',mode:'write',part:1},
+    {kanji:'予',reading:'よ',meaning:'in advance, beforehand',mode:'write',part:1},
+    {kanji:'予定',reading:'よてい',meaning:'plan, schedule',mode:'read',part:1},
+    {kanji:'予約',reading:'よやく',meaning:'reservation',mode:'read',part:1},
+    {kanji:'予習',reading:'よしゅう',meaning:'class preparation',mode:'read',part:1},
+    {kanji:'野菜',reading:'やさい',meaning:'vegetable',mode:'write',part:1},
+    {kanji:'長野',reading:'ながの',meaning:'Nagano (place)',mode:'write',part:1},
+    {kanji:'切る',reading:'きる',meaning:'to cut',mode:'write',part:1},
+    {kanji:'切手',reading:'きって',meaning:'postage stamp',mode:'write',part:1},
+    {kanji:'大切な',reading:'たいせつな',meaning:'important',mode:'write',part:1},
+    {kanji:'作る',reading:'つくる',meaning:'to make',mode:'write',part:1},
+    {kanji:'手作り',reading:'てづくり',meaning:'handmade',mode:'write',part:1},
+    {kanji:'作文',reading:'さくぶん',meaning:'essay, composition',mode:'read',part:1},
+    {kanji:'未来',reading:'みらい',meaning:'future',mode:'write',part:1},
+    {kanji:'味',reading:'あじ',meaning:'taste, flavor',mode:'write',part:1},
+    {kanji:'意味',reading:'いみ',meaning:'meaning',mode:'read',part:1},
+    {kanji:'趣味',reading:'しゅみ',meaning:'hobby',mode:'read',part:1},
+  ],
   'SIGN': [
     {kanji:'押',reading:'おす',meaning:'push (door sign · PUSH)',mode:'read',part:1},
     {kanji:'引',reading:'ひく',meaning:'pull (door sign · PULL)',mode:'read',part:1},
@@ -2918,7 +3054,7 @@ const activeSubFilters = new Set();  // G1–G3 for verbs, i/na for adjectives
 let hideReadOnly = false;
 let activeCounterOnly = false;   // show only words that have a counter table
 const activeKinds = new Set();   // Question, Counter, Greeting, … on an expression
-const activeKanjiLevels = new Set(); // KL1–KL8 / SIGN filter chips in the Words tab
+const activeKanjiLevels = new Set(); // KL1–KL11 / SIGN filter chips in the Words tab
 const activeGramLevels = new Set();  // L1–L12 chips in the Grammar tab
 const activeGramKinds = new Set();   // particle / form / pattern / question / expression / dialogue
 
@@ -3960,7 +4096,7 @@ function _sortKanjiLevel(arr){
 // ── Words tab (vocabulary + kanji merged) ────────────────────────────────────
 const WORD_LEVELS = ['L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','EXPR'];
 
-// Every kanji character that appears anywhere in the class kanji list (L1–L8 + signs).
+// Every kanji character that appears anywhere in the class kanji list (L1–L11 + signs).
 // A vocabulary word is written in kanji only when all of its kanji are in this set;
 // anything else is shown in kana, exactly as the course expects you to read it.
 const TAUGHT_KANJI = (function(){
@@ -3997,7 +4133,7 @@ const KANJI_INDEX = (function(){
   }
   return m;
 })();
-const KANJI_LEVELS = ['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8','SIGN'];
+const KANJI_LEVELS = ['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8','KL9','KL10','KL11','SIGN'];
 // Kanji-list entries that are NOT also vocabulary, grouped by kanji level.
 // A term is one card. 大好きな is on the KL6 list twice (once per part) and
 // 名前 is on both KL3 and KL8; each gets a single card, filed at the level you
@@ -4051,7 +4187,7 @@ function _klShown(entries){
   if(activeKanjiLevels.size){
     const sel = entries.filter(e=>activeKanjiLevels.has(e.kl));
     if(sel.length){
-      // KL1–KL8 are a progression: 新聞 really is reading-only at KL5 and a
+      // KL1–KL11 are a progression: 新聞 really is reading-only at KL5 and a
       // writing word at KL6, so the requirement comes from the highest level
       // you picked. サイン is not a stage in that progression — it is a
       // separate deck that reuses kanji you already write — so it must never
@@ -4437,7 +4573,7 @@ function renderWords(){
       cards: words.map(w=>wordCardHTML(w, lvl)).join(''),
     });
   }
-  // Kanji with no vocabulary entry, KL1–KL8 then サイン.
+  // Kanji with no vocabulary entry, KL1–KL11 then サイン.
   const koCards = [];
   let koCount = 0;
   for(const kl of KANJI_LEVELS){
@@ -5297,7 +5433,7 @@ const SHEET_ORDER = ['verbs','adj','nouns','kanji','expr','other'];
 const SHEET_LABEL = {verbs:'Verbs', adj:'Adjectives', nouns:'Nouns', kanji:'Kanji', expr:'Expr', other:'Other'};
 const _pickedSheets = () => activeSheets.size ? SHEET_ORDER.filter(t=>activeSheets.has(t)) : SHEET_ORDER.slice();
 let activeSheetLvls = new Set();   // lesson numbers, shared by the word sheets
-let activeKanjiLvls = new Set();   // KL1–KL8 / SIGN, the kanji sheet only
+let activeKanjiLvls = new Set();   // KL1–KL11 / SIGN, the kanji sheet only
 let activeKanjiModes = new Set(['read','write']);
 
 // The level chips answer to whichever sheets are picked: lesson numbers for
@@ -5327,7 +5463,7 @@ return '<button onclick="filterSheetLvl(\''+lvl+'\',this)" title="'+(lvl==='EXPR
 // Beside the lesson numbers a bare 1–8 would read as a lesson, so the kanji
 // levels keep their KL when they are not alone.
 function _kanjiLvlChips(prefix){
-    const kls=['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8','SIGN'];
+    const kls=['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8','KL9','KL10','KL11','SIGN'];
     const pill=(active,label,click)=>'<button onclick="'+click+'" style="height:28px;padding:0 '+(label.length>2?'10':'0')+'px;'+(label.length<=2?'width:28px;':'')+'border-radius:'+(label.length<=2?'50%':'14px')+';border:1.5px solid '+(active?'var(--red)':'var(--dot)')+';background:'+(active?'var(--red)':'var(--white)')+';color:'+(active?'var(--white)':'var(--mid)')+';font-size:'+(label.length<=2?'9':'10')+'px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;'+( label.length<=2?'padding:0;':'')+'">' +label+'</button>';
     const klBtns=kls.map(kl=>pill(activeKanjiLvls.has(kl), kl==='SIGN'?'Sign':(prefix?kl:kl.replace('KL','')), "filterSheetKl('"+kl+"',this)")).join('');
     const sep='<span style="width:6px;display:inline-block;"></span>';
