@@ -6,7 +6,7 @@
 <title>くまキィ</title>
 <link rel="icon" type="image/png" href="images/favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=20261022d">
+<link rel="stylesheet" href="style.css?v=20261023a">
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
 <script>
   // ── Service Worker (rate-limit interceptor) ──────────────────────────────
@@ -426,7 +426,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
 <script src="dmak-master/dist/dmak.js"></script>
-<script src="js/main.js?v=20261022d"></script>
+<script src="js/main.js?v=20261023a"></script>
 
 
 
@@ -436,8 +436,8 @@
 
 
 
-<script src="js/utils.js?v=20261022d"></script>
-<script src="js/app.js?v=20261022d"></script>
+<script src="js/utils.js?v=20261023a"></script>
+<script src="js/app.js?v=20261023a"></script>
 <script>
 (function(){
   var _ppUser = null;
@@ -491,14 +491,29 @@
     }
     return n;
   }
-  // Hours you can still miss and stay at or above `min` (0.9 / 0.8).
-  function _hoursLeft(days, absent, min){
-    return Math.floor(days * HOURS_PER_DAY * (1 - min) + 1e-9) - absent;
+  // Hours you can still miss this term and finish at or above `min`
+  // (0.9 / 0.8): the whole term's lessons set the budget, not the days so far.
+  function _hoursLeft(totalDays, missed, min){
+    return Math.floor(totalDays * HOURS_PER_DAY * (1 - min) + 1e-9) - missed;
   }
-  // {d: whole days missed, h: single lessons missed}
+  // {d: whole days missed, h: single lessons missed, at: class days the
+  // school had counted when its percentage was typed in}
   function _absentOf(meta, termId){
     var a = meta && meta.absence && meta.absence[termId];
-    return {d: (a && +a.d) || 0, h: (a && +a.h) || 0};
+    return {d: (a && +a.d) || 0, h: (a && +a.h) || 0, at: (a && +a.at) || 0};
+  }
+  // The school's percentage is missed lessons over the lessons it has counted
+  // so far, and its records can trail today by a few days. Walk back from
+  // today to the first day count where a whole number of missed lessons gives
+  // exactly the typed percentage, to the decimals typed.
+  function _fromPct(str, daysNow){
+    var v = parseFloat(str), dec = (String(str).split('.')[1] || '').length;
+    var tol = 0.5 * Math.pow(10, -dec) + 1e-9;
+    for (var e = daysNow; e >= Math.max(1, daysNow - 5); e--) {
+      var H = e * HOURS_PER_DAY, m = Math.round(H * (1 - v / 100));
+      if (Math.abs((H - m) / H * 100 - v) <= tol) return {m: m, at: e};
+    }
+    return {m: Math.round(daysNow * HOURS_PER_DAY * (1 - v / 100)), at: daysNow};
   }
 
   var _attSave = null;
@@ -517,14 +532,17 @@
     }
     var days  = _classDays(term, today);
     var total = _classDays(term, term.end);
-    var hours = days * HOURS_PER_DAY;
     var missed = absent.d * HOURS_PER_DAY + absent.h;
-    var pct   = hours ? Math.round((hours - missed) / hours * 1000) / 10 : 100;
+    // Attendance so far, over the days the school had counted when you typed
+    // its percentage in, or over every class day up to today.
+    var basis = absent.at && absent.at <= days ? absent.at : days;
+    var hours = basis * HOURS_PER_DAY;
+    var pct   = hours ? Math.round(Math.max(0, hours - missed) / hours * 1000) / 10 : 100;
     var cell  = function(h, unit){
-      var v = unit === 'd' ? Math.floor(h / HOURS_PER_DAY) : h;
-      return '<td class="' + (h < 0 ? 'pp-att-over' : '') + '">' + v + '</td>';
+      var v = Math.max(0, unit === 'd' ? Math.floor(h / HOURS_PER_DAY) : h);
+      return '<td class="' + (h <= 0 ? 'pp-att-over' : '') + '">' + v + '</td>';
     };
-    var h90 = _hoursLeft(days, missed, 0.9), h80 = _hoursLeft(days, missed, 0.8);
+    var h90 = _hoursLeft(total, missed, 0.9), h80 = _hoursLeft(total, missed, 0.8);
     var stepper = function(k, label, unit){
       return '<div class="pp-att-row"><span class="pp-att-label">' + label + '</span>' +
         '<button data-k="' + k + '" data-d="-1">−</button><b>' + absent[k] + ' ' + unit + '</b>' +
@@ -533,11 +551,11 @@
     box.innerHTML =
       '<div class="pp-att-head">Attendance · ' + term.name + ' term <span>day ' + days + ' of ' + total + '</span></div>' +
       '<div class="pp-att-missed"><div>' + stepper('d', 'Days missed', 'd') + stepper('h', 'Hours missed', 'h') + '</div>' +
-        '<span class="pp-att-pct">' + pct + '%</span></div>' +
+        '<span class="pp-att-pct">' + pct + '%' + (basis < days ? '<small>as of day ' + basis + '</small>' : '') + '</span></div>' +
       '<div class="pp-att-row pp-att-set"><span class="pp-att-label">School says</span>' +
         '<input type="number" min="0" max="100" step="0.1" placeholder="' + pct + '" aria-label="Attendance % from your school account">' +
         '<span>%</span><button data-set>Set</button></div>' +
-      '<table class="pp-att-table"><tr><th>Can still miss</th><th>≥ 90%</th><th>≥ 80%</th></tr>' +
+      '<table class="pp-att-table"><tr><th>Can still miss this term</th><th>≥ 90%</th><th>≥ 80%</th></tr>' +
         '<tr><th>Days</th>'  + cell(h90, 'd') + cell(h80, 'd') + '</tr>' +
         '<tr><th>Hours</th>' + cell(h90, 'h') + cell(h80, 'h') + '</tr></table>';
     box.onclick = function(e){
@@ -545,7 +563,7 @@
       if (e.target.closest('button[data-set]')) return setPct();
       var b = e.target.closest('button[data-d]');
       if (!b) return;
-      var n = {d: absent.d, h: absent.h}, k = b.getAttribute('data-k');
+      var n = {d: absent.d, h: absent.h, at: absent.at}, k = b.getAttribute('data-k');
       n[k] = Math.max(0, n[k] + +b.getAttribute('data-d'));
       save(n);
     };
@@ -553,10 +571,10 @@
     // The school's percentage turns back into missed lessons over the class
     // days so far, split into whole days and the hours left over.
     function setPct(){
-      var v = parseFloat(box.querySelector('.pp-att-set input').value);
-      if (isNaN(v) || v < 0 || v > 100) return;
-      var m = Math.round(hours * (1 - v / 100));
-      save({d: Math.floor(m / HOURS_PER_DAY), h: m % HOURS_PER_DAY});
+      var str = box.querySelector('.pp-att-set input').value.trim(), v = parseFloat(str);
+      if (isNaN(v) || v < 0 || v > 100 || !days) return;
+      var r = _fromPct(str, days);
+      save({d: Math.floor(r.m / HOURS_PER_DAY), h: r.m % HOURS_PER_DAY, at: r.at});
     }
     function save(n){
       box._dirty = true;
