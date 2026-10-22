@@ -3091,7 +3091,7 @@ function restoreTabState(tab){
   }
   if(tab === 'sheets'){
     currentSheetType = tabState[tab].sheetType || 'verbs';
-    activeSheets.clear(); (tabState[tab].sheets || ['verbs']).forEach(x=>activeSheets.add(x));
+    activeSheets.clear(); activeSheets.add((tabState[tab].sheets || [])[0] || currentSheetType);
     activeSheetLvls  = new Set(tabState[tab].sheetLvls  || []);
     activeKanjiLvls  = new Set(tabState[tab].kanjiLvls  || []);
     activeKanjiModes = new Set(tabState[tab].kanjiModes || ['read','write']);
@@ -5418,7 +5418,7 @@ const grammarSections=[
 ];
 function renderSheets(){
   const el = document.getElementById('content');
-  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="toggleSheet(\'verbs\',this)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="toggleSheet(\'adj\',this)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="toggleSheet(\'nouns\',this)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="toggleSheet(\'kanji\',this)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="toggleSheet(\'expr\',this)">Expr</button><button class="sheet-tab" id="stab-other" onclick="toggleSheet(\'other\',this)">Other</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div id="copy-cols" class="copy-cols"></div><div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="sheets-tabs" style="margin:0;"><button class="sheet-tab active" id="stab-verbs" onclick="switchSheet(\'verbs\',this,true)">Verbs</button><button class="sheet-tab" id="stab-adj" onclick="switchSheet(\'adj\',this,true)">Adjectives</button><button class="sheet-tab" id="stab-nouns" onclick="switchSheet(\'nouns\',this,true)">Nouns</button><button class="sheet-tab" id="stab-kanji" onclick="switchSheet(\'kanji\',this,true)">Kanji</button><button class="sheet-tab" id="stab-expr" onclick="switchSheet(\'expr\',this,true)">Expr</button><button class="sheet-tab" id="stab-other" onclick="switchSheet(\'other\',this,true)">Other</button></div><div id="sheet-lvl-filters" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;min-height:28px;"></div></div><div id="sheet-content"></div><div style="padding:12px 0 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><button onclick="copySheet()" id="copy-btn" style="height:36px;padding:0 18px;border-radius:20px;border:none;background:var(--red);color:#fff;font-size:12px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.15);display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;letter-spacing:.04em;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button><div id="copy-cols" class="copy-cols"></div><div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--rose);border-radius:12px;border-left:3px solid var(--red);font-size:11px;color:var(--sub);font-family:Arial,sans-serif;line-height:1.6;"><img src="https://avatars.githubusercontent.com/u/616547?s=280&v=4" style="width:22px;height:22px;border-radius:4px;flex-shrink:0;" alt="Quizlet"><span><b style="color:var(--red);">Import to Quizlet</b> — Click Copy, then on Quizlet create a <b>new flashcard set</b>, click <b>Import</b>, paste as‑is and you&#39;re done!</span></div></div>';
   // Migrate legacy 'questions' type to 'expr'
   if(currentSheetType === 'questions') currentSheetType = 'expr';
   if(activeSheets.has('questions')){ activeSheets.delete('questions'); activeSheets.add('expr'); }
@@ -5489,18 +5489,7 @@ function filterSheetLvl(lvl, btn){
   renderLvlFilters(); renderSheetTable();
 }
 
-// A sheet chip toggles like a level chip: pick several, or pick none and get
-// all of them. currentSheetType stays as the first pick, for the code that
-// still asks which sheet is in front.
-function toggleSheet(type, btn){
-  if(activeSheets.has(type)) activeSheets.delete(type); else activeSheets.add(type);
-  currentSheetType = _pickedSheets()[0] || 'verbs';
-  _syncSheetChips();
-  renderLvlFilters(); renderCopyCols();
-  renderSheetTable();
-}
-// Show only this sheet — the old single-select behaviour, kept for the state
-// restored when you come back to the tab.
+// One sheet at a time; levels carry over when you switch.
 function switchSheet(type, btn, preserveState){
   activeSheets.clear(); activeSheets.add(type);
   currentSheetType = type;
