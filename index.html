@@ -6,7 +6,7 @@
 <title>くまキィ</title>
 <link rel="icon" type="image/png" href="images/favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=20261021a">
+<link rel="stylesheet" href="style.css?v=20261022d">
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
 <script>
   // ── Service Worker (rate-limit interceptor) ──────────────────────────────
@@ -426,7 +426,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
 <script src="dmak-master/dist/dmak.js"></script>
-<script src="js/main.js?v=20261021a"></script>
+<script src="js/main.js?v=20261022d"></script>
 
 
 
@@ -436,8 +436,8 @@
 
 
 
-<script src="js/utils.js?v=20261021a"></script>
-<script src="js/app.js?v=20261021a"></script>
+<script src="js/utils.js?v=20261022d"></script>
+<script src="js/app.js?v=20261022d"></script>
 <script>
 (function(){
   var _ppUser = null;
@@ -462,6 +462,118 @@
       || '';
   }
 
+  // ── Attendance allowance ──────────────────────────────────────────────────
+  // Class days come from the KAI 2026 calendar, which repeats every year:
+  // every weekday from the first to the last day of a term, minus the green
+  // (no class) weekdays. A day is 4 lessons, and attendance counts only the
+  // class days up to today, so the allowance grows as the term goes on.
+  // Absences are stored per account in user_metadata under the term id, so
+  // a new term starts again at zero.
+  var TERM_DATES = [
+    {name:'Winter', start:'01-09', end:'03-25', off:['01-12','02-11','02-23','03-20']},
+    {name:'Spring', start:'04-07', end:'06-19', off:['04-29','05-04','05-05','05-06']},
+    {name:'Summer', start:'07-01', end:'09-25', off:['08-03','08-04','08-05','08-06','08-07','08-10','08-11','08-12','08-13','08-14','09-21','09-22','09-23']},
+    {name:'Autumn', start:'10-07', end:'12-18', off:['10-12','11-03','11-23']}
+  ];
+  function _termsOf(y){
+    return TERM_DATES.map(function(t){
+      return {id: y + '-' + t.name.toLowerCase(), name: t.name, start: y + '-' + t.start, end: y + '-' + t.end,
+              off: t.off.map(function(o){ return y + '-' + o; })};
+    });
+  }
+  var HOURS_PER_DAY = 4;
+  function _ymd(d){ return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+  function _classDays(term, upTo){
+    var n = 0, last = upTo < term.end ? upTo : term.end;
+    var p = term.start.split('-'), d = new Date(+p[0], p[1]-1, +p[2]);
+    for (var k = _ymd(d); k <= last; d.setDate(d.getDate()+1), k = _ymd(d)) {
+      if (d.getDay() % 6 && term.off.indexOf(k) === -1) n++;
+    }
+    return n;
+  }
+  // Hours you can still miss and stay at or above `min` (0.9 / 0.8).
+  function _hoursLeft(days, absent, min){
+    return Math.floor(days * HOURS_PER_DAY * (1 - min) + 1e-9) - absent;
+  }
+  // {d: whole days missed, h: single lessons missed}
+  function _absentOf(meta, termId){
+    var a = meta && meta.absence && meta.absence[termId];
+    return {d: (a && +a.d) || 0, h: (a && +a.h) || 0};
+  }
+
+  var _attSave = null;
+  function renderAttendance(box, absent){
+    var today = _ymd(new Date());
+    var term = null, next = null;
+    var y = new Date().getFullYear();
+    _termsOf(y).concat(_termsOf(y + 1)).forEach(function(t){
+      if (t.start <= today && today <= t.end) term = t;
+      else if (!next && t.start > today) next = t;
+    });
+    if (!term) {
+      box.innerHTML = '<div class="pp-att-head">Attendance</div><div class="pp-att-note">' +
+        'Term break. ' + next.name + ' term starts ' + next.start.slice(5).replace('-', '/') + '.</div>';
+      return;
+    }
+    var days  = _classDays(term, today);
+    var total = _classDays(term, term.end);
+    var hours = days * HOURS_PER_DAY;
+    var missed = absent.d * HOURS_PER_DAY + absent.h;
+    var pct   = hours ? Math.round((hours - missed) / hours * 1000) / 10 : 100;
+    var cell  = function(h, unit){
+      var v = unit === 'd' ? Math.floor(h / HOURS_PER_DAY) : h;
+      return '<td class="' + (h < 0 ? 'pp-att-over' : '') + '">' + v + '</td>';
+    };
+    var h90 = _hoursLeft(days, missed, 0.9), h80 = _hoursLeft(days, missed, 0.8);
+    var stepper = function(k, label, unit){
+      return '<div class="pp-att-row"><span class="pp-att-label">' + label + '</span>' +
+        '<button data-k="' + k + '" data-d="-1">−</button><b>' + absent[k] + ' ' + unit + '</b>' +
+        '<button data-k="' + k + '" data-d="1">+</button></div>';
+    };
+    box.innerHTML =
+      '<div class="pp-att-head">Attendance · ' + term.name + ' term <span>day ' + days + ' of ' + total + '</span></div>' +
+      '<div class="pp-att-missed"><div>' + stepper('d', 'Days missed', 'd') + stepper('h', 'Hours missed', 'h') + '</div>' +
+        '<span class="pp-att-pct">' + pct + '%</span></div>' +
+      '<div class="pp-att-row pp-att-set"><span class="pp-att-label">School says</span>' +
+        '<input type="number" min="0" max="100" step="0.1" placeholder="' + pct + '" aria-label="Attendance % from your school account">' +
+        '<span>%</span><button data-set>Set</button></div>' +
+      '<table class="pp-att-table"><tr><th>Can still miss</th><th>≥ 90%</th><th>≥ 80%</th></tr>' +
+        '<tr><th>Days</th>'  + cell(h90, 'd') + cell(h80, 'd') + '</tr>' +
+        '<tr><th>Hours</th>' + cell(h90, 'h') + cell(h80, 'h') + '</tr></table>';
+    box.onclick = function(e){
+      e.stopPropagation();   // the panel closes on any outside click
+      if (e.target.closest('button[data-set]')) return setPct();
+      var b = e.target.closest('button[data-d]');
+      if (!b) return;
+      var n = {d: absent.d, h: absent.h}, k = b.getAttribute('data-k');
+      n[k] = Math.max(0, n[k] + +b.getAttribute('data-d'));
+      save(n);
+    };
+    box.querySelector('.pp-att-set input').onkeydown = function(e){ if (e.key === 'Enter') setPct(); };
+    // The school's percentage turns back into missed lessons over the class
+    // days so far, split into whole days and the hours left over.
+    function setPct(){
+      var v = parseFloat(box.querySelector('.pp-att-set input').value);
+      if (isNaN(v) || v < 0 || v > 100) return;
+      var m = Math.round(hours * (1 - v / 100));
+      save({d: Math.floor(m / HOURS_PER_DAY), h: m % HOURS_PER_DAY});
+    }
+    function save(n){
+      box._dirty = true;
+      renderAttendance(box, n);
+      // Keep only the current term: older terms fall away on the next save.
+      var data = {absence:{}}; data.absence[term.id] = n;
+      clearTimeout(_attSave);
+      _attSave = setTimeout(function(){
+        var u = window.netlifyIdentity && netlifyIdentity.currentUser();
+        if (u && typeof u.update === 'function') {
+          u.update({data:data}).catch(function(e){ console.warn('Absence save error:', e); });
+        }
+      }, 600);
+    }
+    box._term = term.id;
+  }
+
   function renderPanel(user) {
     var name   = (user.user_metadata && user.user_metadata.full_name)
                  || (user.identities && user.identities[0] && user.identities[0].identity_data && user.identities[0].identity_data.full_name)
@@ -482,10 +594,15 @@
           '<div class="pp-email-sm">' + email + '</div>' +
         '</div>' +
       '</div>' +
+      '<div class="pp-att" id="pp-att"></div>' +
       '<div class="pp-foot">' +
         '<button class="pp-action-btn" id="pp-settings-btn">' + gearSvg + 'Settings</button>' +
         '<button class="pp-logout" id="pp-logout-btn">' + signOutSvg + 'Sign out</button>' +
       '</div>';
+    var attBox = panel.querySelector('#pp-att');
+    var liveMeta = (window.netlifyIdentity && netlifyIdentity.currentUser() || user).user_metadata;
+    renderAttendance(attBox, {d:0, h:0});
+    if (attBox._term) renderAttendance(attBox, _absentOf(liveMeta, attBox._term));
     panel.querySelector('#pp-settings-btn').addEventListener('click', function(){
       // settings placeholder
     });
@@ -509,6 +626,8 @@
         var freshName = (full.user_metadata && full.user_metadata.full_name)
           || (full.identities && full.identities[0] && full.identities[0].identity_data && full.identities[0].identity_data.full_name)
           || '';
+        // Another device may have logged an absence since this one signed in.
+        if (attBox._term && !attBox._dirty) renderAttendance(attBox, _absentOf(full.user_metadata, attBox._term));
         var wrap = panel.querySelector('.pp-avatar-wrap');
         if (wrap && url) {
           wrap.innerHTML = '<img class="pp-avatar-lg" src="' + url + '" alt="">';
