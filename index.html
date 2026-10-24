@@ -7,7 +7,10 @@
 <link rel="icon" type="image/png" href="images/favicon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
 <link rel="stylesheet" href="style.css?v=20261023a">
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
+<!-- Served from this site, not identity.netlify.com: a second host is one
+     more connection a flaky network can drop, and without the widget the
+     page cannot see you are signed in. -->
+<script src="/js/netlify-identity-widget.js"></script>
 <script>
   // ── Service Worker (rate-limit interceptor) ──────────────────────────────
   if('serviceWorker' in navigator){
@@ -147,26 +150,53 @@
         .catch(function(){ cb(false); });
     }
 
-    netlifyIdentity.on('init', function(user){
-      clearTimeout(fallback);
+    // A refresh token is refused (4xx) when it was revoked or the account is
+    // gone: that really is signed out. Anything else is the network.
+    window._authRefused = function(err){ return !!err && err.status >= 400 && err.status < 500; };
 
+    // gotrue-js keeps the user in memory per tab, Netlify replaces the
+    // refresh token on every refresh, and any failed refresh makes gotrue
+    // delete the saved session for every tab. So a second tab holding the
+    // old token, or one network blip, signed you out everywhere. Refresh one
+    // tab at a time, start from the token another tab may have saved, and
+    // put the session back when the server did not refuse it.
+    function guardJwt(user){
+      var proto = Object.getPrototypeOf(user), jwt = proto.jwt;
+      proto.jwt = function(force){
+        var self = this;
+        function run(){
+          var saved = localStorage.getItem('gotrue.user');
+          if(!saved) return Promise.reject({status: 401}); // signed out in another tab
+          try { self.token = JSON.parse(saved).token || self.token; } catch(e){}
+          return jwt.call(self, force).catch(function(err){
+            if(!window._authRefused(err)) localStorage.setItem('gotrue.user', saved);
+            throw err;
+          });
+        }
+        return navigator.locks ? navigator.locks.request('gotrue.user', run) : run();
+      };
+    }
+
+    if(!window.netlifyIdentity) return; // fallback above still shows the page
+
+    netlifyIdentity.on('init', function(user){
       // No user → blocked users see blocked screen; others go to login
       if(!user){
+        clearTimeout(fallback);
         if(window._rateBlocked){ _showRateLimitScreen(window._rateBlocked); }
         else { document.location.replace('/login.html'); }
         return;
       }
+      // A signed-in user still sees the page after 3 s if the network stalls.
 
+      guardJwt(user);
       function hasBeta(roles){ return (roles || []).indexOf('beta') !== -1; }
       function storedRoles(){ return user.app_metadata && user.app_metadata.roles; }
 
-      // Force-refresh token so roles reflect latest Netlify dashboard state.
-      // A failed refresh (offline, a slow network on waking a phone, Netlify
-      // hiccup) must not end the session: logging out deletes the refresh
-      // token, so one blip meant signing in again. Fall back to the roles the
-      // widget already stored, and only sign out when they lack beta or the
-      // server refuses the refresh token.
-      user.jwt(true).then(function(token){
+      // Only refresh when the token is about to expire: every refresh is a
+      // chance for a flaky network to lose the new refresh token. Roles in
+      // the token are at most an hour old; checkSession() reads live ones.
+      user.jwt().then(function(token){
         var roles;
         try {
           // JWTs are base64url; atob only reads base64
@@ -175,9 +205,7 @@
         } catch(e) { roles = storedRoles(); }
         admit(roles, token);
       }).catch(function(err){
-        // 4xx = the refresh token itself was refused (account deleted,
-        // revoked): that really is signed out. Anything else is the network.
-        if(err && err.status >= 400 && err.status < 500) admit(null, null);
+        if(window._authRefused(err)) admit(null, null);
         else admit(storedRoles(), null);
       });
 
@@ -727,23 +755,26 @@
     updateSidebarAccount(user);
   }
 
-  // Revoke detection: refresh token every 3 min; kick out if token invalid OR role removed
+  // Revoke detection every 3 min: read live roles from /user, which does not
+  // spend the refresh token the way a forced refresh did. Kick out only when
+  // the server says the session or the beta role is gone, never on a
+  // network error.
   function checkSession() {
     var user = window.netlifyIdentity && netlifyIdentity.currentUser();
     if (user && typeof user.jwt === 'function') {
-      user.jwt(true).then(function(token) {
-        // Decode fresh JWT payload to get up-to-date roles (not stale in-memory user object)
-        try {
-          var payload = JSON.parse(atob(token.split('.')[1]));
-          var roles = (payload.app_metadata && payload.app_metadata.roles) || [];
-          if (roles.indexOf('beta') === -1) {
-            netlifyIdentity.logout();
-          }
-        } catch(e) {
-          netlifyIdentity.logout();
-        }
-      }).catch(function() {
-        netlifyIdentity.logout();
+      user.jwt().then(function(token) {
+        return fetch('/.netlify/identity/user', { headers: { Authorization: 'Bearer ' + token } });
+      }).then(function(r) {
+        // 401: token stale (a clock running behind); a refused refresh lands in catch
+        if (r.status === 401) return user.jwt(true);
+        if (r.status === 404) return netlifyIdentity.logout(); // account deleted
+        if (!r.ok) return;
+        return r.json().then(function(u) {
+          var roles = (u.app_metadata && u.app_metadata.roles) || [];
+          if (roles.indexOf('beta') === -1) netlifyIdentity.logout();
+        });
+      }).catch(function(err) {
+        if (window._authRefused && _authRefused(err)) netlifyIdentity.logout();
       });
     }
   }
@@ -761,7 +792,7 @@
   }
 
   if (window.netlifyIdentity) {
-    netlifyIdentity.on('init',  function(u){ updateLoginBtn(u); });
+    netlifyIdentity.on('init',  function(u){ updateLoginBtn(u); checkSession(); });
     netlifyIdentity.on('login', function(u){ updateLoginBtn(u); });
     netlifyIdentity.on('logout', function(){
       closePanel();

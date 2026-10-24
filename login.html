@@ -335,7 +335,10 @@
   </div>
 
 
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" data-netlify-identity-url="https://kumaki.netlify.app"></script>
+  <!-- Served from this site, not identity.netlify.com: a second host is one
+       more connection a flaky network can drop, and without the widget the
+       page cannot see you are signed in. -->
+  <script src="/js/netlify-identity-widget.js"></script>
   <script>
     // ── Floating kana ──
     (function(){
@@ -396,9 +399,11 @@
       if (hasAccess(user)) { document.location.href = '/?_home'; }
       else { netlifyIdentity.logout(); showNoAccess(); }
     });
+    // The widget reports network failures here (settings or the sign-in
+    // finishing), not refused access: that comes back as #error= above.
     netlifyIdentity.on('error', function(err) {
       console.warn('Identity error:', err);
-      showNoAccess();
+      showLogin();
     });
     // ── Direct OAuth — no widget popup ──
     function loginWithGoogle() {
