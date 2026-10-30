@@ -298,15 +298,15 @@
         <h1 class="home-title notranslate" id="home-title-text" translate="no"></h1>
       </div>
       <p class="home-tagline">the key to bear Japanese</p>
-      <p class="home-sub">Your self-contained study companion for <strong>KAI Japanese School</strong> — Module&nbsp;1. Words (vocabulary L1–L12 + kanji L1–L11), grammar lesson by lesson with the class slides, and study sheets — all in one place.</p>
+      <p class="home-sub">Your self-contained study companion for <strong>KAI Japanese School</strong> — Module&nbsp;1. Words (vocabulary L1–L12 + kanji L1–L12), grammar rule by rule (L1–L23) with the class slides, and study sheets — all in one place.</p>
       <div class="home-cards">
         <button class="home-card" onclick="setTab('words',document.querySelector('.s-btn[onclick*=\'words\']'))">
           <span class="home-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7"/><path d="M9 11h7"/></svg></span>
-          <span class="home-card-text"><b>Words</b>Vocabulary L1–L12 and kanji L1–L11 together, with stroke order</span>
+          <span class="home-card-text"><b>Words</b>Vocabulary L1–L12 and kanji L1–L12 together, with stroke order</span>
         </button>
         <button class="home-card" onclick="setTab('grammar',document.querySelector('.s-btn[onclick*=\'grammar\']'))">
           <span class="home-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span>
-          <span class="home-card-text"><b>Grammar</b>Lesson by lesson with the class slides, full conversations & practice material</span>
+          <span class="home-card-text"><b>Grammar</b>Every rule from L1 to L23 in class order, plus one card each for particles, question words and counters</span>
         </button>
         <button class="home-card" onclick="setTab('sheets',document.querySelector('.s-btn[onclick*=\'sheets\']'))">
           <span class="home-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/></svg></span>
@@ -392,27 +392,20 @@
       <span class="ff-count" id="gf-count"></span>
     </button>
     <div class="ff-panel" id="gf-panel">
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L1" id="gflt-L1" onclick="toggleGramLevel('L1',this)" title="Lesson 1">1</button></div>
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L2" id="gflt-L2" onclick="toggleGramLevel('L2',this)" title="Lesson 2">2</button></div>
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L3" id="gflt-L3" onclick="toggleGramLevel('L3',this)" title="Lesson 3">3</button></div>
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L4" id="gflt-L4" onclick="toggleGramLevel('L4',this)" title="Lesson 4">4</button></div>
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L5" id="gflt-L5" onclick="toggleGramLevel('L5',this)" title="Lesson 5">5</button></div>
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L6" id="gflt-L6" onclick="toggleGramLevel('L6',this)" title="Lesson 6">6</button></div>
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L7" id="gflt-L7" onclick="toggleGramLevel('L7',this)" title="Lesson 7">7</button></div>
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L8" id="gflt-L8" onclick="toggleGramLevel('L8',this)" title="Lesson 8">8</button></div>
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L9" id="gflt-L9" onclick="toggleGramLevel('L9',this)" title="Lesson 9">9</button></div>
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L10" id="gflt-L10" onclick="toggleGramLevel('L10',this)" title="Lesson 10">10</button></div>
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L11" id="gflt-L11" onclick="toggleGramLevel('L11',this)" title="Lesson 11">11</button></div>
-      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L12" id="gflt-L12" onclick="toggleGramLevel('L12',this)" title="Lesson 12">12</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L1" id="gflt-L1" onclick="toggleGramLevel('L1',this)" title="Lesson 1">1</button><button class="float-btn ff-sub-btn" data-lv="L2" id="gflt-L2" onclick="toggleGramLevel('L2',this)" title="Lesson 2">2</button><button class="float-btn ff-sub-btn" data-lv="L3" id="gflt-L3" onclick="toggleGramLevel('L3',this)" title="Lesson 3">3</button><button class="float-btn ff-sub-btn" data-lv="L4" id="gflt-L4" onclick="toggleGramLevel('L4',this)" title="Lesson 4">4</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L5" id="gflt-L5" onclick="toggleGramLevel('L5',this)" title="Lesson 5">5</button><button class="float-btn ff-sub-btn" data-lv="L6" id="gflt-L6" onclick="toggleGramLevel('L6',this)" title="Lesson 6">6</button><button class="float-btn ff-sub-btn" data-lv="L7" id="gflt-L7" onclick="toggleGramLevel('L7',this)" title="Lesson 7">7</button><button class="float-btn ff-sub-btn" data-lv="L8" id="gflt-L8" onclick="toggleGramLevel('L8',this)" title="Lesson 8">8</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L9" id="gflt-L9" onclick="toggleGramLevel('L9',this)" title="Lesson 9">9</button><button class="float-btn ff-sub-btn" data-lv="L10" id="gflt-L10" onclick="toggleGramLevel('L10',this)" title="Lesson 10">10</button><button class="float-btn ff-sub-btn" data-lv="L11" id="gflt-L11" onclick="toggleGramLevel('L11',this)" title="Lesson 11">11</button><button class="float-btn ff-sub-btn" data-lv="L12" id="gflt-L12" onclick="toggleGramLevel('L12',this)" title="Lesson 12">12</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L13" id="gflt-L13" onclick="toggleGramLevel('L13',this)" title="Lesson 13">13</button><button class="float-btn ff-sub-btn" data-lv="L14" id="gflt-L14" onclick="toggleGramLevel('L14',this)" title="Lesson 14">14</button><button class="float-btn ff-sub-btn" data-lv="L15" id="gflt-L15" onclick="toggleGramLevel('L15',this)" title="Lesson 15">15</button><button class="float-btn ff-sub-btn" data-lv="L16" id="gflt-L16" onclick="toggleGramLevel('L16',this)" title="Lesson 16">16</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L17" id="gflt-L17" onclick="toggleGramLevel('L17',this)" title="Lesson 17">17</button><button class="float-btn ff-sub-btn" data-lv="L18" id="gflt-L18" onclick="toggleGramLevel('L18',this)" title="Lesson 18">18</button><button class="float-btn ff-sub-btn" data-lv="L19" id="gflt-L19" onclick="toggleGramLevel('L19',this)" title="Lesson 19">19</button><button class="float-btn ff-sub-btn" data-lv="L20" id="gflt-L20" onclick="toggleGramLevel('L20',this)" title="Lesson 20">20</button></div>
+      <div class="ff-line"><button class="float-btn ff-sub-btn" data-lv="L21" id="gflt-L21" onclick="toggleGramLevel('L21',this)" title="Lesson 21">21</button><button class="float-btn ff-sub-btn" data-lv="L22" id="gflt-L22" onclick="toggleGramLevel('L22',this)" title="Lesson 22">22</button><button class="float-btn ff-sub-btn" data-lv="L23" id="gflt-L23" onclick="toggleGramLevel('L23',this)" title="Lesson 23">23</button></div>
       <div class="ff-line">
-        <button class="float-btn ff-sub-btn ff-wide" data-kind="particle" onclick="toggleGramKind('particle',this)" title="Particles and endings">Particle</button>
+        <button class="float-btn ff-sub-btn ff-wide" data-kind="subject" onclick="toggleGramKind('subject',this)" title="Whole subjects: particles, question words, counters, polite forms">まとめ</button>
         <button class="float-btn ff-sub-btn ff-wide" data-kind="form" onclick="toggleGramKind('form',this)" title="Conjugations and word forms">Form</button>
         <button class="float-btn ff-sub-btn ff-wide" data-kind="pattern" onclick="toggleGramKind('pattern',this)" title="Sentence patterns">Pattern</button>
       </div>
       <div class="ff-line">
         <button class="float-btn ff-sub-btn ff-wide" data-kind="question" onclick="toggleGramKind('question',this)" title="Asking and answering">Question</button>
         <button class="float-btn ff-sub-btn ff-wide" data-kind="expression" onclick="toggleGramKind('expression',this)" title="Set phrases">Phrases</button>
-        <button class="float-btn ff-sub-btn ff-wide" data-kind="dialogue" onclick="toggleGramKind('dialogue',this)" title="Conversations drilled whole">Dialogue</button>
       </div>
       <div class="ff-line"><button class="float-btn ff-sub-btn ff-clear" onclick="clearGramFilters()" title="Clear" aria-label="Clear filters"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>
