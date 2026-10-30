@@ -440,7 +440,11 @@
 
 <!-- Conjugation popup -->
 <div class="popup-overlay hidden" id="conj-popup" onclick="closePopup(event)">
-  <div class="popup-box" id="popup-box"></div>
+  <div class="popup-stage">
+    <button class="popup-nav popup-nav--prev" id="popup-prev" onclick="popupStep(-1)" aria-label="Previous card" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="popup-box" id="popup-box"></div>
+    <button class="popup-nav popup-nav--next" id="popup-next" onclick="popupStep(1)" aria-label="Next card" hidden><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
 </div>
 
 <!-- Counter popup -->

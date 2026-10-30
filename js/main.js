@@ -6357,7 +6357,7 @@ function openConjPopup(word,reading,def,pos,exprKey,mode,grp='',adjT=''){
   const ctrHtml=_ctrBtnHtml(counterKey);
   _dmakInstances.forEach(inst=>{if(inst){try{inst.pause();}catch(e){}}}); _dmakInstances=[]; _dmakIndex=0;
   const box=document.getElementById('popup-box');
-  const show=(function(){var _p=document.getElementById('conj-popup');_p.classList.remove('hidden');requestAnimationFrame(function(){_p.classList.add('visible');});});
+  const show=(function(){var _p=document.getElementById('conj-popup');_p.classList.remove('hidden');requestAnimationFrame(function(){_p.classList.add('visible');});_updatePopupNav();});
 
   if(pos==='Kanji'){
     const rdText=(hasKanji(word)&&reading)?reading:'';
@@ -6451,8 +6451,37 @@ function openConjPopup(word,reading,def,pos,exprKey,mode,grp='',adjT=''){
   show();
 }
 
+// Previous / next card. The card you clicked is remembered, and the arrows
+// walk the cards currently on screen in page order (filters and collapsed
+// sections already hide the rest). A popup not opened from a card, like a
+// search hit or a counter row, has no neighbours and shows no arrows.
+let _navCard = null;
+document.addEventListener('click',e=>{ const c=e.target.closest&&e.target.closest('.vocab-card'); if(c) _navCard=c; },true);
+const _navCards=()=>[...document.querySelectorAll('.vocab-card[onclick]')].filter(c=>c.offsetParent);
+function _updatePopupNav(){
+  const prev=document.getElementById('popup-prev'), next=document.getElementById('popup-next');
+  if(!prev||!next) return;
+  const cards=_navCard&&_navCard.isConnected?_navCards():[];
+  const i=cards.indexOf(_navCard);
+  prev.hidden=next.hidden=i<0;
+  if(i>=0){ prev.disabled=i===0; next.disabled=i===cards.length-1; }
+}
+function popupStep(d){
+  const cards=_navCards(), c=cards[cards.indexOf(_navCard)+d];
+  if(!c) return;
+  c.scrollIntoView({block:'center'});
+  c.click();
+}
+document.addEventListener('keydown',e=>{
+  if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight') return;
+  if(!document.getElementById('conj-popup').classList.contains('visible')) return;
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  e.preventDefault(); popupStep(e.key==='ArrowLeft'?-1:1);
+});
+
 function closePopup(e){ if(e.target.id==='conj-popup') closePopupDirect(); }
 function closePopupDirect(){
+  _navCard=null; _updatePopupNav();
   if(_dmakAutoTimer){clearTimeout(_dmakAutoTimer);_dmakAutoTimer=null;}
   if(_dmakReplayTimer){clearTimeout(_dmakReplayTimer);_dmakReplayTimer=null;}
   _dmakPlaying=false;
