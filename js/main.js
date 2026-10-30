@@ -1906,6 +1906,47 @@ kanjiData['S1'] = {
     {kanji:'意味',reading:'いみ',meaning:'meaning',mode:'read',part:1},
     {kanji:'趣味',reading:'しゅみ',meaning:'hobby',mode:'read',part:1},
   ],
+  'KL12': [
+    {kanji:'音',reading:'おと',meaning:'sound',mode:'write',part:1},
+    {kanji:'音楽',reading:'おんがく',meaning:'music',mode:'write',part:1},
+    {kanji:'楽しい',reading:'たのしい',meaning:'fun, enjoyable',mode:'write',part:1},
+    {kanji:'楽しみ',reading:'たのしみ',meaning:'something to look forward to',mode:'write',part:1},
+    {kanji:'楽な',reading:'らくな',meaning:'easy, comfortable',mode:'write',part:1},
+    {kanji:'歌',reading:'うた',meaning:'song',mode:'write',part:1},
+    {kanji:'歌う',reading:'うたう',meaning:'to sing',mode:'write',part:1},
+    {kanji:'歌手',reading:'かしゅ',meaning:'singer',mode:'write',part:1},
+    {kanji:'自分',reading:'じぶん',meaning:'oneself',mode:'write',part:1},
+    {kanji:'自由',reading:'じゆう',meaning:'freedom',mode:'read',part:1},
+    {kanji:'転ぶ',reading:'ころぶ',meaning:'to fall down, trip',mode:'write',part:1},
+    {kanji:'自転車',reading:'じてんしゃ',meaning:'bicycle',mode:'write',part:1},
+    {kanji:'回転ずし',reading:'かいてんずし',meaning:'conveyor-belt sushi',mode:'read',part:1},
+    {kanji:'乗る',reading:'のる',meaning:'to ride, get on',mode:'write',part:1},
+    {kanji:'乗り換える',reading:'のりかえる',meaning:'to change trains, transfer',mode:'read',part:1},
+    {kanji:'乗客',reading:'じょうきゃく',meaning:'passenger',mode:'read',part:1},
+    {kanji:'写す',reading:'うつす',meaning:'to copy (down)',mode:'write',part:1},
+    {kanji:'写真',reading:'しゃしん',meaning:'photograph',mode:'write',part:1},
+    {kanji:'真ん中',reading:'まんなか',meaning:'the very middle',mode:'write',part:1},
+    {kanji:'真夜中',reading:'まよなか',meaning:'the middle of the night',mode:'write',part:1},
+    {kanji:'二台',reading:'にだい',meaning:'two (cars, machines)',mode:'write',part:1},
+    {kanji:'台風',reading:'たいふう',meaning:'typhoon',mode:'read',part:1},
+    {kanji:'中央',reading:'ちゅうおう',meaning:'center',mode:'write',part:1},
+    {kanji:'中央線',reading:'ちゅうおうせん',meaning:'Chuo Line',mode:'read',part:1},
+    {kanji:'映画',reading:'えいが',meaning:'movie',mode:'write',part:1},
+    {kanji:'計画',reading:'けいかく',meaning:'plan',mode:'read',part:1},
+    {kanji:'羊',reading:'ひつじ',meaning:'sheep',mode:'write',part:1},
+    {kanji:'洋服',reading:'ようふく',meaning:'(Western) clothes',mode:'write',part:1},
+    {kanji:'西洋',reading:'せいよう',meaning:'the West',mode:'write',part:1},
+    {kanji:'東洋',reading:'とうよう',meaning:'the East, the Orient',mode:'write',part:1},
+    {kanji:'洋食',reading:'ようしょく',meaning:'Western food',mode:'write',part:1},
+    {kanji:'洋書',reading:'ようしょ',meaning:'Western book',mode:'write',part:1},
+    {kanji:'服',reading:'ふく',meaning:'clothes',mode:'write',part:1},
+    {kanji:'和服',reading:'わふく',meaning:'Japanese clothes, kimono',mode:'read',part:1},
+    {kanji:'着る',reading:'きる',meaning:'to wear (above the waist)',mode:'write',part:1},
+    {kanji:'上着',reading:'うわぎ',meaning:'jacket, outerwear',mode:'write',part:1},
+    {kanji:'下着',reading:'したぎ',meaning:'underwear',mode:'write',part:1},
+    {kanji:'着く',reading:'つく',meaning:'to arrive',mode:'write',part:1},
+    {kanji:'到着',reading:'とうちゃく',meaning:'arrival',mode:'read',part:1},
+  ],
   'SIGN': [
     {kanji:'押',reading:'おす',meaning:'push (door sign · PUSH)',mode:'read',part:1},
     {kanji:'引',reading:'ひく',meaning:'pull (door sign · PULL)',mode:'read',part:1},
@@ -4096,7 +4137,7 @@ function _sortKanjiLevel(arr){
 // ── Words tab (vocabulary + kanji merged) ────────────────────────────────────
 const WORD_LEVELS = ['L1','L2','L3','L4','L5','L6','L7','L8','L9','L10','L11','L12','EXPR'];
 
-// Every kanji character that appears anywhere in the class kanji list (L1–L11 + signs).
+// Every kanji character that appears anywhere in the class kanji list (L1–L12 + signs).
 // A vocabulary word is written in kanji only when all of its kanji are in this set;
 // anything else is shown in kana, exactly as the course expects you to read it.
 const TAUGHT_KANJI = (function(){
@@ -4133,7 +4174,7 @@ const KANJI_INDEX = (function(){
   }
   return m;
 })();
-const KANJI_LEVELS = ['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8','KL9','KL10','KL11','SIGN'];
+const KANJI_LEVELS = ['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8','KL9','KL10','KL11','KL12','SIGN'];
 // Kanji-list entries that are NOT also vocabulary, grouped by kanji level.
 // A term is one card. 大好きな is on the KL6 list twice (once per part) and
 // 名前 is on both KL3 and KL8; each gets a single card, filed at the level you
@@ -4187,7 +4228,7 @@ function _klShown(entries){
   if(activeKanjiLevels.size){
     const sel = entries.filter(e=>activeKanjiLevels.has(e.kl));
     if(sel.length){
-      // KL1–KL11 are a progression: 新聞 really is reading-only at KL5 and a
+      // KL1–KL12 are a progression: 新聞 really is reading-only at KL5 and a
       // writing word at KL6, so the requirement comes from the highest level
       // you picked. サイン is not a stage in that progression — it is a
       // separate deck that reuses kanji you already write — so it must never
@@ -4573,7 +4614,7 @@ function renderWords(){
       cards: words.map(w=>wordCardHTML(w, lvl)).join(''),
     });
   }
-  // Kanji with no vocabulary entry, KL1–KL11 then サイン.
+  // Kanji with no vocabulary entry, KL1–KL12 then サイン.
   const koCards = [];
   let koCount = 0;
   for(const kl of KANJI_LEVELS){
@@ -5433,7 +5474,7 @@ const SHEET_ORDER = ['verbs','adj','nouns','kanji','expr','other'];
 const SHEET_LABEL = {verbs:'Verbs', adj:'Adjectives', nouns:'Nouns', kanji:'Kanji', expr:'Expr', other:'Other'};
 const _pickedSheets = () => activeSheets.size ? SHEET_ORDER.filter(t=>activeSheets.has(t)) : SHEET_ORDER.slice();
 let activeSheetLvls = new Set();   // lesson numbers, shared by the word sheets
-let activeKanjiLvls = new Set();   // KL1–KL11 / SIGN, the kanji sheet only
+let activeKanjiLvls = new Set();   // KL1–KL12 / SIGN, the kanji sheet only
 let activeKanjiModes = new Set(['read','write']);
 
 // The level chips answer to whichever sheets are picked: lesson numbers for
@@ -5463,7 +5504,7 @@ return '<button onclick="filterSheetLvl(\''+lvl+'\',this)" title="'+(lvl==='EXPR
 // Beside the lesson numbers a bare 1–8 would read as a lesson, so the kanji
 // levels keep their KL when they are not alone.
 function _kanjiLvlChips(prefix){
-    const kls=['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8','KL9','KL10','KL11','SIGN'];
+    const kls=['KL1','KL2','KL3','KL4','KL5','KL6','KL7','KL8','KL9','KL10','KL11','KL12','SIGN'];
     const pill=(active,label,click)=>'<button onclick="'+click+'" style="height:28px;padding:0 '+(label.length>2?'10':'0')+'px;'+(label.length<=2?'width:28px;':'')+'border-radius:'+(label.length<=2?'50%':'14px')+';border:1.5px solid '+(active?'var(--red)':'var(--dot)')+';background:'+(active?'var(--red)':'var(--white)')+';color:'+(active?'var(--white)':'var(--mid)')+';font-size:'+(label.length<=2?'9':'10')+'px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;'+( label.length<=2?'padding:0;':'')+'">' +label+'</button>';
     const klBtns=kls.map(kl=>pill(activeKanjiLvls.has(kl), kl==='SIGN'?'Sign':(prefix?kl:kl.replace('KL','')), "filterSheetKl('"+kl+"',this)")).join('');
     const sep='<span style="width:6px;display:inline-block;"></span>';
